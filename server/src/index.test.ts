@@ -4,7 +4,9 @@ import { app, server } from './index';
 
 describe('Express Server Basic Setup', () => {
   afterAll(() => {
-    server.close();
+    if (server) {
+      server.close();
+    }
   });
 
   it('should respond to health check endpoint', async () => {

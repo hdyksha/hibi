@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import todoRoutes from './routes/todos';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -13,22 +14,29 @@ app.use(cors({
 // JSON解析ミドルウェア
 app.use(express.json());
 
+// API routes
+app.use('/api/todos', todoRoutes);
+
 // 基本的なヘルスチェックエンドポイント
 app.get('/health', (_req, res) => {
   res.json({ status: 'OK', message: 'Todo App Server is running' });
 });
 
-// サーバー起動
-const server = app.listen(PORT, () => {
-  console.log(`Todo App Server is running on port ${PORT}`);
-});
+// サーバー起動 (テスト環境では起動しない)
+let server: any = null;
 
-// Graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('SIGTERM received, shutting down gracefully');
-  server.close(() => {
-    console.log('Process terminated');
+if (process.env.NODE_ENV !== 'test') {
+  server = app.listen(PORT, () => {
+    console.log(`Todo App Server is running on port ${PORT}`);
   });
-});
+
+  // Graceful shutdown
+  process.on('SIGTERM', () => {
+    console.log('SIGTERM received, shutting down gracefully');
+    server.close(() => {
+      console.log('Process terminated');
+    });
+  });
+}
 
 export { app, server };
