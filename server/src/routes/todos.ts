@@ -131,4 +131,42 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 });
 
+/**
+ * DELETE /api/todos/:id - Delete a todo item permanently
+ * Requirements: 4.1, 4.2, 4.3
+ */
+router.delete('/:id', async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+
+        // Validate ID parameter
+        if (!id || typeof id !== 'string' || id.trim().length === 0) {
+            return res.status(400).json({
+                error: 'Invalid request',
+                message: 'Todo ID is required'
+            });
+        }
+
+        // Remove todo from storage
+        const deleteSuccess = await defaultStorageService.removeTodo(id);
+        
+        if (!deleteSuccess) {
+            return res.status(404).json({
+                error: 'Not found',
+                message: 'Todo item not found'
+            });
+        }
+
+        // 要件 4.1, 4.2: todoアイテムをリストから削除し、ストレージから永続的に削除
+        // 要件 4.3: 削除時に表示を即座に更新（クライアント側で処理）
+        return res.status(204).send(); // No content response for successful deletion
+    } catch (error) {
+        console.error('Error deleting todo:', error);
+        return res.status(500).json({
+            error: 'Internal server error',
+            message: 'Failed to delete todo item'
+        });
+    }
+});
+
 export default router;
