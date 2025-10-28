@@ -1,0 +1,153 @@
+/**
+ * API Client for Todo App
+ * Provides HTTP client functionality with error handling
+ * Requirements: 全般
+ */
+
+import { TodoItem, CreateTodoItemInput, UpdateTodoItemInput, ApiError } from '../types';
+
+export class ApiClientError extends Error {
+  constructor(
+    message: string,
+    public status?: number,
+    public apiError?: ApiError
+  ) {
+    super(message);
+    this.name = 'ApiClientError';
+  }
+}
+
+export class TodoApiClient {
+  private baseUrl: string;
+
+  constructor(baseUrl: string = 'http://localhost:3000/api') {
+    this.baseUrl = baseUrl;
+  }
+
+  /**
+   * Generic HTTP request method with error handling
+   */
+  private async request<T>(
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<T> {
+    const url = `${this.baseUrl}${endpoint}`;
+    
+    const defaultOptions: RequestInit = {
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+    };
+
+    const requestOptions = { ...defaultOptions, ...options };
+
+    try {
+      const response = await fetch(url, requestOptions);
+      
+      if (!response) {
+        throw new ApiClientError('Network error: No response received');
+      }
+      
+      // Handle different response statuses
+      if (response.status === 204) {
+        // No content response (successful deletion)
+        return undefined as T;
+      }
+
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        // API returned an error response
+        const apiError: ApiError = responseData;
+        throw new ApiClientError(
+          apiError.message || 'API request failed',
+          response.status,
+          apiError
+        );
+      }
+
+      return responseData as T;
+    } catch (error) {
+      if (error instanceof ApiClientError) {
+        throw error;
+      }
+
+      // Network or other errors
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        throw new ApiClientError('Network error: Unable to connect to server');
+      }
+
+      throw new ApiClientError(
+        error instanceof Error ? error.message : 'Unknown error occurred'
+      );
+    }
+  }
+
+  /**
+   * Get all todo items
+   * GET /api/todos
+   * Requirements: 2.1, 2.2
+   */
+  async getTodos(): Promise<TodoItem[]> {
+    return this.request<TodoItem[]>('/todos');
+  }
+
+  /**
+   * Create a new todo item
+   * POST /api/todos
+   * Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6
+   */
+  async createTodo(input: CreateTodoItemInput): Promise<TodoItem> {
+    return this.request<TodoItem>('/todos', {
+      method: 'POST',
+      body: JSON.stringify(input),
+    });
+  }
+
+  /**
+   * Update a todo item (toggle completion status)
+   * PUT /api/todos/:id
+   * Requirements: 3.1, 3.2, 3.3
+   */
+  async updateTodo(id: string, input: UpdateTodoItemInput): Promise<TodoItem> {
+    return this.request<TodoItem>(`/todos/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(input),
+    });
+  }
+
+  /**
+   * Toggle completion status of a todo item
+   * PUT /api/todos/:id
+   * Requirements: 3.1, 3.2, 3.3
+   */
+  async toggleTodoCompletion(id: string): Promise<TodoItem> {
+    // First get the current todo to know its current completion status
+    const todos = await this.getTodos();
+    const currentTodo = todos.find(todo => todo.id === id);
+    
+    if (!currentTodo) {
+      throw new ApiClientError('Todo item not found', 404);
+    }
+
+    return this.request<TodoItem>(`/todos/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ completed: !currentTodo.completed }),
+    });
+  }
+
+  /**
+   * Delete a todo item
+   * DELETE /api/todos/:id
+   * Requirements: 4.1, 4.2, 4.3
+   */
+  async deleteTodo(id: string): Promise<void> {
+    return this.request<void>(`/todos/${id}`, {
+      method: 'DELETE',
+    });
+  }
+}
+
+// Default instance for easy importing
+export const todoApiClient = new TodoApiClient();
