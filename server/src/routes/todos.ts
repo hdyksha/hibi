@@ -11,6 +11,26 @@ import { generateTodoId } from '../utils';
 const router = Router();
 
 /**
+ * GET /api/todos - Get all todo items
+ * Requirements: 2.1, 2.2
+ */
+router.get('/', async (_req: Request, res: Response) => {
+    try {
+        // Retrieve all todos from storage
+        const todos = await defaultStorageService.readTodos();
+
+        // Return all todo items
+        return res.status(200).json(todos);
+    } catch (error) {
+        console.error('Error retrieving todos:', error);
+        return res.status(500).json({
+            error: 'Internal server error',
+            message: 'Failed to retrieve todo items'
+        });
+    }
+});
+
+/**
  * POST /api/todos - Create a new todo item
  * Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6
  */
@@ -40,10 +60,10 @@ router.post('/', async (req: Request, res: Response) => {
         await defaultStorageService.addTodo(newTodo);
 
         // Return created todo
-        res.status(201).json(newTodo);
+        return res.status(201).json(newTodo);
     } catch (error) {
         console.error('Error creating todo:', error);
-        res.status(500).json({
+        return res.status(500).json({
             error: 'Internal server error',
             message: 'Failed to create todo item'
         });
