@@ -243,7 +243,8 @@ describe('TodoItem Validation Functions', () => {
         id: 'valid-id-123',
         title: 'Valid todo title',
         completed: false,
-        createdAt: '2023-12-01T10:30:00.000Z'
+        createdAt: '2023-12-01T10:30:00.000Z',
+        updatedAt: '2023-12-01T10:30:00.000Z'
       };
       const result = validateTodoItem(todoItem);
       expect(result.isValid).toBe(true);
@@ -255,17 +256,19 @@ describe('TodoItem Validation Functions', () => {
         id: '',
         title: '',
         completed: 'false' as any,
-        createdAt: 'invalid-date'
+        createdAt: 'invalid-date',
+        updatedAt: 'invalid-date'
       };
       const result = validateTodoItem(todoItem);
       expect(result.isValid).toBe(false);
-      expect(result.errors).toHaveLength(4);
+      expect(result.errors).toHaveLength(5);
       
       const fieldNames = result.errors.map(error => error.field);
       expect(fieldNames).toContain('id');
       expect(fieldNames).toContain('title');
       expect(fieldNames).toContain('completed');
       expect(fieldNames).toContain('createdAt');
+      expect(fieldNames).toContain('updatedAt');
     });
 
     it('should pass validation for completed TodoItem', () => {
@@ -273,7 +276,8 @@ describe('TodoItem Validation Functions', () => {
         id: 'completed-todo-456',
         title: 'Completed todo',
         completed: true,
-        createdAt: '2023-12-01T10:30:00.000Z'
+        createdAt: '2023-12-01T10:30:00.000Z',
+        updatedAt: '2023-12-01T10:30:00.000Z'
       };
       const result = validateTodoItem(todoItem);
       expect(result.isValid).toBe(true);

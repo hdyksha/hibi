@@ -8,6 +8,7 @@ export interface TodoItem {
     title: string;        // タイトル (必須) (要件 1.3)
     completed: boolean;   // 完了状態 (デフォルト: false) (要件 1.4)
     createdAt: string;    // 作成日時 (ISO 8601形式) (要件 1.6)
+    updatedAt: string;    // 更新日時 (ISO 8601形式) (要件 3.5)
 }
 
 /**
@@ -145,6 +146,34 @@ export function validateCreatedAt(createdAt: string): ValidationResult {
 }
 
 /**
+ * 更新日時のバリデーション
+ * 要件 3.5: 更新日時を自動更新
+ */
+export function validateUpdatedAt(updatedAt: string): ValidationResult {
+    const errors: ValidationError[] = [];
+
+    if (!updatedAt || typeof updatedAt !== 'string') {
+        errors.push({
+            field: 'updatedAt',
+            message: 'UpdatedAt is required and must be a string'
+        });
+    } else {
+        const date = new Date(updatedAt);
+        if (isNaN(date.getTime())) {
+            errors.push({
+                field: 'updatedAt',
+                message: 'UpdatedAt must be a valid ISO 8601 date string'
+            });
+        }
+    }
+
+    return {
+        isValid: errors.length === 0,
+        errors
+    };
+}
+
+/**
  * TodoItem作成入力データのバリデーション
  */
 export function validateCreateTodoItemInput(input: CreateTodoItemInput): ValidationResult {
@@ -188,11 +217,13 @@ export function validateTodoItem(todoItem: TodoItem): ValidationResult {
     const titleValidation = validateTitle(todoItem.title);
     const completedValidation = validateCompleted(todoItem.completed);
     const createdAtValidation = validateCreatedAt(todoItem.createdAt);
+    const updatedAtValidation = validateUpdatedAt(todoItem.updatedAt);
 
     errors.push(...idValidation.errors);
     errors.push(...titleValidation.errors);
     errors.push(...completedValidation.errors);
     errors.push(...createdAtValidation.errors);
+    errors.push(...updatedAtValidation.errors);
 
     return {
         isValid: errors.length === 0,

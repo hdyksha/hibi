@@ -291,3 +291,201 @@ describe('POST /api/todos', () => {
         });
     });
 });
+
+describe('PUT /api/todos/:id', () => {
+    const testDataPath = join(process.cwd(), 'data', 'tasks.json');
+
+    beforeEach(async () => {
+        // Clean up test data before each test
+        try {
+            await fs.unlink(testDataPath);
+        } catch {
+            // File doesn't exist, which is fine
+        }
+    });
+
+    afterAll(async () => {
+        // Clean up test data after all tests
+        try {
+            await fs.unlink(testDataPath);
+        } catch {
+            // File doesn't exist, which is fine
+        }
+        if (server) {
+            server.close();
+        }
+    });
+
+    describe('正常系テスト', () => {
+        it('should toggle completion status from false to true', async () => {
+            // First create a todo
+            const createResponse = await request(app)
+                .post('/api/todos')
+                .send({ title: 'Test Todo' })
+                .expect(201);
+
+            const createdTodo: TodoItem = createResponse.body;
+            expect(createdTodo.completed).toBe(false);
+
+            // Toggle completion status
+            const updateResponse = await request(app)
+                .put(`/api/todos/${createdTodo.id}`)
+                .expect(200);
+
+            const updatedTodo: TodoItem = updateResponse.body;
+
+            // 要件 3.1: completedフィールドの切り替え
+            expect(updatedTodo.completed).toBe(true);
+            expect(updatedTodo.id).toBe(createdTodo.id);
+            expect(updatedTodo.title).toBe(createdTodo.title);
+            expect(updatedTodo.createdAt).toBe(createdTodo.createdAt);
+
+            // 要件 3.2: 更新日時の自動設定
+            expect(updatedTodo.updatedAt).toBeDefined();
+            expect(updatedTodo.updatedAt).not.toBe(createdTodo.updatedAt);
+
+            // Validate ISO 8601 format
+            const updatedDate = new Date(updatedTodo.updatedAt);
+            expect(updatedDate.toISOString()).toBe(updatedTodo.updatedAt);
+        });
+
+        it('should toggle completion status from true to false', async () => {
+            // Create a todo and toggle it to completed first
+            const createResponse = await request(app)
+                .post('/api/todos')
+                .send({ title: 'Test Todo' })
+                .expect(201);
+
+            const createdTodo: TodoItem = createResponse.body;
+
+            // Toggle to completed
+            const firstToggleResponse = await request(app)
+                .put(`/api/todos/${createdTodo.id}`)
+                .expect(200);
+
+            const completedTodo: TodoItem = firstToggleResponse.body;
+            expect(completedTodo.completed).toBe(true);
+
+            // Toggle back to incomplete
+            const secondToggleResponse = await request(app)
+                .put(`/api/todos/${createdTodo.id}`)
+                .expect(200);
+
+            const incompleteTodo: TodoItem = secondToggleResponse.body;
+
+            // 要件 3.1: completedフィールドの切り替え
+            expect(incompleteTodo.completed).toBe(false);
+            expect(incompleteTodo.id).toBe(createdTodo.id);
+            expect(incompleteTodo.title).toBe(createdTodo.title);
+            expect(incompleteTodo.createdAt).toBe(createdTodo.createdAt);
+
+            // 要件 3.2: 更新日時の自動設定
+            expect(incompleteTodo.updatedAt).toBeDefined();
+            expect(incompleteTodo.updatedAt).not.toBe(completedTodo.updatedAt);
+        });
+
+        it('should persist completion status change to storage', async () => {
+            // Create a todo
+            const createResponse = await request(app)
+                .post('/api/todos')
+                .send({ title: 'Persistent Todo' })
+                .expect(201);
+
+            const createdTodo: TodoItem = createResponse.body;
+
+            // Toggle completion status
+            await request(app)
+                .put(`/api/todos/${createdTodo.id}`)
+                .expect(200);
+
+            // 要件 3.3: ステータス変更を永続化
+            // Check if the change was persisted to storage
+            const fileContent = await fs.readFile(testDataPath, 'utf-8');
+            const todos: TodoItem[] = JSON.parse(fileContent);
+
+            expect(todos).toHaveLength(1);
+            expect(todos[0].id).toBe(createdTodo.id);
+            expect(todos[0].completed).toBe(true);
+            expect(todos[0].updatedAt).toBeDefined();
+        });
+
+        it('should update timestamp on each toggle', async () => {
+            // Create a todo
+            const createResponse = await request(app)
+                .post('/api/todos')
+                .send({ title: 'Test Todo' })
+                .expect(201);
+
+            const createdTodo: TodoItem = createResponse.body;
+
+            // First toggle
+            const firstToggleResponse = await request(app)
+                .put(`/api/todos/${createdTodo.id}`)
+                .expect(200);
+
+            const firstUpdate: TodoItem = firstToggleResponse.body;
+
+            // Wait a bit to ensure different timestamp
+            await new Promise(resolve => setTimeout(resolve, 10));
+
+            // Second toggle
+            const secondToggleResponse = await request(app)
+                .put(`/api/todos/${createdTodo.id}`)
+                .expect(200);
+
+            const secondUpdate: TodoItem = secondToggleResponse.body;
+
+            // 要件 3.2: 更新日時の自動設定
+            expect(firstUpdate.updatedAt).not.toBe(createdTodo.updatedAt);
+            expect(secondUpdate.updatedAt).not.toBe(firstUpdate.updatedAt);
+            expect(new Date(secondUpdate.updatedAt).getTime()).toBeGreaterThan(new Date(firstUpdate.updatedAt).getTime());
+        });
+    });
+
+    describe('異常系テスト', () => {
+        it('should return 400 when ID is missing', async () => {
+            const response = await request(app)
+                .put('/api/todos/')
+                .expect(404); // Express will return 404 for missing route parameter
+        });
+
+        it('should return 400 when ID is empty string', async () => {
+            const response = await request(app)
+                .put('/api/todos/%20') // URL encoded space
+                .expect(400);
+
+            expect(response.body.error).toBe('Invalid request');
+            expect(response.body.message).toBe('Todo ID is required');
+        });
+
+        it('should return 404 when todo with given ID does not exist', async () => {
+            const response = await request(app)
+                .put('/api/todos/nonexistent-id')
+                .expect(404);
+
+            expect(response.body.error).toBe('Not found');
+            expect(response.body.message).toBe('Todo item not found');
+        });
+
+        it('should return 404 when trying to update todo that was deleted', async () => {
+            // Create a todo first
+            const createResponse = await request(app)
+                .post('/api/todos')
+                .send({ title: 'Test Todo' })
+                .expect(201);
+
+            const createdTodo: TodoItem = createResponse.body;
+
+            // Manually remove it from storage to simulate deletion
+            await fs.writeFile(testDataPath, JSON.stringify([]), 'utf-8');
+
+            // Try to update the deleted todo
+            const response = await request(app)
+                .put(`/api/todos/${createdTodo.id}`)
+                .expect(404);
+
+            expect(response.body.error).toBe('Not found');
+            expect(response.body.message).toBe('Todo item not found');
+        });
+    });
+});
