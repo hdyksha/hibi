@@ -15,7 +15,7 @@ import {
   validateCreateTodoItemInput,
   validateUpdateTodoItemInput,
   validateTodoItem
-} from './TodoItem';
+} from '../TodoItem';
 
 describe('TodoItem Validation Functions', () => {
   describe('validateTitle', () => {

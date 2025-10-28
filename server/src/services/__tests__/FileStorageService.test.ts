@@ -6,8 +6,8 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { promises as fs } from 'fs';
 import { join } from 'path';
-import { FileStorageService, StorageError } from './FileStorageService';
-import { TodoItem } from '../models';
+import { FileStorageService, StorageError } from '../FileStorageService';
+import { TodoItem } from '../../models';
 
 describe('FileStorageService', () => {
   const testDataDir = join(process.cwd(), 'test-data');
@@ -19,14 +19,16 @@ describe('FileStorageService', () => {
     id: 'test-id-1',
     title: 'Test Todo 1',
     completed: false,
-    createdAt: '2023-12-01T10:30:00.000Z'
+    createdAt: '2023-12-01T10:30:00.000Z',
+    updatedAt: '2023-12-01T10:30:00.000Z'
   };
 
   const sampleTodo2: TodoItem = {
     id: 'test-id-2',
     title: 'Test Todo 2',
     completed: true,
-    createdAt: '2023-12-01T11:30:00.000Z'
+    createdAt: '2023-12-01T11:30:00.000Z',
+    updatedAt: '2023-12-01T11:30:00.000Z'
   };
 
   beforeEach(() => {

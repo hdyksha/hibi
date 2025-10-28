@@ -7,8 +7,8 @@ import { describe, it, expect, beforeEach, afterAll } from 'vitest';
 import request from 'supertest';
 import { promises as fs } from 'fs';
 import { join } from 'path';
-import { app, server } from '../index';
-import { TodoItem } from '../models';
+import { app, server } from '../../index';
+import { TodoItem } from '../../models';
 
 describe('GET /api/todos', () => {
     const testDataPath = join(process.cwd(), 'data', 'tasks.json');
