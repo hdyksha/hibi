@@ -23,9 +23,10 @@ describe('Express Server Basic Setup', () => {
   it('should have CORS middleware configured', async () => {
     const response = await request(app)
       .get('/health')
+      .set('Origin', 'http://localhost:3000')
       .expect(200);
 
-    expect(response.headers['access-control-allow-origin']).toBeDefined();
+    expect(response.headers['access-control-allow-origin']).toBe('http://localhost:3000');
   });
 
   it('should parse JSON requests', async () => {

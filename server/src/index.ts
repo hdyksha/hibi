@@ -7,7 +7,11 @@ const PORT = process.env.PORT || 3001;
 
 // CORS設定
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  origin: [
+    'http://localhost:3000',  // Vite dev server (current)
+    'http://localhost:5173',  // Vite dev server (default)
+    'http://127.0.0.1:3000'   // Alternative localhost access
+  ],
   credentials: true
 }));
 

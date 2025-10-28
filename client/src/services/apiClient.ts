@@ -20,7 +20,7 @@ export class ApiClientError extends Error {
 export class TodoApiClient {
   private baseUrl: string;
 
-  constructor(baseUrl: string = 'http://localhost:3000/api') {
+  constructor(baseUrl: string = 'http://localhost:3001/api') {
     this.baseUrl = baseUrl;
   }
 
