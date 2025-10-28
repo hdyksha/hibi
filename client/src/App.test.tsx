@@ -1,5 +1,11 @@
 import { render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
 import App from './App';
+
+// Mock the TodoList component to avoid API calls in App tests
+vi.mock('./components', () => ({
+  TodoList: () => <div data-testid="todo-list">TodoList Component</div>
+}));
 
 describe('App', () => {
   it('renders the todo app title', () => {
@@ -8,9 +14,9 @@ describe('App', () => {
     expect(titleElement).toBeInTheDocument();
   });
 
-  it('renders the setup confirmation message', () => {
+  it('renders the TodoList component', () => {
     render(<App />);
-    const messageElement = screen.getByText(/React \+ TypeScript \+ Vite アプリケーションが正常に動作しています/);
-    expect(messageElement).toBeInTheDocument();
+    const todoListElement = screen.getByTestId('todo-list');
+    expect(todoListElement).toBeInTheDocument();
   });
 });
