@@ -96,7 +96,12 @@
     - _要件: 4.1, 4.2, 4.3_
 
 - [ ] 4. シンプルなフロントエンドの実装
-  - [ ] 4.1 React + TypeScript + Viteプロジェクトの初期化
+  - [x] 4.1 React + TypeScript + Viteプロジェクトの初期化
+
+
+
+
+
     - Reactアプリケーションの最小構成
     - TypeScript設定
     - テスト環境の設定（React Testing Library）

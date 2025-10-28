@@ -1,2 +1,10 @@
-// Basic client entry point - will be implemented in later tasks
-console.log('Todo App Client - Ready for implementation');
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App.tsx';
+import './index.css';
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+);
