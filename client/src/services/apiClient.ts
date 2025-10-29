@@ -20,7 +20,7 @@ export class ApiClientError extends Error {
 export class TodoApiClient {
   private baseUrl: string;
 
-  constructor(baseUrl: string = 'http://localhost:3001/api') {
+  constructor(baseUrl: string = '/api') {
     this.baseUrl = baseUrl;
   }
 
@@ -32,7 +32,7 @@ export class TodoApiClient {
     options: RequestInit = {}
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
-    
+
     const defaultOptions: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
@@ -44,11 +44,11 @@ export class TodoApiClient {
 
     try {
       const response = await fetch(url, requestOptions);
-      
+
       if (!response) {
         throw new ApiClientError('Network error: No response received');
       }
-      
+
       // Handle different response statuses
       if (response.status === 204) {
         // No content response (successful deletion)
@@ -123,18 +123,33 @@ export class TodoApiClient {
    * Requirements: 3.1, 3.2, 3.3
    */
   async toggleTodoCompletion(id: string): Promise<TodoItem> {
-    // First get the current todo to know its current completion status
-    const todos = await this.getTodos();
-    const currentTodo = todos.find(todo => todo.id === id);
-    
-    if (!currentTodo) {
-      throw new ApiClientError('Todo item not found', 404);
-    }
+    try {
+      // First get the current todo to know its current completion status
+      const todos = await this.getTodos();
+      
+      // Ensure todos is an array
+      if (!Array.isArray(todos)) {
+        throw new ApiClientError('Invalid response format from server');
+      }
+      
+      const currentTodo = todos.find(todo => todo.id === id);
 
-    return this.request<TodoItem>(`/todos/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify({ completed: !currentTodo.completed }),
-    });
+      if (!currentTodo) {
+        throw new ApiClientError('Todo item not found', 404);
+      }
+
+      return this.request<TodoItem>(`/todos/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ completed: !currentTodo.completed }),
+      });
+    } catch (error) {
+      if (error instanceof ApiClientError) {
+        throw error;
+      }
+      throw new ApiClientError(
+        error instanceof Error ? error.message : 'Failed to toggle todo completion'
+      );
+    }
   }
 
   /**
