@@ -7,7 +7,6 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import '@testing-library/jest-dom';
 import { TodoList } from '../';
-import { TodoProvider } from '../../contexts';
 import { TodoItem } from '../../types';
 
 // Mock the TodoContext

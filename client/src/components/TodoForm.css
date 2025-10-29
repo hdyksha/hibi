@@ -36,8 +36,8 @@
 
 .todo-form__input:focus {
   outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 .todo-form__input--error {
@@ -63,19 +63,22 @@
 
 .todo-form__submit {
   padding: 0.75rem 1.5rem;
-  background-color: #007bff;
+  background-color: #2563eb;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
   align-self: flex-start;
+  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.3);
 }
 
 .todo-form__submit:hover:not(:disabled) {
-  background-color: #0056b3;
+  background-color: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.4);
 }
 
 .todo-form__submit:disabled {

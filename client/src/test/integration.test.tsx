@@ -9,9 +9,6 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import App from '../App';
 
-// Mock server URL for integration tests
-const MOCK_SERVER_URL = 'http://localhost:3001';
-
 // Mock fetch to simulate server responses
 const mockFetch = vi.fn();
 Object.defineProperty(globalThis, 'fetch', {

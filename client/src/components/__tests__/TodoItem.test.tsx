@@ -154,4 +154,75 @@ describe('TodoItem', () => {
     expect(toggleButton).toBeInTheDocument();
     expect(deleteButton).toBeInTheDocument();
   });
+
+  describe('Visual distinction for completed items (Requirement 2.3)', () => {
+    it('applies visual distinction styling to completed todos', () => {
+      render(
+        <TodoItem
+          todo={mockCompletedTodo}
+          onToggleComplete={mockOnToggleComplete}
+          onDelete={mockOnDelete}
+        />
+      );
+
+      // Check that completed todo has the completed class
+      const todoItem = screen.getByText('Completed Todo').closest('.todo-item');
+      expect(todoItem).toHaveClass('todo-item--completed');
+
+      // Check that the title has completed styling
+      const title = screen.getByText('Completed Todo');
+      expect(title).toHaveClass('todo-item__title--completed');
+
+      // Check that the toggle button has completed styling
+      const toggleButton = screen.getByLabelText('Mark as incomplete');
+      expect(toggleButton).toHaveClass('todo-item__toggle--completed');
+    });
+
+    it('does not apply completed styling to incomplete todos', () => {
+      render(
+        <TodoItem
+          todo={mockTodo}
+          onToggleComplete={mockOnToggleComplete}
+          onDelete={mockOnDelete}
+        />
+      );
+
+      // Check that incomplete todo does not have completed classes
+      const todoItem = screen.getByText('Test Todo').closest('.todo-item');
+      expect(todoItem).not.toHaveClass('todo-item--completed');
+
+      const title = screen.getByText('Test Todo');
+      expect(title).not.toHaveClass('todo-item__title--completed');
+
+      const toggleButton = screen.getByLabelText('Mark as complete');
+      expect(toggleButton).not.toHaveClass('todo-item__toggle--completed');
+    });
+
+    it('displays different visual indicators for completed vs incomplete state', () => {
+      const { rerender } = render(
+        <TodoItem
+          todo={mockTodo}
+          onToggleComplete={mockOnToggleComplete}
+          onDelete={mockOnDelete}
+        />
+      );
+
+      // Check incomplete state indicator
+      expect(screen.getByText('○')).toBeInTheDocument();
+      expect(screen.queryByText('✓')).not.toBeInTheDocument();
+
+      // Rerender with completed todo
+      rerender(
+        <TodoItem
+          todo={mockCompletedTodo}
+          onToggleComplete={mockOnToggleComplete}
+          onDelete={mockOnDelete}
+        />
+      );
+
+      // Check completed state indicator
+      expect(screen.getByText('✓')).toBeInTheDocument();
+      expect(screen.queryByText('○')).not.toBeInTheDocument();
+    });
+  });
 });
