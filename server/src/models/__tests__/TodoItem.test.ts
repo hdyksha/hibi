@@ -8,10 +8,12 @@ import {
   TodoItem,
   CreateTodoItemInput,
   UpdateTodoItemInput,
+  Priority,
   validateTitle,
   validateCompleted,
   validateId,
   validateCreatedAt,
+  validatePriority,
   validateCreateTodoItemInput,
   validateUpdateTodoItemInput,
   validateTodoItem
@@ -159,10 +161,64 @@ describe('TodoItem Validation Functions', () => {
     });
   });
 
+  describe('validatePriority', () => {
+    it('should pass validation for high priority', () => {
+      const result = validatePriority('high');
+      expect(result.isValid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should pass validation for medium priority', () => {
+      const result = validatePriority('medium');
+      expect(result.isValid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should pass validation for low priority', () => {
+      const result = validatePriority('low');
+      expect(result.isValid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should fail validation for invalid priority string', () => {
+      const result = validatePriority('urgent' as Priority);
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0].field).toBe('priority');
+      expect(result.errors[0].message).toBe('Priority must be one of: high, medium, low');
+    });
+
+    it('should fail validation for non-string input', () => {
+      const result = validatePriority(123 as any);
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0].field).toBe('priority');
+      expect(result.errors[0].message).toBe('Priority is required and must be a string');
+    });
+
+    it('should fail validation for empty string', () => {
+      const result = validatePriority('' as Priority);
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0].field).toBe('priority');
+      expect(result.errors[0].message).toBe('Priority must be one of: high, medium, low');
+    });
+  });
+
   describe('validateCreateTodoItemInput', () => {
-    it('should pass validation for valid input', () => {
+    it('should pass validation for valid input without priority', () => {
       const input: CreateTodoItemInput = {
         title: 'Valid todo title'
+      };
+      const result = validateCreateTodoItemInput(input);
+      expect(result.isValid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should pass validation for valid input with priority', () => {
+      const input: CreateTodoItemInput = {
+        title: 'Valid todo title',
+        priority: 'high'
       };
       const result = validateCreateTodoItemInput(input);
       expect(result.isValid).toBe(true);
@@ -177,6 +233,32 @@ describe('TodoItem Validation Functions', () => {
       expect(result.isValid).toBe(false);
       expect(result.errors).toHaveLength(1);
       expect(result.errors[0].field).toBe('title');
+    });
+
+    it('should fail validation for invalid priority', () => {
+      const input: CreateTodoItemInput = {
+        title: 'Valid title',
+        priority: 'urgent' as Priority
+      };
+      const result = validateCreateTodoItemInput(input);
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0].field).toBe('priority');
+      expect(result.errors[0].message).toBe('Priority must be one of: high, medium, low');
+    });
+
+    it('should fail validation for both invalid title and priority', () => {
+      const input: CreateTodoItemInput = {
+        title: '',
+        priority: 'invalid' as Priority
+      };
+      const result = validateCreateTodoItemInput(input);
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toHaveLength(2);
+      
+      const fieldNames = result.errors.map(error => error.field);
+      expect(fieldNames).toContain('title');
+      expect(fieldNames).toContain('priority');
     });
   });
 
@@ -199,10 +281,20 @@ describe('TodoItem Validation Functions', () => {
       expect(result.errors).toHaveLength(0);
     });
 
-    it('should pass validation for both title and completed update', () => {
+    it('should pass validation for valid priority update', () => {
+      const input: UpdateTodoItemInput = {
+        priority: 'low'
+      };
+      const result = validateUpdateTodoItemInput(input);
+      expect(result.isValid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should pass validation for all fields update', () => {
       const input: UpdateTodoItemInput = {
         title: 'Updated title',
-        completed: true
+        completed: true,
+        priority: 'high'
       };
       const result = validateUpdateTodoItemInput(input);
       expect(result.isValid).toBe(true);
@@ -235,14 +327,70 @@ describe('TodoItem Validation Functions', () => {
       expect(result.errors).toHaveLength(1);
       expect(result.errors[0].field).toBe('completed');
     });
+
+    it('should fail validation for invalid priority', () => {
+      const input: UpdateTodoItemInput = {
+        priority: 'critical' as Priority
+      };
+      const result = validateUpdateTodoItemInput(input);
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0].field).toBe('priority');
+      expect(result.errors[0].message).toBe('Priority must be one of: high, medium, low');
+    });
+
+    it('should fail validation for multiple invalid fields', () => {
+      const input: UpdateTodoItemInput = {
+        title: '',
+        completed: 'false' as any,
+        priority: 'urgent' as Priority
+      };
+      const result = validateUpdateTodoItemInput(input);
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toHaveLength(3);
+      
+      const fieldNames = result.errors.map(error => error.field);
+      expect(fieldNames).toContain('title');
+      expect(fieldNames).toContain('completed');
+      expect(fieldNames).toContain('priority');
+    });
   });
 
   describe('validateTodoItem', () => {
-    it('should pass validation for valid TodoItem', () => {
+    it('should pass validation for valid TodoItem with medium priority', () => {
       const todoItem: TodoItem = {
         id: 'valid-id-123',
         title: 'Valid todo title',
         completed: false,
+        priority: 'medium',
+        createdAt: '2023-12-01T10:30:00.000Z',
+        updatedAt: '2023-12-01T10:30:00.000Z'
+      };
+      const result = validateTodoItem(todoItem);
+      expect(result.isValid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should pass validation for valid TodoItem with high priority', () => {
+      const todoItem: TodoItem = {
+        id: 'high-priority-todo',
+        title: 'High priority task',
+        completed: false,
+        priority: 'high',
+        createdAt: '2023-12-01T10:30:00.000Z',
+        updatedAt: '2023-12-01T10:30:00.000Z'
+      };
+      const result = validateTodoItem(todoItem);
+      expect(result.isValid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should pass validation for valid TodoItem with low priority', () => {
+      const todoItem: TodoItem = {
+        id: 'low-priority-todo',
+        title: 'Low priority task',
+        completed: false,
+        priority: 'low',
         createdAt: '2023-12-01T10:30:00.000Z',
         updatedAt: '2023-12-01T10:30:00.000Z'
       };
@@ -256,17 +404,19 @@ describe('TodoItem Validation Functions', () => {
         id: '',
         title: '',
         completed: 'false' as any,
+        priority: 'urgent' as Priority,
         createdAt: 'invalid-date',
         updatedAt: 'invalid-date'
       };
       const result = validateTodoItem(todoItem);
       expect(result.isValid).toBe(false);
-      expect(result.errors).toHaveLength(5);
+      expect(result.errors).toHaveLength(6);
       
       const fieldNames = result.errors.map(error => error.field);
       expect(fieldNames).toContain('id');
       expect(fieldNames).toContain('title');
       expect(fieldNames).toContain('completed');
+      expect(fieldNames).toContain('priority');
       expect(fieldNames).toContain('createdAt');
       expect(fieldNames).toContain('updatedAt');
     });
@@ -276,12 +426,29 @@ describe('TodoItem Validation Functions', () => {
         id: 'completed-todo-456',
         title: 'Completed todo',
         completed: true,
+        priority: 'medium',
         createdAt: '2023-12-01T10:30:00.000Z',
         updatedAt: '2023-12-01T10:30:00.000Z'
       };
       const result = validateTodoItem(todoItem);
       expect(result.isValid).toBe(true);
       expect(result.errors).toHaveLength(0);
+    });
+
+    it('should fail validation for TodoItem with invalid priority only', () => {
+      const todoItem: TodoItem = {
+        id: 'valid-id-123',
+        title: 'Valid todo title',
+        completed: false,
+        priority: 'critical' as Priority,
+        createdAt: '2023-12-01T10:30:00.000Z',
+        updatedAt: '2023-12-01T10:30:00.000Z'
+      };
+      const result = validateTodoItem(todoItem);
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0].field).toBe('priority');
+      expect(result.errors[0].message).toBe('Priority must be one of: high, medium, low');
     });
   });
 });

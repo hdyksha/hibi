@@ -3,10 +3,17 @@
  * Requirements: 1.3, 1.4, 1.5, 1.6
  */
 
+/**
+ * 優先度の型定義
+ * 要件 6.1: 各todoアイテムに優先度（high、medium、low）を設定できる
+ */
+export type Priority = 'high' | 'medium' | 'low';
+
 export interface TodoItem {
     id: string;           // 一意のID (要件 1.5)
     title: string;        // タイトル (必須) (要件 1.3)
     completed: boolean;   // 完了状態 (デフォルト: false) (要件 1.4)
+    priority: Priority;   // 優先度 (デフォルト: 'medium') (要件 6.1, 6.2)
     createdAt: string;    // 作成日時 (ISO 8601形式) (要件 1.6)
     updatedAt: string;    // 更新日時 (ISO 8601形式) (要件 3.5)
 }
@@ -16,6 +23,7 @@ export interface TodoItem {
  */
 export interface CreateTodoItemInput {
     title: string;
+    priority?: Priority;  // オプショナル、デフォルトは'medium' (要件 6.2)
 }
 
 /**
@@ -24,6 +32,7 @@ export interface CreateTodoItemInput {
 export interface UpdateTodoItemInput {
     title?: string;
     completed?: boolean;
+    priority?: Priority;  // 優先度の更新 (要件 6.1)
 }
 
 /**
@@ -174,14 +183,49 @@ export function validateUpdatedAt(updatedAt: string): ValidationResult {
 }
 
 /**
+ * 優先度のバリデーション
+ * 要件 6.1: 各todoアイテムに優先度（high、medium、low）を設定できる
+ */
+export function validatePriority(priority: Priority): ValidationResult {
+    const errors: ValidationError[] = [];
+    const validPriorities: Priority[] = ['high', 'medium', 'low'];
+
+    if (typeof priority !== 'string') {
+        errors.push({
+            field: 'priority',
+            message: 'Priority is required and must be a string'
+        });
+    } else if (!validPriorities.includes(priority)) {
+        errors.push({
+            field: 'priority',
+            message: 'Priority must be one of: high, medium, low'
+        });
+    }
+
+    return {
+        isValid: errors.length === 0,
+        errors
+    };
+}
+
+/**
  * TodoItem作成入力データのバリデーション
  */
 export function validateCreateTodoItemInput(input: CreateTodoItemInput): ValidationResult {
+    const errors: ValidationError[] = [];
+
     const titleValidation = validateTitle(input.title);
+    errors.push(...titleValidation.errors);
+
+    // 優先度が指定されている場合のみバリデーション (要件 6.2: デフォルトは'medium')
+    if (input.priority !== undefined) {
+        const priorityValidation = validatePriority(input.priority);
+        errors.push(...priorityValidation.errors);
+    }
 
     return {
-        isValid: titleValidation.isValid,
-        errors: titleValidation.errors
+        isValid: errors.length === 0,
+        errors
     };
 }
 
@@ -201,6 +245,11 @@ export function validateUpdateTodoItemInput(input: UpdateTodoItemInput): Validat
         errors.push(...completedValidation.errors);
     }
 
+    if (input.priority !== undefined) {
+        const priorityValidation = validatePriority(input.priority);
+        errors.push(...priorityValidation.errors);
+    }
+
     return {
         isValid: errors.length === 0,
         errors
@@ -216,12 +265,14 @@ export function validateTodoItem(todoItem: TodoItem): ValidationResult {
     const idValidation = validateId(todoItem.id);
     const titleValidation = validateTitle(todoItem.title);
     const completedValidation = validateCompleted(todoItem.completed);
+    const priorityValidation = validatePriority(todoItem.priority);
     const createdAtValidation = validateCreatedAt(todoItem.createdAt);
     const updatedAtValidation = validateUpdatedAt(todoItem.updatedAt);
 
     errors.push(...idValidation.errors);
     errors.push(...titleValidation.errors);
     errors.push(...completedValidation.errors);
+    errors.push(...priorityValidation.errors);
     errors.push(...createdAtValidation.errors);
     errors.push(...updatedAtValidation.errors);
 

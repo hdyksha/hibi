@@ -19,6 +19,7 @@ describe('FileStorageService', () => {
     id: 'test-id-1',
     title: 'Test Todo 1',
     completed: false,
+    priority: 'medium',
     createdAt: '2023-12-01T10:30:00.000Z',
     updatedAt: '2023-12-01T10:30:00.000Z'
   };
@@ -27,6 +28,7 @@ describe('FileStorageService', () => {
     id: 'test-id-2',
     title: 'Test Todo 2',
     completed: true,
+    priority: 'high',
     createdAt: '2023-12-01T11:30:00.000Z',
     updatedAt: '2023-12-01T11:30:00.000Z'
   };
