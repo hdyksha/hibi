@@ -54,6 +54,7 @@ describe('Frontend-Backend Integration Tests', () => {
         id: '1',
         title: 'Integration Test Todo',
         completed: false,
+        priority: 'medium',
         createdAt: '2024-01-01T10:00:00Z',
         updatedAt: '2024-01-01T10:00:00Z',
       };
@@ -90,7 +91,7 @@ describe('Frontend-Backend Integration Tests', () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ title: 'Integration Test Todo' }),
+        body: JSON.stringify({ title: 'Integration Test Todo', priority: 'medium' }),
       });
 
       // Step 3: Toggle completion status - PUT /api/todos/:id

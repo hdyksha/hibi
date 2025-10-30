@@ -1,12 +1,13 @@
 /**
  * TodoList Component
  * Displays a list of todo items with toggle and delete functionality
- * Requirements: 2.1, 2.2, 2.3, 3.1, 3.2, 4.1, 4.3
+ * Requirements: 2.1, 2.2, 2.3, 3.1, 3.2, 4.1, 4.3, 6.3, 6.4
  */
 
 import React from 'react';
 import { useTodoContext } from '../contexts';
 import { TodoItem as TodoItemComponent } from './';
+import { Priority } from '../types';
 import './TodoList.css';
 
 interface TodoListProps {
@@ -21,6 +22,7 @@ const TodoList: React.FC<TodoListProps> = ({ className }) => {
     refreshTodos,
     toggleTodoCompletion,
     deleteTodo,
+    updateTodo,
   } = useTodoContext();
 
   const handleToggleComplete = async (id: string) => {
@@ -34,6 +36,14 @@ const TodoList: React.FC<TodoListProps> = ({ className }) => {
   const handleDelete = async (id: string) => {
     try {
       await deleteTodo(id);
+    } catch (err) {
+      // Error is already handled in the hook
+    }
+  };
+
+  const handleUpdate = async (id: string, updates: { title?: string; priority?: Priority }) => {
+    try {
+      await updateTodo(id, updates);
     } catch (err) {
       // Error is already handled in the hook
     }
@@ -74,6 +84,7 @@ const TodoList: React.FC<TodoListProps> = ({ className }) => {
                 todo={todo}
                 onToggleComplete={handleToggleComplete}
                 onDelete={handleDelete}
+                onUpdate={handleUpdate}
               />
             </li>
           ))}

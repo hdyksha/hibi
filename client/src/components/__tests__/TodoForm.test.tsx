@@ -22,6 +22,7 @@ const mockCreatedTodo: TodoItem = {
   id: '1',
   title: 'New Todo',
   completed: false,
+  priority: 'medium',
   createdAt: '2024-01-01T10:00:00Z',
   updatedAt: '2024-01-01T10:00:00Z',
 };
@@ -50,6 +51,7 @@ describe('TodoForm', () => {
     renderTodoForm();
     
     expect(screen.getByLabelText('New Todo')).toBeInTheDocument();
+    expect(screen.getByLabelText('Priority')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Enter todo title...')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Create Todo' })).toBeInTheDocument();
   });
@@ -77,7 +79,8 @@ describe('TodoForm', () => {
     
     await waitFor(() => {
       expect(mockCreateTodo).toHaveBeenCalledWith({
-        title: 'New Todo'
+        title: 'New Todo',
+        priority: 'medium'
       });
     });
     
@@ -135,7 +138,8 @@ describe('TodoForm', () => {
     
     await waitFor(() => {
       expect(mockCreateTodo).toHaveBeenCalledWith({
-        title: 'New Todo'
+        title: 'New Todo',
+        priority: 'medium'
       });
     });
   });
@@ -226,5 +230,84 @@ describe('TodoForm', () => {
     fireEvent.change(titleInput, { target: { value: 'N' } });
     
     expect(screen.queryByText('Title is required')).not.toBeInTheDocument();
+  });
+
+  describe('Priority functionality (Requirements 6.1, 6.2)', () => {
+    it('defaults to medium priority', () => {
+      renderTodoForm();
+      
+      const prioritySelect = screen.getByLabelText('Priority');
+      expect(prioritySelect).toHaveValue('medium');
+    });
+
+    it('allows selecting different priorities', () => {
+      renderTodoForm();
+      
+      const prioritySelect = screen.getByLabelText('Priority');
+      
+      fireEvent.change(prioritySelect, { target: { value: 'high' } });
+      expect(prioritySelect).toHaveValue('high');
+      
+      fireEvent.change(prioritySelect, { target: { value: 'low' } });
+      expect(prioritySelect).toHaveValue('low');
+    });
+
+    it('creates todo with selected priority', async () => {
+      const mockCreateTodo = vi.fn().mockResolvedValue(mockCreatedTodo);
+      mockUseTodoContext.mockReturnValue({
+        todos: [],
+        loading: false,
+        error: null,
+        refreshTodos: vi.fn(),
+        createTodo: mockCreateTodo,
+        updateTodo: vi.fn(),
+        toggleTodoCompletion: vi.fn(),
+        deleteTodo: vi.fn(),
+      });
+      
+      renderTodoForm();
+      
+      const titleInput = screen.getByLabelText('New Todo');
+      const prioritySelect = screen.getByLabelText('Priority');
+      const submitButton = screen.getByRole('button', { name: 'Create Todo' });
+      
+      fireEvent.change(titleInput, { target: { value: 'High Priority Todo' } });
+      fireEvent.change(prioritySelect, { target: { value: 'high' } });
+      fireEvent.click(submitButton);
+      
+      await waitFor(() => {
+        expect(mockCreateTodo).toHaveBeenCalledWith({
+          title: 'High Priority Todo',
+          priority: 'high'
+        });
+      });
+    });
+
+    it('resets priority to medium after successful creation', async () => {
+      const mockCreateTodo = vi.fn().mockResolvedValue(mockCreatedTodo);
+      mockUseTodoContext.mockReturnValue({
+        todos: [],
+        loading: false,
+        error: null,
+        refreshTodos: vi.fn(),
+        createTodo: mockCreateTodo,
+        updateTodo: vi.fn(),
+        toggleTodoCompletion: vi.fn(),
+        deleteTodo: vi.fn(),
+      });
+      
+      renderTodoForm();
+      
+      const titleInput = screen.getByLabelText('New Todo');
+      const prioritySelect = screen.getByLabelText('Priority');
+      
+      fireEvent.change(titleInput, { target: { value: 'Test Todo' } });
+      fireEvent.change(prioritySelect, { target: { value: 'high' } });
+      fireEvent.click(screen.getByRole('button', { name: 'Create Todo' }));
+      
+      await waitFor(() => {
+        expect(prioritySelect).toHaveValue('medium');
+      });
+    });
   });
 });

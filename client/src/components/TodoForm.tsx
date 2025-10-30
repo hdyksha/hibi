@@ -1,11 +1,11 @@
 /**
  * TodoForm Component
  * Form for creating new todo items with validation
- * Requirements: 1.1, 1.2, 1.3
+ * Requirements: 1.1, 1.2, 1.3, 6.1, 6.2
  */
 
 import React, { useState } from 'react';
-import { CreateTodoItemInput } from '../types';
+import { CreateTodoItemInput, Priority } from '../types';
 import { useTodoContext } from '../contexts';
 import './TodoForm.css';
 
@@ -20,6 +20,7 @@ interface TodoFormProps {
 
 const TodoForm: React.FC<TodoFormProps> = ({ className }) => {
   const [title, setTitle] = useState('');
+  const [priority, setPriority] = useState<Priority>('medium');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { createTodo } = useTodoContext();
@@ -51,13 +52,15 @@ const TodoForm: React.FC<TodoFormProps> = ({ className }) => {
       setIsSubmitting(true);
 
       const input: CreateTodoItemInput = {
-        title: title.trim()
+        title: title.trim(),
+        priority: priority
       };
 
       await createTodo(input);
 
       // Clear form on success
       setTitle('');
+      setPriority('medium');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create todo');
     } finally {
@@ -71,6 +74,10 @@ const TodoForm: React.FC<TodoFormProps> = ({ className }) => {
     if (error) {
       setError(null);
     }
+  };
+
+  const handlePriorityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setPriority(e.target.value as Priority);
   };
 
   return (
@@ -99,6 +106,23 @@ const TodoForm: React.FC<TodoFormProps> = ({ className }) => {
             {error}
           </div>
         )}
+      </div>
+
+      <div className="todo-form__field">
+        <label htmlFor="todo-priority" className="todo-form__label">
+          Priority
+        </label>
+        <select
+          id="todo-priority"
+          value={priority}
+          onChange={handlePriorityChange}
+          className="todo-form__select"
+          disabled={isSubmitting}
+        >
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+        </select>
       </div>
 
       <button

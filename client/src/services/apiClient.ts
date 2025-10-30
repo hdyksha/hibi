@@ -138,10 +138,8 @@ export class TodoApiClient {
         throw new ApiClientError('Todo item not found', 404);
       }
 
-      return this.request<TodoItem>(`/todos/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify({ completed: !currentTodo.completed }),
-      });
+      // Use updateTodo to toggle completion status
+      return this.updateTodo(id, { completed: !currentTodo.completed });
     } catch (error) {
       if (error instanceof ApiClientError) {
         throw error;
