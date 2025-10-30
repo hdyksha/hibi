@@ -4,10 +4,29 @@
  */
 
 /**
- * 優先度の型定義
+ * 優先度の定数配列と型定義
  * 要件 6.1: 各todoアイテムに優先度（high、medium、low）を設定できる
  */
-export type Priority = 'high' | 'medium' | 'low';
+export const PRIORITY_VALUES = ['high', 'medium', 'low'] as const;
+export type Priority = typeof PRIORITY_VALUES[number];
+
+/**
+ * フィルタリング用の定数配列と型定義
+ */
+export const FILTER_STATUS_VALUES = ['all', 'pending', 'completed'] as const;
+export type FilterStatus = typeof FILTER_STATUS_VALUES[number];
+
+/**
+ * TodoItemフィルタリング用のインターフェース
+ * 要件 7.2: タグによるフィルタリング機能を提供する
+ * 要件 8.4: メモの内容を検索対象に含める
+ */
+export interface TodoFilter {
+    status?: FilterStatus;     // ステータスフィルター
+    priority?: Priority;       // 優先度フィルター
+    tags?: string[];          // タグフィルター
+    searchText?: string;      // 検索テキスト（タイトルとメモを対象）
+}
 
 export interface TodoItem {
     id: string;           // 一意のID (要件 1.5)
@@ -15,6 +34,7 @@ export interface TodoItem {
     completed: boolean;   // 完了状態 (デフォルト: false) (要件 1.4)
     priority: Priority;   // 優先度 (デフォルト: 'medium') (要件 6.1, 6.2)
     tags: string[];       // タグ (デフォルト: []) (要件 7.1)
+    memo: string;         // メモ (デフォルト: '') (要件 8.1)
     createdAt: string;    // 作成日時 (ISO 8601形式) (要件 1.6)
     updatedAt: string;    // 更新日時 (ISO 8601形式) (要件 3.5)
 }
@@ -26,6 +46,7 @@ export interface CreateTodoItemInput {
     title: string;
     priority?: Priority;  // オプショナル、デフォルトは'medium' (要件 6.2)
     tags?: string[];      // オプショナル、デフォルトは[] (要件 7.1)
+    memo?: string;        // オプショナル、デフォルトは'' (要件 8.1)
 }
 
 /**
@@ -36,6 +57,7 @@ export interface UpdateTodoItemInput {
     completed?: boolean;
     priority?: Priority;  // 優先度の更新 (要件 6.1)
     tags?: string[];      // タグの更新 (要件 7.1)
+    memo?: string;        // メモの更新 (要件 8.1)
 }
 
 /**
@@ -191,17 +213,16 @@ export function validateUpdatedAt(updatedAt: string): ValidationResult {
  */
 export function validatePriority(priority: Priority): ValidationResult {
     const errors: ValidationError[] = [];
-    const validPriorities: Priority[] = ['high', 'medium', 'low'];
 
     if (typeof priority !== 'string') {
         errors.push({
             field: 'priority',
             message: 'Priority is required and must be a string'
         });
-    } else if (!validPriorities.includes(priority)) {
+    } else if (!PRIORITY_VALUES.includes(priority as Priority)) {
         errors.push({
             field: 'priority',
-            message: 'Priority must be one of: high, medium, low'
+            message: `Priority must be one of: ${PRIORITY_VALUES.join(', ')}`
         });
     }
 
@@ -268,6 +289,26 @@ export function validateTags(tags: string[]): ValidationResult {
 }
 
 /**
+ * メモのバリデーション
+ * 要件 8.1: 各todoアイテムにメモフィールドを提供する
+ */
+export function validateMemo(memo: string): ValidationResult {
+    const errors: ValidationError[] = [];
+
+    if (typeof memo !== 'string') {
+        errors.push({
+            field: 'memo',
+            message: 'Memo must be a string'
+        });
+    }
+
+    return {
+        isValid: errors.length === 0,
+        errors
+    };
+}
+
+/**
  * TodoItem作成入力データのバリデーション
  */
 export function validateCreateTodoItemInput(input: CreateTodoItemInput): ValidationResult {
@@ -286,6 +327,12 @@ export function validateCreateTodoItemInput(input: CreateTodoItemInput): Validat
     if (input.tags !== undefined) {
         const tagsValidation = validateTags(input.tags);
         errors.push(...tagsValidation.errors);
+    }
+
+    // メモが指定されている場合のみバリデーション (要件 8.1: デフォルトは'')
+    if (input.memo !== undefined) {
+        const memoValidation = validateMemo(input.memo);
+        errors.push(...memoValidation.errors);
     }
 
     return {
@@ -320,6 +367,11 @@ export function validateUpdateTodoItemInput(input: UpdateTodoItemInput): Validat
         errors.push(...tagsValidation.errors);
     }
 
+    if (input.memo !== undefined) {
+        const memoValidation = validateMemo(input.memo);
+        errors.push(...memoValidation.errors);
+    }
+
     return {
         isValid: errors.length === 0,
         errors
@@ -337,6 +389,7 @@ export function validateTodoItem(todoItem: TodoItem): ValidationResult {
     const completedValidation = validateCompleted(todoItem.completed);
     const priorityValidation = validatePriority(todoItem.priority);
     const tagsValidation = validateTags(todoItem.tags);
+    const memoValidation = validateMemo(todoItem.memo);
     const createdAtValidation = validateCreatedAt(todoItem.createdAt);
     const updatedAtValidation = validateUpdatedAt(todoItem.updatedAt);
 
@@ -345,6 +398,7 @@ export function validateTodoItem(todoItem: TodoItem): ValidationResult {
     errors.push(...completedValidation.errors);
     errors.push(...priorityValidation.errors);
     errors.push(...tagsValidation.errors);
+    errors.push(...memoValidation.errors);
     errors.push(...createdAtValidation.errors);
     errors.push(...updatedAtValidation.errors);
 

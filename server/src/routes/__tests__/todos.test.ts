@@ -102,12 +102,271 @@ describe('GET /api/todos', () => {
         });
     });
 
+    describe('フィルタリング機能テスト', () => {
+        beforeEach(async () => {
+            // Create test todos with different properties for filtering tests
+            const testTodos = [
+                { title: 'High priority task', priority: 'high', tags: ['work', 'urgent'], memo: 'Important work task' },
+                { title: 'Medium priority task', priority: 'medium', tags: ['personal'], memo: 'Personal task' },
+                { title: 'Low priority task', priority: 'low', tags: ['hobby'], memo: 'Fun hobby project' },
+                { title: 'Work meeting', priority: 'high', tags: ['work', 'meeting'], memo: 'Team meeting notes' }
+            ];
+
+            for (const todo of testTodos) {
+                await request(app)
+                    .post('/api/todos')
+                    .send(todo)
+                    .expect(201);
+            }
+
+            // Mark one todo as completed
+            const allTodos = await request(app).get('/api/todos').expect(200);
+            const todoToComplete = allTodos.body.find((t: TodoItem) => t.title === 'Low priority task');
+            await request(app)
+                .put(`/api/todos/${todoToComplete.id}`)
+                .send({ completed: true })
+                .expect(200);
+        });
+
+        it('should filter by status - pending only', async () => {
+            const response = await request(app)
+                .get('/api/todos?status=pending')
+                .expect(200);
+
+            const todos: TodoItem[] = response.body;
+            expect(todos).toHaveLength(3);
+            todos.forEach(todo => {
+                expect(todo.completed).toBe(false);
+            });
+        });
+
+        it('should filter by status - completed only', async () => {
+            const response = await request(app)
+                .get('/api/todos?status=completed')
+                .expect(200);
+
+            const todos: TodoItem[] = response.body;
+            expect(todos).toHaveLength(1);
+            expect(todos[0].completed).toBe(true);
+            expect(todos[0].title).toBe('Low priority task');
+        });
+
+        it('should filter by priority', async () => {
+            const response = await request(app)
+                .get('/api/todos?priority=high')
+                .expect(200);
+
+            const todos: TodoItem[] = response.body;
+            expect(todos).toHaveLength(2);
+            todos.forEach(todo => {
+                expect(todo.priority).toBe('high');
+            });
+        });
+
+        it('should filter by single tag', async () => {
+            // 要件 7.2: タグによるフィルタリング機能を提供する
+            const response = await request(app)
+                .get('/api/todos?tags=work')
+                .expect(200);
+
+            const todos: TodoItem[] = response.body;
+            expect(todos).toHaveLength(2);
+            todos.forEach(todo => {
+                expect(todo.tags).toContain('work');
+            });
+        });
+
+        it('should filter by multiple tags', async () => {
+            const response = await request(app)
+                .get('/api/todos?tags=work&tags=urgent')
+                .expect(200);
+
+            const todos: TodoItem[] = response.body;
+            expect(todos).toHaveLength(2); // Should match todos that have either 'work' OR 'urgent'
+        });
+
+        it('should search in title', async () => {
+            const response = await request(app)
+                .get('/api/todos?search=meeting')
+                .expect(200);
+
+            const todos: TodoItem[] = response.body;
+            expect(todos).toHaveLength(1);
+            expect(todos[0].title).toBe('Work meeting');
+        });
+
+        it('should search in memo content', async () => {
+            // 要件 8.4: メモの内容を検索対象に含める
+            const response = await request(app)
+                .get('/api/todos?search=hobby')
+                .expect(200);
+
+            const todos: TodoItem[] = response.body;
+            expect(todos).toHaveLength(1);
+            expect(todos[0].title).toBe('Low priority task');
+            expect(todos[0].memo).toContain('hobby');
+        });
+
+        it('should search in tags', async () => {
+            const response = await request(app)
+                .get('/api/todos?search=urgent')
+                .expect(200);
+
+            const todos: TodoItem[] = response.body;
+            expect(todos).toHaveLength(1);
+            expect(todos[0].tags).toContain('urgent');
+        });
+
+        it('should combine multiple filters', async () => {
+            const response = await request(app)
+                .get('/api/todos?status=pending&priority=high&tags=work')
+                .expect(200);
+
+            const todos: TodoItem[] = response.body;
+            expect(todos).toHaveLength(2);
+            todos.forEach(todo => {
+                expect(todo.completed).toBe(false);
+                expect(todo.priority).toBe('high');
+                expect(todo.tags).toContain('work');
+            });
+        });
+
+        it('should return empty array when no todos match filters', async () => {
+            const response = await request(app)
+                .get('/api/todos?tags=nonexistent')
+                .expect(200);
+
+            expect(response.body).toEqual([]);
+        });
+
+        it('should ignore invalid filter values', async () => {
+            const response = await request(app)
+                .get('/api/todos?status=invalid&priority=invalid')
+                .expect(200);
+
+            const todos: TodoItem[] = response.body;
+            expect(todos).toHaveLength(4); // Should return all todos when filters are invalid
+        });
+    });
+
     describe('異常系テスト', () => {
         it('should handle storage errors gracefully', async () => {
             // This test would require mocking the storage service to simulate errors
             // For now, we'll just verify the endpoint exists and returns proper format
             const response = await request(app)
                 .get('/api/todos')
+                .expect(200);
+
+            expect(Array.isArray(response.body)).toBe(true);
+        });
+    });
+});
+
+describe('GET /api/todos/tags', () => {
+    const testDataPath = join(process.cwd(), 'data', 'tasks.json');
+
+    beforeEach(async () => {
+        // Clean up test data before each test
+        try {
+            await fs.unlink(testDataPath);
+        } catch {
+            // File doesn't exist, which is fine
+        }
+    });
+
+    afterAll(async () => {
+        // Clean up test data after all tests
+        try {
+            await fs.unlink(testDataPath);
+        } catch {
+            // File doesn't exist, which is fine
+        }
+        if (server) {
+            server.close();
+        }
+    });
+
+    describe('正常系テスト', () => {
+        it('should return empty array when no todos exist', async () => {
+            const response = await request(app)
+                .get('/api/todos/tags')
+                .expect(200);
+
+            expect(response.body).toEqual([]);
+        });
+
+        it('should return unique tags from all todos', async () => {
+            // Create todos with various tags
+            const testTodos = [
+                { title: 'Task 1', tags: ['work', 'urgent'] },
+                { title: 'Task 2', tags: ['personal', 'health'] },
+                { title: 'Task 3', tags: ['work', 'meeting'] },
+                { title: 'Task 4', tags: ['hobby'] }
+            ];
+
+            for (const todo of testTodos) {
+                await request(app)
+                    .post('/api/todos')
+                    .send(todo)
+                    .expect(201);
+            }
+
+            const response = await request(app)
+                .get('/api/todos/tags')
+                .expect(200);
+
+            const tags: string[] = response.body;
+            expect(Array.isArray(tags)).toBe(true);
+            expect(tags).toHaveLength(6);
+            expect(tags.sort()).toEqual(['health', 'hobby', 'meeting', 'personal', 'urgent', 'work'].sort());
+        });
+
+        it('should return tags in alphabetical order', async () => {
+            const testTodos = [
+                { title: 'Task 1', tags: ['zebra', 'alpha', 'beta'] }
+            ];
+
+            for (const todo of testTodos) {
+                await request(app)
+                    .post('/api/todos')
+                    .send(todo)
+                    .expect(201);
+            }
+
+            const response = await request(app)
+                .get('/api/todos/tags')
+                .expect(200);
+
+            const tags: string[] = response.body;
+            expect(tags).toEqual(['alpha', 'beta', 'zebra']);
+        });
+
+        it('should handle todos with no tags', async () => {
+            const testTodos = [
+                { title: 'Task with tags', tags: ['work'] },
+                { title: 'Task without tags', tags: [] }
+            ];
+
+            for (const todo of testTodos) {
+                await request(app)
+                    .post('/api/todos')
+                    .send(todo)
+                    .expect(201);
+            }
+
+            const response = await request(app)
+                .get('/api/todos/tags')
+                .expect(200);
+
+            const tags: string[] = response.body;
+            expect(tags).toEqual(['work']);
+        });
+    });
+
+    describe('異常系テスト', () => {
+        it('should handle storage errors gracefully', async () => {
+            const response = await request(app)
+                .get('/api/todos/tags')
                 .expect(200);
 
             expect(Array.isArray(response.body)).toBe(true);

@@ -4,23 +4,111 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { TodoItem, CreateTodoItemInput, validateCreateTodoItemInput, validateUpdateTodoItemInput } from '../models';
+import { TodoItem, CreateTodoItemInput, validateCreateTodoItemInput, validateUpdateTodoItemInput, TodoFilter, FilterStatus, Priority, FILTER_STATUS_VALUES, PRIORITY_VALUES } from '../models';
 import { defaultStorageService } from '../services/FileStorageService';
 import { generateTodoId } from '../utils';
 
 const router = Router();
 
 /**
- * GET /api/todos - Get all todo items
- * Requirements: 2.1, 2.2
+ * フィルタリング関数
+ * 要件 7.2: タグによるフィルタリング機能を提供する
+ * 要件 8.4: メモの内容を検索対象に含める
  */
-router.get('/', async (_req: Request, res: Response) => {
+function filterTodos(todos: TodoItem[], filter: TodoFilter): TodoItem[] {
+    return todos.filter(todo => {
+        // ステータスフィルター
+        if (filter.status && filter.status !== 'all') {
+            if (filter.status === 'completed' && !todo.completed) return false;
+            if (filter.status === 'pending' && todo.completed) return false;
+        }
+
+        // 優先度フィルター
+        if (filter.priority && todo.priority !== filter.priority) {
+            return false;
+        }
+
+        // タグフィルター (要件 7.2)
+        if (filter.tags && filter.tags.length > 0) {
+            const hasMatchingTag = filter.tags.some(filterTag => 
+                todo.tags.some(todoTag => 
+                    todoTag.toLowerCase().includes(filterTag.toLowerCase())
+                )
+            );
+            if (!hasMatchingTag) return false;
+        }
+
+        // 検索テキストフィルター (要件 8.4: メモの内容を検索対象に含める)
+        if (filter.searchText && filter.searchText.trim().length > 0) {
+            const searchTerm = filter.searchText.toLowerCase();
+            const titleMatch = todo.title.toLowerCase().includes(searchTerm);
+            const memoMatch = todo.memo.toLowerCase().includes(searchTerm);
+            const tagMatch = todo.tags.some(tag => tag.toLowerCase().includes(searchTerm));
+            
+            if (!titleMatch && !memoMatch && !tagMatch) return false;
+        }
+
+        return true;
+    });
+}
+
+/**
+ * クエリパラメータからフィルターオブジェクトを構築
+ */
+function buildFilterFromQuery(query: any): TodoFilter {
+    const filter: TodoFilter = {};
+
+    // ステータスフィルター
+    if (query.status && FILTER_STATUS_VALUES.includes(query.status)) {
+        filter.status = query.status as FilterStatus;
+    }
+
+    // 優先度フィルター
+    if (query.priority && PRIORITY_VALUES.includes(query.priority)) {
+        filter.priority = query.priority as Priority;
+    }
+
+    // タグフィルター
+    if (query.tags) {
+        if (typeof query.tags === 'string') {
+            filter.tags = [query.tags];
+        } else if (Array.isArray(query.tags)) {
+            filter.tags = query.tags.filter((tag: any) => typeof tag === 'string');
+        }
+    }
+
+    // 検索テキスト
+    if (query.search && typeof query.search === 'string') {
+        filter.searchText = query.search.trim();
+    }
+
+    return filter;
+}
+
+/**
+ * GET /api/todos - Get all todo items with optional filtering
+ * Requirements: 2.1, 2.2, 7.2, 8.4
+ * Query parameters:
+ * - status: 'all' | 'pending' | 'completed'
+ * - priority: 'high' | 'medium' | 'low'
+ * - tags: string or string[] (comma-separated or multiple params)
+ * - search: string (searches in title, memo, and tags)
+ */
+router.get('/', async (req: Request, res: Response) => {
     try {
         // Retrieve all todos from storage
         const todos = await defaultStorageService.readTodos();
 
-        // Return all todo items
-        return res.status(200).json(todos);
+        // Build filter from query parameters
+        const filter = buildFilterFromQuery(req.query);
+
+        // Apply filtering if any filters are specified
+        const filteredTodos = Object.keys(filter).length > 0 
+            ? filterTodos(todos, filter) 
+            : todos;
+
+        // Return filtered todo items
+        return res.status(200).json(filteredTodos);
     } catch (error) {
         console.error('Error retrieving todos:', error);
         return res.status(500).json({
@@ -56,6 +144,7 @@ router.post('/', async (req: Request, res: Response) => {
             completed: false,                        // 要件 1.4: デフォルトで未完了ステータス
             priority: input.priority || 'medium',   // 要件 6.2: デフォルトでmedium優先度を割り当てる
             tags: input.tags || [],                  // 要件 7.1: デフォルトで空のタグ配列
+            memo: input.memo || '',                  // 要件 8.1: デフォルトで空のメモ
             createdAt: now,                          // 要件 1.6: 作成日時を自動記録
             updatedAt: now                           // 要件 3.5: 更新日時を自動設定
         };
@@ -138,6 +227,10 @@ router.put('/:id', async (req: Request, res: Response) => {
             updatedTodo.tags = updateData.tags;  // 要件 7.1: タグの更新
         }
 
+        if (updateData.hasOwnProperty('memo')) {
+            updatedTodo.memo = updateData.memo;  // 要件 8.1: メモの更新
+        }
+
         // Update in storage
         const updateSuccess = await defaultStorageService.updateTodo(id, updatedTodo);
         
@@ -193,6 +286,33 @@ router.delete('/:id', async (req: Request, res: Response) => {
         return res.status(500).json({
             error: 'Internal server error',
             message: 'Failed to delete todo item'
+        });
+    }
+});
+
+/**
+ * GET /api/todos/tags - Get all unique tags used in todo items
+ * Requirements: 7.3, 7.4
+ */
+router.get('/tags', async (_req: Request, res: Response) => {
+    try {
+        // Retrieve all todos from storage
+        const todos = await defaultStorageService.readTodos();
+
+        // Extract all unique tags
+        const allTags = todos.reduce((tags: string[], todo) => {
+            return tags.concat(todo.tags);
+        }, []);
+
+        // Remove duplicates and sort alphabetically
+        const uniqueTags = Array.from(new Set(allTags)).sort();
+
+        return res.status(200).json(uniqueTags);
+    } catch (error) {
+        console.error('Error retrieving tags:', error);
+        return res.status(500).json({
+            error: 'Internal server error',
+            message: 'Failed to retrieve tags'
         });
     }
 });

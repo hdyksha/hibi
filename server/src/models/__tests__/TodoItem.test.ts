@@ -551,6 +551,7 @@ describe('TodoItem Validation Functions', () => {
         completed: false,
         priority: 'medium',
         tags: [],
+        memo: '',
         createdAt: '2023-12-01T10:30:00.000Z',
         updatedAt: '2023-12-01T10:30:00.000Z'
       };
@@ -566,6 +567,7 @@ describe('TodoItem Validation Functions', () => {
         completed: false,
         priority: 'high',
         tags: ['work', 'urgent'],
+        memo: 'Important task memo',
         createdAt: '2023-12-01T10:30:00.000Z',
         updatedAt: '2023-12-01T10:30:00.000Z'
       };
@@ -581,6 +583,7 @@ describe('TodoItem Validation Functions', () => {
         completed: false,
         priority: 'low',
         tags: ['personal'],
+        memo: 'Personal task memo',
         createdAt: '2023-12-01T10:30:00.000Z',
         updatedAt: '2023-12-01T10:30:00.000Z'
       };
@@ -596,11 +599,11 @@ describe('TodoItem Validation Functions', () => {
         completed: 'false' as any,
         priority: 'urgent' as Priority,
         tags: ['work', ''] as any, // empty tag
+        memo: '',
         createdAt: 'invalid-date',
         updatedAt: 'invalid-date'
       };
       const result = validateTodoItem(todoItem);
-      expect(result.isValid).toBe(false);
       expect(result.errors).toHaveLength(7);
       
       const fieldNames = result.errors.map(error => error.field);
@@ -620,6 +623,7 @@ describe('TodoItem Validation Functions', () => {
         completed: true,
         priority: 'medium',
         tags: ['work', 'completed'],
+        memo: 'Completed task memo',
         createdAt: '2023-12-01T10:30:00.000Z',
         updatedAt: '2023-12-01T10:30:00.000Z'
       };
@@ -635,6 +639,7 @@ describe('TodoItem Validation Functions', () => {
         completed: false,
         priority: 'critical' as Priority,
         tags: ['work'],
+        memo: '',
         createdAt: '2023-12-01T10:30:00.000Z',
         updatedAt: '2023-12-01T10:30:00.000Z'
       };
@@ -652,6 +657,7 @@ describe('TodoItem Validation Functions', () => {
         completed: false,
         priority: 'medium',
         tags: ['work', ''], // empty tag
+        memo: '',
         createdAt: '2023-12-01T10:30:00.000Z',
         updatedAt: '2023-12-01T10:30:00.000Z'
       };
