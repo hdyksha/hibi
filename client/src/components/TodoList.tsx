@@ -72,7 +72,7 @@ const TodoList: React.FC<TodoListProps> = ({ className }) => {
 
   return (
     <div className={`todo-list ${className || ''}`}>
-      {todos.length === 0 ? (
+      {!todos || todos.length === 0 ? (
         <div className="todo-list__empty">
           No todos yet. Create your first todo!
         </div>

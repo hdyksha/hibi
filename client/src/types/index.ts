@@ -4,6 +4,7 @@
  */
 
 export type Priority = 'high' | 'medium' | 'low';
+export type FilterStatus = 'all' | 'pending' | 'completed';
 
 export interface TodoItem {
   id: string;
@@ -13,6 +14,13 @@ export interface TodoItem {
   tags: string[];
   createdAt: string;
   updatedAt: string;
+}
+
+export interface TodoFilter {
+  status?: FilterStatus;
+  priority?: Priority;
+  tags?: string[];
+  searchText?: string;
 }
 
 export interface CreateTodoItemInput {

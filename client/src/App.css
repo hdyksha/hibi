@@ -19,6 +19,30 @@
 
 .App-main {
   padding: 2rem 1rem;
-  max-width: 800px;
+  max-width: 1000px;
   margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .App-main {
+    grid-template-columns: 300px 1fr;
+    grid-template-areas: 
+      "form form"
+      "filter todos";
+  }
+  
+  .App-main > *:first-child {
+    grid-area: form;
+  }
+  
+  .App-main > *:nth-child(2) {
+    grid-area: filter;
+  }
+  
+  .App-main > *:nth-child(3) {
+    grid-area: todos;
+  }
 }

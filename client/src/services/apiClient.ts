@@ -4,7 +4,7 @@
  * Requirements: 全般
  */
 
-import { TodoItem, CreateTodoItemInput, UpdateTodoItemInput, ApiError } from '../types';
+import { TodoItem, CreateTodoItemInput, UpdateTodoItemInput, ApiError, TodoFilter } from '../types';
 
 export class ApiClientError extends Error {
   constructor(
@@ -85,12 +85,36 @@ export class TodoApiClient {
   }
 
   /**
-   * Get all todo items
+   * Get all todo items with optional filtering
    * GET /api/todos
-   * Requirements: 2.1, 2.2
+   * Requirements: 2.1, 2.2, 7.2, 8.4
    */
-  async getTodos(): Promise<TodoItem[]> {
-    return this.request<TodoItem[]>('/todos');
+  async getTodos(filter?: TodoFilter): Promise<TodoItem[]> {
+    let endpoint = '/todos';
+    
+    if (filter && Object.keys(filter).length > 0) {
+      const params = new URLSearchParams();
+      
+      if (filter.status) {
+        params.append('status', filter.status);
+      }
+      
+      if (filter.priority) {
+        params.append('priority', filter.priority);
+      }
+      
+      if (filter.tags && filter.tags.length > 0) {
+        filter.tags.forEach(tag => params.append('tags', tag));
+      }
+      
+      if (filter.searchText && filter.searchText.trim()) {
+        params.append('search', filter.searchText.trim());
+      }
+      
+      endpoint += `?${params.toString()}`;
+    }
+    
+    return this.request<TodoItem[]>(endpoint);
   }
 
   /**
@@ -159,6 +183,15 @@ export class TodoApiClient {
     return this.request<void>(`/todos/${id}`, {
       method: 'DELETE',
     });
+  }
+
+  /**
+   * Get all unique tags used in todo items
+   * GET /api/todos/tags
+   * Requirements: 7.3, 7.4
+   */
+  async getTags(): Promise<string[]> {
+    return this.request<string[]>('/todos/tags');
   }
 }
 
