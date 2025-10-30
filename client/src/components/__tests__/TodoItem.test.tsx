@@ -13,6 +13,7 @@ const mockTodo: TodoItemType = {
   title: 'Test Todo',
   completed: false,
   priority: 'medium',
+  tags: [],
   createdAt: '2024-01-01T10:00:00Z',
   updatedAt: '2024-01-01T10:00:00Z',
 };
@@ -22,6 +23,7 @@ const mockCompletedTodo: TodoItemType = {
   title: 'Completed Todo',
   completed: true,
   priority: 'high',
+  tags: ['work'],
   createdAt: '2024-01-01T10:00:00Z',
   updatedAt: '2024-01-01T12:00:00Z',
 };

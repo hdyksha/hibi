@@ -55,6 +55,7 @@ router.post('/', async (req: Request, res: Response) => {
             title: input.title.trim(),               // 要件 1.3: タイトルは必須
             completed: false,                        // 要件 1.4: デフォルトで未完了ステータス
             priority: input.priority || 'medium',   // 要件 6.2: デフォルトでmedium優先度を割り当てる
+            tags: input.tags || [],                  // 要件 7.1: デフォルトで空のタグ配列
             createdAt: now,                          // 要件 1.6: 作成日時を自動記録
             updatedAt: now                           // 要件 3.5: 更新日時を自動設定
         };
@@ -131,6 +132,10 @@ router.put('/:id', async (req: Request, res: Response) => {
 
         if (updateData.hasOwnProperty('priority')) {
             updatedTodo.priority = updateData.priority;  // 要件 6.1, 6.2: 優先度の更新
+        }
+
+        if (updateData.hasOwnProperty('tags')) {
+            updatedTodo.tags = updateData.tags;  // 要件 7.1: タグの更新
         }
 
         // Update in storage

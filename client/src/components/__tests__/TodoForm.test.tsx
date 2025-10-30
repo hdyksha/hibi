@@ -23,6 +23,7 @@ const mockCreatedTodo: TodoItem = {
   title: 'New Todo',
   completed: false,
   priority: 'medium',
+  tags: [],
   createdAt: '2024-01-01T10:00:00Z',
   updatedAt: '2024-01-01T10:00:00Z',
 };

@@ -10,6 +10,7 @@ export interface TodoItem {
   title: string;
   completed: boolean;
   priority: Priority;
+  tags: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -17,12 +18,14 @@ export interface TodoItem {
 export interface CreateTodoItemInput {
   title: string;
   priority?: Priority;
+  tags?: string[];
 }
 
 export interface UpdateTodoItemInput {
   title?: string;
   completed?: boolean;
   priority?: Priority;
+  tags?: string[];
 }
 
 export interface ValidationError {

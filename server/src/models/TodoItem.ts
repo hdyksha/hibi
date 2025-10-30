@@ -14,6 +14,7 @@ export interface TodoItem {
     title: string;        // タイトル (必須) (要件 1.3)
     completed: boolean;   // 完了状態 (デフォルト: false) (要件 1.4)
     priority: Priority;   // 優先度 (デフォルト: 'medium') (要件 6.1, 6.2)
+    tags: string[];       // タグ (デフォルト: []) (要件 7.1)
     createdAt: string;    // 作成日時 (ISO 8601形式) (要件 1.6)
     updatedAt: string;    // 更新日時 (ISO 8601形式) (要件 3.5)
 }
@@ -24,6 +25,7 @@ export interface TodoItem {
 export interface CreateTodoItemInput {
     title: string;
     priority?: Priority;  // オプショナル、デフォルトは'medium' (要件 6.2)
+    tags?: string[];      // オプショナル、デフォルトは[] (要件 7.1)
 }
 
 /**
@@ -33,6 +35,7 @@ export interface UpdateTodoItemInput {
     title?: string;
     completed?: boolean;
     priority?: Priority;  // 優先度の更新 (要件 6.1)
+    tags?: string[];      // タグの更新 (要件 7.1)
 }
 
 /**
@@ -209,6 +212,61 @@ export function validatePriority(priority: Priority): ValidationResult {
 }
 
 /**
+ * タグのバリデーション
+ * 要件 7.1: 各todoアイテムに複数のタグを追加できる
+ */
+export function validateTags(tags: string[]): ValidationResult {
+    const errors: ValidationError[] = [];
+
+    if (!Array.isArray(tags)) {
+        errors.push({
+            field: 'tags',
+            message: 'Tags must be an array'
+        });
+        return {
+            isValid: false,
+            errors
+        };
+    }
+
+    // 各タグの検証
+    for (let i = 0; i < tags.length; i++) {
+        const tag = tags[i];
+        
+        if (typeof tag !== 'string') {
+            errors.push({
+                field: 'tags',
+                message: `Tag at index ${i} must be a string`
+            });
+        } else if (tag.trim().length === 0) {
+            errors.push({
+                field: 'tags',
+                message: `Tag at index ${i} cannot be empty`
+            });
+        } else if (tag.length > 50) {
+            errors.push({
+                field: 'tags',
+                message: `Tag at index ${i} cannot exceed 50 characters`
+            });
+        }
+    }
+
+    // 重複タグのチェック
+    const uniqueTags = new Set(tags.map(tag => tag.trim().toLowerCase()));
+    if (uniqueTags.size !== tags.length) {
+        errors.push({
+            field: 'tags',
+            message: 'Tags must be unique (case-insensitive)'
+        });
+    }
+
+    return {
+        isValid: errors.length === 0,
+        errors
+    };
+}
+
+/**
  * TodoItem作成入力データのバリデーション
  */
 export function validateCreateTodoItemInput(input: CreateTodoItemInput): ValidationResult {
@@ -221,6 +279,12 @@ export function validateCreateTodoItemInput(input: CreateTodoItemInput): Validat
     if (input.priority !== undefined) {
         const priorityValidation = validatePriority(input.priority);
         errors.push(...priorityValidation.errors);
+    }
+
+    // タグが指定されている場合のみバリデーション (要件 7.1: デフォルトは[])
+    if (input.tags !== undefined) {
+        const tagsValidation = validateTags(input.tags);
+        errors.push(...tagsValidation.errors);
     }
 
     return {
@@ -250,6 +314,11 @@ export function validateUpdateTodoItemInput(input: UpdateTodoItemInput): Validat
         errors.push(...priorityValidation.errors);
     }
 
+    if (input.tags !== undefined) {
+        const tagsValidation = validateTags(input.tags);
+        errors.push(...tagsValidation.errors);
+    }
+
     return {
         isValid: errors.length === 0,
         errors
@@ -266,6 +335,7 @@ export function validateTodoItem(todoItem: TodoItem): ValidationResult {
     const titleValidation = validateTitle(todoItem.title);
     const completedValidation = validateCompleted(todoItem.completed);
     const priorityValidation = validatePriority(todoItem.priority);
+    const tagsValidation = validateTags(todoItem.tags);
     const createdAtValidation = validateCreatedAt(todoItem.createdAt);
     const updatedAtValidation = validateUpdatedAt(todoItem.updatedAt);
 
@@ -273,6 +343,7 @@ export function validateTodoItem(todoItem: TodoItem): ValidationResult {
     errors.push(...titleValidation.errors);
     errors.push(...completedValidation.errors);
     errors.push(...priorityValidation.errors);
+    errors.push(...tagsValidation.errors);
     errors.push(...createdAtValidation.errors);
     errors.push(...updatedAtValidation.errors);
 

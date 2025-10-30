@@ -14,6 +14,7 @@ import {
   validateId,
   validateCreatedAt,
   validatePriority,
+  validateTags,
   validateCreateTodoItemInput,
   validateUpdateTodoItemInput,
   validateTodoItem
@@ -205,8 +206,103 @@ describe('TodoItem Validation Functions', () => {
     });
   });
 
+  describe('validateTags', () => {
+    it('should pass validation for empty tags array', () => {
+      const result = validateTags([]);
+      expect(result.isValid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should pass validation for valid tags array', () => {
+      const result = validateTags(['work', 'urgent', 'personal']);
+      expect(result.isValid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should pass validation for single tag', () => {
+      const result = validateTags(['work']);
+      expect(result.isValid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should fail validation for non-array input', () => {
+      const result = validateTags('work' as any);
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0].field).toBe('tags');
+      expect(result.errors[0].message).toBe('Tags must be an array');
+    });
+
+    it('should fail validation for array with non-string elements', () => {
+      const result = validateTags(['work', 123, 'personal'] as any);
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0].field).toBe('tags');
+      expect(result.errors[0].message).toBe('Tag at index 1 must be a string');
+    });
+
+    it('should fail validation for array with empty string', () => {
+      const result = validateTags(['work', '', 'personal']);
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0].field).toBe('tags');
+      expect(result.errors[0].message).toBe('Tag at index 1 cannot be empty');
+    });
+
+    it('should fail validation for array with whitespace-only string', () => {
+      const result = validateTags(['work', '   ', 'personal']);
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0].field).toBe('tags');
+      expect(result.errors[0].message).toBe('Tag at index 1 cannot be empty');
+    });
+
+    it('should fail validation for tag exceeding 50 characters', () => {
+      const longTag = 'a'.repeat(51);
+      const result = validateTags(['work', longTag]);
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0].field).toBe('tags');
+      expect(result.errors[0].message).toBe('Tag at index 1 cannot exceed 50 characters');
+    });
+
+    it('should pass validation for tag with exactly 50 characters', () => {
+      const maxTag = 'a'.repeat(50);
+      const result = validateTags(['work', maxTag]);
+      expect(result.isValid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should fail validation for duplicate tags (case-insensitive)', () => {
+      const result = validateTags(['work', 'WORK', 'personal']);
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0].field).toBe('tags');
+      expect(result.errors[0].message).toBe('Tags must be unique (case-insensitive)');
+    });
+
+    it('should fail validation for exact duplicate tags', () => {
+      const result = validateTags(['work', 'work', 'personal']);
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0].field).toBe('tags');
+      expect(result.errors[0].message).toBe('Tags must be unique (case-insensitive)');
+    });
+
+    it('should fail validation for multiple errors', () => {
+      const result = validateTags(['work', '', 123, 'a'.repeat(51)] as any);
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toHaveLength(3);
+      
+      const messages = result.errors.map(error => error.message);
+      expect(messages).toContain('Tag at index 1 cannot be empty');
+      expect(messages).toContain('Tag at index 2 must be a string');
+      expect(messages).toContain('Tag at index 3 cannot exceed 50 characters');
+    });
+  });
+
   describe('validateCreateTodoItemInput', () => {
-    it('should pass validation for valid input without priority', () => {
+    it('should pass validation for valid input without priority and tags', () => {
       const input: CreateTodoItemInput = {
         title: 'Valid todo title'
       };
@@ -219,6 +315,37 @@ describe('TodoItem Validation Functions', () => {
       const input: CreateTodoItemInput = {
         title: 'Valid todo title',
         priority: 'high'
+      };
+      const result = validateCreateTodoItemInput(input);
+      expect(result.isValid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should pass validation for valid input with tags', () => {
+      const input: CreateTodoItemInput = {
+        title: 'Valid todo title',
+        tags: ['work', 'urgent']
+      };
+      const result = validateCreateTodoItemInput(input);
+      expect(result.isValid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should pass validation for valid input with priority and tags', () => {
+      const input: CreateTodoItemInput = {
+        title: 'Valid todo title',
+        priority: 'high',
+        tags: ['work', 'urgent']
+      };
+      const result = validateCreateTodoItemInput(input);
+      expect(result.isValid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should pass validation for valid input with empty tags array', () => {
+      const input: CreateTodoItemInput = {
+        title: 'Valid todo title',
+        tags: []
       };
       const result = validateCreateTodoItemInput(input);
       expect(result.isValid).toBe(true);
@@ -247,6 +374,18 @@ describe('TodoItem Validation Functions', () => {
       expect(result.errors[0].message).toBe('Priority must be one of: high, medium, low');
     });
 
+    it('should fail validation for invalid tags', () => {
+      const input: CreateTodoItemInput = {
+        title: 'Valid title',
+        tags: ['work', ''] // empty tag
+      };
+      const result = validateCreateTodoItemInput(input);
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0].field).toBe('tags');
+      expect(result.errors[0].message).toBe('Tag at index 1 cannot be empty');
+    });
+
     it('should fail validation for both invalid title and priority', () => {
       const input: CreateTodoItemInput = {
         title: '',
@@ -259,6 +398,22 @@ describe('TodoItem Validation Functions', () => {
       const fieldNames = result.errors.map(error => error.field);
       expect(fieldNames).toContain('title');
       expect(fieldNames).toContain('priority');
+    });
+
+    it('should fail validation for multiple invalid fields', () => {
+      const input: CreateTodoItemInput = {
+        title: '',
+        priority: 'invalid' as Priority,
+        tags: ['work', ''] // empty tag
+      };
+      const result = validateCreateTodoItemInput(input);
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toHaveLength(3);
+      
+      const fieldNames = result.errors.map(error => error.field);
+      expect(fieldNames).toContain('title');
+      expect(fieldNames).toContain('priority');
+      expect(fieldNames).toContain('tags');
     });
   });
 
@@ -290,11 +445,21 @@ describe('TodoItem Validation Functions', () => {
       expect(result.errors).toHaveLength(0);
     });
 
+    it('should pass validation for valid tags update', () => {
+      const input: UpdateTodoItemInput = {
+        tags: ['work', 'urgent']
+      };
+      const result = validateUpdateTodoItemInput(input);
+      expect(result.isValid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
     it('should pass validation for all fields update', () => {
       const input: UpdateTodoItemInput = {
         title: 'Updated title',
         completed: true,
-        priority: 'high'
+        priority: 'high',
+        tags: ['work', 'completed']
       };
       const result = validateUpdateTodoItemInput(input);
       expect(result.isValid).toBe(true);
@@ -303,6 +468,15 @@ describe('TodoItem Validation Functions', () => {
 
     it('should pass validation for empty update object', () => {
       const input: UpdateTodoItemInput = {};
+      const result = validateUpdateTodoItemInput(input);
+      expect(result.isValid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should pass validation for empty tags array update', () => {
+      const input: UpdateTodoItemInput = {
+        tags: []
+      };
       const result = validateUpdateTodoItemInput(input);
       expect(result.isValid).toBe(true);
       expect(result.errors).toHaveLength(0);
@@ -339,30 +513,44 @@ describe('TodoItem Validation Functions', () => {
       expect(result.errors[0].message).toBe('Priority must be one of: high, medium, low');
     });
 
+    it('should fail validation for invalid tags', () => {
+      const input: UpdateTodoItemInput = {
+        tags: ['work', ''] // empty tag
+      };
+      const result = validateUpdateTodoItemInput(input);
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0].field).toBe('tags');
+      expect(result.errors[0].message).toBe('Tag at index 1 cannot be empty');
+    });
+
     it('should fail validation for multiple invalid fields', () => {
       const input: UpdateTodoItemInput = {
         title: '',
         completed: 'false' as any,
-        priority: 'urgent' as Priority
+        priority: 'urgent' as Priority,
+        tags: ['work', ''] // empty tag
       };
       const result = validateUpdateTodoItemInput(input);
       expect(result.isValid).toBe(false);
-      expect(result.errors).toHaveLength(3);
+      expect(result.errors).toHaveLength(4);
       
       const fieldNames = result.errors.map(error => error.field);
       expect(fieldNames).toContain('title');
       expect(fieldNames).toContain('completed');
       expect(fieldNames).toContain('priority');
+      expect(fieldNames).toContain('tags');
     });
   });
 
   describe('validateTodoItem', () => {
-    it('should pass validation for valid TodoItem with medium priority', () => {
+    it('should pass validation for valid TodoItem with medium priority and empty tags', () => {
       const todoItem: TodoItem = {
         id: 'valid-id-123',
         title: 'Valid todo title',
         completed: false,
         priority: 'medium',
+        tags: [],
         createdAt: '2023-12-01T10:30:00.000Z',
         updatedAt: '2023-12-01T10:30:00.000Z'
       };
@@ -371,12 +559,13 @@ describe('TodoItem Validation Functions', () => {
       expect(result.errors).toHaveLength(0);
     });
 
-    it('should pass validation for valid TodoItem with high priority', () => {
+    it('should pass validation for valid TodoItem with high priority and tags', () => {
       const todoItem: TodoItem = {
         id: 'high-priority-todo',
         title: 'High priority task',
         completed: false,
         priority: 'high',
+        tags: ['work', 'urgent'],
         createdAt: '2023-12-01T10:30:00.000Z',
         updatedAt: '2023-12-01T10:30:00.000Z'
       };
@@ -391,6 +580,7 @@ describe('TodoItem Validation Functions', () => {
         title: 'Low priority task',
         completed: false,
         priority: 'low',
+        tags: ['personal'],
         createdAt: '2023-12-01T10:30:00.000Z',
         updatedAt: '2023-12-01T10:30:00.000Z'
       };
@@ -405,28 +595,31 @@ describe('TodoItem Validation Functions', () => {
         title: '',
         completed: 'false' as any,
         priority: 'urgent' as Priority,
+        tags: ['work', ''] as any, // empty tag
         createdAt: 'invalid-date',
         updatedAt: 'invalid-date'
       };
       const result = validateTodoItem(todoItem);
       expect(result.isValid).toBe(false);
-      expect(result.errors).toHaveLength(6);
+      expect(result.errors).toHaveLength(7);
       
       const fieldNames = result.errors.map(error => error.field);
       expect(fieldNames).toContain('id');
       expect(fieldNames).toContain('title');
       expect(fieldNames).toContain('completed');
       expect(fieldNames).toContain('priority');
+      expect(fieldNames).toContain('tags');
       expect(fieldNames).toContain('createdAt');
       expect(fieldNames).toContain('updatedAt');
     });
 
-    it('should pass validation for completed TodoItem', () => {
+    it('should pass validation for completed TodoItem with tags', () => {
       const todoItem: TodoItem = {
         id: 'completed-todo-456',
         title: 'Completed todo',
         completed: true,
         priority: 'medium',
+        tags: ['work', 'completed'],
         createdAt: '2023-12-01T10:30:00.000Z',
         updatedAt: '2023-12-01T10:30:00.000Z'
       };
@@ -441,6 +634,7 @@ describe('TodoItem Validation Functions', () => {
         title: 'Valid todo title',
         completed: false,
         priority: 'critical' as Priority,
+        tags: ['work'],
         createdAt: '2023-12-01T10:30:00.000Z',
         updatedAt: '2023-12-01T10:30:00.000Z'
       };
@@ -449,6 +643,23 @@ describe('TodoItem Validation Functions', () => {
       expect(result.errors).toHaveLength(1);
       expect(result.errors[0].field).toBe('priority');
       expect(result.errors[0].message).toBe('Priority must be one of: high, medium, low');
+    });
+
+    it('should fail validation for TodoItem with invalid tags only', () => {
+      const todoItem: TodoItem = {
+        id: 'valid-id-123',
+        title: 'Valid todo title',
+        completed: false,
+        priority: 'medium',
+        tags: ['work', ''], // empty tag
+        createdAt: '2023-12-01T10:30:00.000Z',
+        updatedAt: '2023-12-01T10:30:00.000Z'
+      };
+      const result = validateTodoItem(todoItem);
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0].field).toBe('tags');
+      expect(result.errors[0].message).toBe('Tag at index 1 cannot be empty');
     });
   });
 });
