@@ -41,7 +41,7 @@ const TodoList: React.FC<TodoListProps> = ({ className }) => {
     }
   };
 
-  const handleUpdate = async (id: string, updates: { title?: string; priority?: Priority }) => {
+  const handleUpdate = async (id: string, updates: { title?: string; priority?: Priority; tags?: string[] }) => {
     try {
       await updateTodo(id, updates);
     } catch (err) {

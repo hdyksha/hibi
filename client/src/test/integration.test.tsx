@@ -91,7 +91,7 @@ describe('Frontend-Backend Integration Tests', () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ title: 'Integration Test Todo', priority: 'medium' }),
+        body: JSON.stringify({ title: 'Integration Test Todo', priority: 'medium', tags: [] }),
       });
 
       // Step 3: Toggle completion status - PUT /api/todos/:id

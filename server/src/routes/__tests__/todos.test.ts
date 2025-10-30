@@ -330,6 +330,7 @@ describe('PUT /api/todos/:id', () => {
             // Toggle completion status
             const updateResponse = await request(app)
                 .put(`/api/todos/${createdTodo.id}`)
+                .send({ completed: true })
                 .expect(200);
 
             const updatedTodo: TodoItem = updateResponse.body;
@@ -361,6 +362,7 @@ describe('PUT /api/todos/:id', () => {
             // Toggle to completed
             const firstToggleResponse = await request(app)
                 .put(`/api/todos/${createdTodo.id}`)
+                .send({ completed: true })
                 .expect(200);
 
             const completedTodo: TodoItem = firstToggleResponse.body;
@@ -369,6 +371,7 @@ describe('PUT /api/todos/:id', () => {
             // Toggle back to incomplete
             const secondToggleResponse = await request(app)
                 .put(`/api/todos/${createdTodo.id}`)
+                .send({ completed: false })
                 .expect(200);
 
             const incompleteTodo: TodoItem = secondToggleResponse.body;
@@ -396,6 +399,7 @@ describe('PUT /api/todos/:id', () => {
             // Toggle completion status
             await request(app)
                 .put(`/api/todos/${createdTodo.id}`)
+                .send({ completed: true })
                 .expect(200);
 
             // 要件 3.3: ステータス変更を永続化

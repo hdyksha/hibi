@@ -7,6 +7,7 @@
 import React, { useState } from 'react';
 import { CreateTodoItemInput, Priority } from '../types';
 import { useTodoContext } from '../contexts';
+import TagInput from './TagInput';
 import './TodoForm.css';
 
 interface ValidationResult {
@@ -21,6 +22,7 @@ interface TodoFormProps {
 const TodoForm: React.FC<TodoFormProps> = ({ className }) => {
   const [title, setTitle] = useState('');
   const [priority, setPriority] = useState<Priority>('medium');
+  const [tags, setTags] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { createTodo } = useTodoContext();
@@ -53,7 +55,8 @@ const TodoForm: React.FC<TodoFormProps> = ({ className }) => {
 
       const input: CreateTodoItemInput = {
         title: title.trim(),
-        priority: priority
+        priority: priority,
+        tags: tags
       };
 
       await createTodo(input);
@@ -61,6 +64,7 @@ const TodoForm: React.FC<TodoFormProps> = ({ className }) => {
       // Clear form on success
       setTitle('');
       setPriority('medium');
+      setTags([]);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create todo');
     } finally {
@@ -123,6 +127,20 @@ const TodoForm: React.FC<TodoFormProps> = ({ className }) => {
           <option value="medium">Medium</option>
           <option value="high">High</option>
         </select>
+      </div>
+
+      <div className="todo-form__field">
+        <label className="todo-form__label">
+          Tags
+        </label>
+        <TagInput
+          tags={tags}
+          onChange={setTags}
+          placeholder="Add tags (press Enter or comma to add)"
+          disabled={isSubmitting}
+          maxTags={10}
+          className="todo-form__tag-input"
+        />
       </div>
 
       <button

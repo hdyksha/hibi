@@ -81,7 +81,8 @@ describe('TodoForm', () => {
     await waitFor(() => {
       expect(mockCreateTodo).toHaveBeenCalledWith({
         title: 'New Todo',
-        priority: 'medium'
+        priority: 'medium',
+        tags: []
       });
     });
     
@@ -140,7 +141,8 @@ describe('TodoForm', () => {
     await waitFor(() => {
       expect(mockCreateTodo).toHaveBeenCalledWith({
         title: 'New Todo',
-        priority: 'medium'
+        priority: 'medium',
+        tags: []
       });
     });
   });
@@ -279,7 +281,8 @@ describe('TodoForm', () => {
       await waitFor(() => {
         expect(mockCreateTodo).toHaveBeenCalledWith({
           title: 'High Priority Todo',
-          priority: 'high'
+          priority: 'high',
+          tags: []
         });
       });
     });

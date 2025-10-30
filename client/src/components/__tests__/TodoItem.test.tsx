@@ -318,7 +318,8 @@ describe('TodoItem', () => {
 
       expect(mockOnUpdate).toHaveBeenCalledWith('1', {
         title: 'Updated Todo',
-        priority: 'high'
+        priority: 'high',
+        tags: []
       });
     });
 

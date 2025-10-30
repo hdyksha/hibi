@@ -232,7 +232,7 @@ export function validateTags(tags: string[]): ValidationResult {
     // 各タグの検証
     for (let i = 0; i < tags.length; i++) {
         const tag = tags[i];
-        
+
         if (typeof tag !== 'string') {
             errors.push({
                 field: 'tags',
@@ -251,9 +251,10 @@ export function validateTags(tags: string[]): ValidationResult {
         }
     }
 
-    // 重複タグのチェック
-    const uniqueTags = new Set(tags.map(tag => tag.trim().toLowerCase()));
-    if (uniqueTags.size !== tags.length) {
+    // 重複タグのチェック（文字列要素のみ対象）
+    const stringTags = tags.filter((tag): tag is string => typeof tag === 'string');
+    const uniqueTags = new Set(stringTags.map(tag => tag.trim().toLowerCase()));
+    if (uniqueTags.size !== stringTags.length) {
         errors.push({
             field: 'tags',
             message: 'Tags must be unique (case-insensitive)'

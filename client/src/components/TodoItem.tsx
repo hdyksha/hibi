@@ -6,13 +6,14 @@
 
 import React, { useState } from 'react';
 import { TodoItem, Priority } from '../types';
+import TagInput from './TagInput';
 import './TodoItem.css';
 
 interface TodoItemProps {
   todo: TodoItem;
   onToggleComplete: (id: string) => void;
   onDelete: (id: string) => void;
-  onUpdate: (id: string, updates: { title?: string; priority?: Priority }) => void;
+  onUpdate: (id: string, updates: { title?: string; priority?: Priority; tags?: string[] }) => void;
 }
 
 const TodoItemComponent: React.FC<TodoItemProps> = ({
@@ -24,6 +25,7 @@ const TodoItemComponent: React.FC<TodoItemProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(todo.title);
   const [editPriority, setEditPriority] = useState(todo.priority);
+  const [editTags, setEditTags] = useState(todo.tags || []);
   const handleToggleClick = () => {
     onToggleComplete(todo.id);
   };
@@ -36,13 +38,19 @@ const TodoItemComponent: React.FC<TodoItemProps> = ({
     setIsEditing(true);
     setEditTitle(todo.title);
     setEditPriority(todo.priority);
+    setEditTags(todo.tags || []);
   };
 
   const handleSaveEdit = () => {
-    if (editTitle.trim() && (editTitle !== todo.title || editPriority !== todo.priority)) {
+    const hasChanges = editTitle.trim() !== todo.title || 
+                      editPriority !== todo.priority || 
+                      JSON.stringify(editTags) !== JSON.stringify(todo.tags || []);
+    
+    if (editTitle.trim() && hasChanges) {
       onUpdate(todo.id, { 
         title: editTitle.trim(), 
-        priority: editPriority 
+        priority: editPriority,
+        tags: editTags
       });
     }
     setIsEditing(false);
@@ -52,6 +60,7 @@ const TodoItemComponent: React.FC<TodoItemProps> = ({
     setIsEditing(false);
     setEditTitle(todo.title);
     setEditPriority(todo.priority);
+    setEditTags(todo.tags || []);
   };
 
   const getPriorityLabel = (priority: Priority) => {
@@ -105,6 +114,13 @@ const TodoItemComponent: React.FC<TodoItemProps> = ({
                 <option value="medium">Medium</option>
                 <option value="high">High</option>
               </select>
+              <TagInput
+                tags={editTags}
+                onChange={setEditTags}
+                placeholder="Edit tags..."
+                maxTags={10}
+                className="todo-item__edit-tags"
+              />
               <div className="todo-item__edit-actions">
                 <button onClick={handleSaveEdit} className="todo-item__save">
                   Save
@@ -126,6 +142,16 @@ const TodoItemComponent: React.FC<TodoItemProps> = ({
                   {getPriorityLabel(todo.priority)}
                 </span>
               </div>
+              
+              {todo.tags && todo.tags.length > 0 && (
+                <div className="todo-item__tags">
+                  {todo.tags.map((tag, index) => (
+                    <span key={index} className="todo-item__tag">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
               
               <div className="todo-item__metadata">
                 <span className="todo-item__created">

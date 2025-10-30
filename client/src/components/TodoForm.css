@@ -114,6 +114,10 @@
   box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.5);
 }
 
+.todo-form__tag-input {
+  margin-top: 0.25rem;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   .todo-form {
