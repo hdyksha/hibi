@@ -3,11 +3,10 @@
  * Requirements: 7.1, 7.2, 7.3, 7.4
  */
 
-import React from 'react';
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
-import TagInput from '../TagInput';
+import { TagInput } from '../TagInput';
 
 describe('TagInput Component', () => {
   const mockOnChange = vi.fn();

@@ -13,7 +13,7 @@ interface ArchiveProps {
   className?: string;
 }
 
-const Archive: React.FC<ArchiveProps> = ({ className }) => {
+export const Archive: React.FC<ArchiveProps> = ({ className }) => {
   const [archiveGroups, setArchiveGroups] = useState<ArchiveGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -155,4 +155,3 @@ const Archive: React.FC<ArchiveProps> = ({ className }) => {
   );
 };
 
-export default Archive;

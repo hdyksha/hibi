@@ -5,7 +5,7 @@
 
 import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
-import TodoItem from '../TodoItem';
+import { TodoItemComponent as TodoItem } from '../TodoItem';
 import { TodoItem as TodoItemType } from '../../types';
 
 const mockTodo: TodoItemType = {
@@ -17,6 +17,7 @@ const mockTodo: TodoItemType = {
   memo: '',
   createdAt: '2024-01-01T10:00:00Z',
   updatedAt: '2024-01-01T10:00:00Z',
+  completedAt: null,
 };
 
 const mockCompletedTodo: TodoItemType = {
@@ -28,6 +29,7 @@ const mockCompletedTodo: TodoItemType = {
   memo: '',
   createdAt: '2024-01-01T10:00:00Z',
   updatedAt: '2024-01-01T12:00:00Z',
+  completedAt: '2024-01-01T12:00:00Z',
 };
 
 describe('TodoItem', () => {

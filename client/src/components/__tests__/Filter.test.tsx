@@ -5,7 +5,7 @@
 
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import Filter from '../Filter';
+import { Filter } from '../Filter';
 import { TodoFilter } from '../../types';
 
 describe('Filter Component', () => {

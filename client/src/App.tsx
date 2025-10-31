@@ -48,12 +48,10 @@ function AppContent() {
   );
 }
 
-function App() {
+export const App: React.FC = () => {
   return (
     <TodoProvider>
       <AppContent />
     </TodoProvider>
   );
-}
-
-export default App;
+};

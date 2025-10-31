@@ -3,10 +3,10 @@
  * Requirements: 9.1, 9.2, 9.3, 9.4, 9.5
  */
 
-import React from 'react';
+
 import { render, screen, waitFor } from '@testing-library/react';
 import { vi } from 'vitest';
-import Archive from '../Archive';
+import { Archive } from '../Archive';
 import { todoApiClient } from '../../services';
 import { ArchiveGroup } from '../../types';
 

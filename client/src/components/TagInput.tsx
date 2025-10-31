@@ -16,7 +16,7 @@ interface TagInputProps {
   className?: string;
 }
 
-const TagInput: React.FC<TagInputProps> = ({
+export const TagInput: React.FC<TagInputProps> = ({
   tags,
   onChange,
   placeholder = "Add tags...",
@@ -149,4 +149,3 @@ const TagInput: React.FC<TagInputProps> = ({
   );
 };
 
-export default TagInput;

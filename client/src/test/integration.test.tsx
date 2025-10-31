@@ -7,7 +7,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import App from '../App';
+import { App } from '../App';
 
 // Mock fetch to simulate server responses
 const mockFetch = vi.fn();

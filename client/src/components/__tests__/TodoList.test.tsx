@@ -26,8 +26,10 @@ const mockTodos: TodoItem[] = [
     completed: false,
     priority: 'medium',
     tags: [],
+    memo: '',
     createdAt: '2024-01-01T10:00:00Z',
     updatedAt: '2024-01-01T10:00:00Z',
+    completedAt: null,
   },
   {
     id: '2',
@@ -35,8 +37,10 @@ const mockTodos: TodoItem[] = [
     completed: true,
     priority: 'high',
     tags: ['work'],
+    memo: '',
     createdAt: '2024-01-01T11:00:00Z',
     updatedAt: '2024-01-01T12:00:00Z',
+    completedAt: '2024-01-01T12:00:00Z',
   },
 ];
 

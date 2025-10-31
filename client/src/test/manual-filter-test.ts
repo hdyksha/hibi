@@ -4,7 +4,7 @@
  * Requirements: 7.2, 8.4
  */
 
-import { TodoFilter, FilterStatus, Priority } from '../types';
+import { TodoFilter } from '../types';
 
 // Test filter object creation
 const testFilter: TodoFilter = {

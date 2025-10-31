@@ -5,7 +5,7 @@
 
 import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
-import MemoEditor from '../MemoEditor';
+import { MemoEditor } from '../MemoEditor';
 
 describe('MemoEditor', () => {
   const mockOnChange = vi.fn();

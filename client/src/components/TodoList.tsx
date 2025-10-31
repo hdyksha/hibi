@@ -6,7 +6,7 @@
 
 import React from 'react';
 import { useTodoContext } from '../contexts';
-import { TodoItem as TodoItemComponent } from './';
+import { TodoItem } from './';
 import { Priority } from '../types';
 import './TodoList.css';
 
@@ -14,7 +14,7 @@ interface TodoListProps {
   className?: string;
 }
 
-const TodoList: React.FC<TodoListProps> = ({ className }) => {
+export const TodoList: React.FC<TodoListProps> = ({ className }) => {
   const {
     todos,
     loading,
@@ -80,7 +80,7 @@ const TodoList: React.FC<TodoListProps> = ({ className }) => {
         <ul className="todo-list__items">
           {todos.map(todo => (
             <li key={todo.id} className="todo-list__item">
-              <TodoItemComponent
+              <TodoItem
                 todo={todo}
                 onToggleComplete={handleToggleComplete}
                 onDelete={handleDelete}
@@ -94,4 +94,3 @@ const TodoList: React.FC<TodoListProps> = ({ className }) => {
   );
 };
 
-export default TodoList;

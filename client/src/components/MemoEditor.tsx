@@ -16,7 +16,7 @@ interface MemoEditorProps {
   disabled?: boolean;
 }
 
-const MemoEditor: React.FC<MemoEditorProps> = ({
+export const MemoEditor: React.FC<MemoEditorProps> = ({
   value,
   onChange,
   placeholder = "Enter memo in markdown format...",
@@ -132,4 +132,3 @@ const MemoEditor: React.FC<MemoEditorProps> = ({
   );
 };
 
-export default MemoEditor;

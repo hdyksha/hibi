@@ -27,7 +27,7 @@ const PRIORITY_OPTIONS: { value: Priority; label: string }[] = [
   { value: 'low', label: 'Low' },
 ];
 
-const Filter: React.FC<FilterProps> = ({
+export const Filter: React.FC<FilterProps> = ({
   filter,
   availableTags,
   onFilterChange,
@@ -215,4 +215,3 @@ const Filter: React.FC<FilterProps> = ({
   );
 };
 
-export default Filter;

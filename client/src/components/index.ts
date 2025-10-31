@@ -2,9 +2,10 @@
  * Export all components for easy importing
  */
 
-export { default as TodoList } from './TodoList';
-export { default as TodoItem } from './TodoItem';
-export { default as TodoForm } from './TodoForm';
-export { default as Filter } from './Filter';
-export { default as MemoEditor } from './MemoEditor';
-export { default as Archive } from './Archive';
+export { TodoList } from './TodoList';
+export { TodoItemComponent as TodoItem } from './TodoItem';
+export { TodoForm } from './TodoForm';
+export { Filter } from './Filter';
+export { MemoEditor } from './MemoEditor';
+export { Archive } from './Archive';
+export { TagInput } from './TagInput';

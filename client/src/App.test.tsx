@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { vi } from 'vitest';
 import '@testing-library/jest-dom';
-import App from './App';
+import { App } from './App';
 
 // Mock the components to avoid Context API calls in App tests
 vi.mock('./components', () => ({

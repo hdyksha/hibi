@@ -24,8 +24,10 @@ const mockCreatedTodo: TodoItem = {
   completed: false,
   priority: 'medium',
   tags: [],
+  memo: '',
   createdAt: '2024-01-01T10:00:00Z',
   updatedAt: '2024-01-01T10:00:00Z',
+  completedAt: null,
 };
 
 const renderTodoForm = () => {

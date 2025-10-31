@@ -6,8 +6,8 @@
 
 import React, { useState } from 'react';
 import { TodoItem, Priority } from '../types';
-import TagInput from './TagInput';
-import MemoEditor from './MemoEditor';
+import { TagInput } from './TagInput';
+import { MemoEditor } from './MemoEditor';
 import './TodoItem.css';
 
 interface TodoItemProps {
@@ -17,7 +17,7 @@ interface TodoItemProps {
   onUpdate: (id: string, updates: { title?: string; priority?: Priority; tags?: string[]; memo?: string }) => void;
 }
 
-const TodoItemComponent: React.FC<TodoItemProps> = ({
+export const TodoItemComponent: React.FC<TodoItemProps> = ({
   todo,
   onToggleComplete,
   onDelete,
@@ -228,4 +228,3 @@ const TodoItemComponent: React.FC<TodoItemProps> = ({
   );
 };
 
-export default TodoItemComponent;

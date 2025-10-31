@@ -37,8 +37,10 @@ describe('TodoApiClient', () => {
           completed: false,
           priority: 'medium',
           tags: [],
+          memo: '',
           createdAt: '2023-01-01T00:00:00.000Z',
           updatedAt: '2023-01-01T00:00:00.000Z',
+          completedAt: null,
         },
       ];
 
@@ -101,8 +103,10 @@ describe('TodoApiClient', () => {
         completed: false,
         priority: 'medium',
         tags: [],
+        memo: '',
         createdAt: '2023-01-01T00:00:00.000Z',
         updatedAt: '2023-01-01T00:00:00.000Z',
+        completedAt: null,
       };
 
       mockFetch.mockResolvedValueOnce({
@@ -151,8 +155,10 @@ describe('TodoApiClient', () => {
         completed: true,
         priority: 'medium',
         tags: [],
+        memo: '',
         createdAt: '2023-01-01T00:00:00.000Z',
         updatedAt: '2023-01-01T01:00:00.000Z',
+        completedAt: '2023-01-01T01:00:00.000Z',
       };
 
       mockFetch.mockResolvedValueOnce({
@@ -201,14 +207,17 @@ describe('TodoApiClient', () => {
           completed: false,
           priority: 'medium',
           tags: [],
+          memo: '',
           createdAt: '2023-01-01T00:00:00.000Z',
           updatedAt: '2023-01-01T00:00:00.000Z',
+          completedAt: null,
         },
       ];
       const mockUpdatedTodo: TodoItem = {
         ...mockTodos[0],
         completed: true,
         updatedAt: '2023-01-01T01:00:00.000Z',
+        completedAt: '2023-01-01T01:00:00.000Z',
       };
 
       // Mock getTodos call
