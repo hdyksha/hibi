@@ -127,4 +127,13 @@
   .todo-form__submit {
     align-self: stretch;
   }
+}/* 
+Memo editor styles in form */
+.todo-form__memo-editor {
+  width: 100%;
+}
+
+.todo-form__memo-editor .memo-editor__content {
+  min-height: 150px;
+  max-height: 300px;
 }

@@ -82,7 +82,8 @@ describe('TodoForm', () => {
       expect(mockCreateTodo).toHaveBeenCalledWith({
         title: 'New Todo',
         priority: 'medium',
-        tags: []
+        tags: [],
+        memo: ''
       });
     });
     
@@ -142,7 +143,8 @@ describe('TodoForm', () => {
       expect(mockCreateTodo).toHaveBeenCalledWith({
         title: 'New Todo',
         priority: 'medium',
-        tags: []
+        tags: [],
+        memo: ''
       });
     });
   });
@@ -282,7 +284,8 @@ describe('TodoForm', () => {
         expect(mockCreateTodo).toHaveBeenCalledWith({
           title: 'High Priority Todo',
           priority: 'high',
-          tags: []
+          tags: [],
+          memo: ''
         });
       });
     });

@@ -7,13 +7,14 @@
 import React, { useState } from 'react';
 import { TodoItem, Priority } from '../types';
 import TagInput from './TagInput';
+import MemoEditor from './MemoEditor';
 import './TodoItem.css';
 
 interface TodoItemProps {
   todo: TodoItem;
   onToggleComplete: (id: string) => void;
   onDelete: (id: string) => void;
-  onUpdate: (id: string, updates: { title?: string; priority?: Priority; tags?: string[] }) => void;
+  onUpdate: (id: string, updates: { title?: string; priority?: Priority; tags?: string[]; memo?: string }) => void;
 }
 
 const TodoItemComponent: React.FC<TodoItemProps> = ({
@@ -26,6 +27,8 @@ const TodoItemComponent: React.FC<TodoItemProps> = ({
   const [editTitle, setEditTitle] = useState(todo.title);
   const [editPriority, setEditPriority] = useState(todo.priority);
   const [editTags, setEditTags] = useState(todo.tags || []);
+  const [editMemo, setEditMemo] = useState(todo.memo || '');
+  const [showMemo, setShowMemo] = useState(false);
   const handleToggleClick = () => {
     onToggleComplete(todo.id);
   };
@@ -39,18 +42,21 @@ const TodoItemComponent: React.FC<TodoItemProps> = ({
     setEditTitle(todo.title);
     setEditPriority(todo.priority);
     setEditTags(todo.tags || []);
+    setEditMemo(todo.memo || '');
   };
 
   const handleSaveEdit = () => {
     const hasChanges = editTitle.trim() !== todo.title || 
                       editPriority !== todo.priority || 
-                      JSON.stringify(editTags) !== JSON.stringify(todo.tags || []);
+                      JSON.stringify(editTags) !== JSON.stringify(todo.tags || []) ||
+                      editMemo !== (todo.memo || '');
     
     if (editTitle.trim() && hasChanges) {
       onUpdate(todo.id, { 
         title: editTitle.trim(), 
         priority: editPriority,
-        tags: editTags
+        tags: editTags,
+        memo: editMemo
       });
     }
     setIsEditing(false);
@@ -61,6 +67,7 @@ const TodoItemComponent: React.FC<TodoItemProps> = ({
     setEditTitle(todo.title);
     setEditPriority(todo.priority);
     setEditTags(todo.tags || []);
+    setEditMemo(todo.memo || '');
   };
 
   const getPriorityLabel = (priority: Priority) => {
@@ -121,6 +128,15 @@ const TodoItemComponent: React.FC<TodoItemProps> = ({
                 maxTags={10}
                 className="todo-item__edit-tags"
               />
+              <div className="todo-item__memo-section">
+                <label className="todo-item__memo-label">Memo:</label>
+                <MemoEditor
+                  value={editMemo}
+                  onChange={setEditMemo}
+                  placeholder="Add memo in markdown format..."
+                  className="todo-item__memo-editor"
+                />
+              </div>
               <div className="todo-item__edit-actions">
                 <button onClick={handleSaveEdit} className="todo-item__save">
                   Save
@@ -150,6 +166,28 @@ const TodoItemComponent: React.FC<TodoItemProps> = ({
                       {tag}
                     </span>
                   ))}
+                </div>
+              )}
+              
+              {todo.memo && (
+                <div className="todo-item__memo">
+                  <button
+                    className="todo-item__memo-toggle"
+                    onClick={() => setShowMemo(!showMemo)}
+                    aria-label={showMemo ? 'Hide memo' : 'Show memo'}
+                  >
+                    📝 {showMemo ? 'Hide Memo' : 'Show Memo'}
+                  </button>
+                  {showMemo && (
+                    <div className="todo-item__memo-content">
+                      <MemoEditor
+                        value={todo.memo}
+                        onChange={() => {}} // Read-only in display mode
+                        disabled={true}
+                        className="todo-item__memo-display"
+                      />
+                    </div>
+                  )}
                 </div>
               )}
               

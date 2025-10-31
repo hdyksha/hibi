@@ -8,6 +8,7 @@ import React, { useState } from 'react';
 import { CreateTodoItemInput, Priority } from '../types';
 import { useTodoContext } from '../contexts';
 import TagInput from './TagInput';
+import MemoEditor from './MemoEditor';
 import './TodoForm.css';
 
 interface ValidationResult {
@@ -23,6 +24,7 @@ const TodoForm: React.FC<TodoFormProps> = ({ className }) => {
   const [title, setTitle] = useState('');
   const [priority, setPriority] = useState<Priority>('medium');
   const [tags, setTags] = useState<string[]>([]);
+  const [memo, setMemo] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { createTodo } = useTodoContext();
@@ -56,7 +58,8 @@ const TodoForm: React.FC<TodoFormProps> = ({ className }) => {
       const input: CreateTodoItemInput = {
         title: title.trim(),
         priority: priority,
-        tags: tags
+        tags: tags,
+        memo: memo.trim()
       };
 
       await createTodo(input);
@@ -65,6 +68,7 @@ const TodoForm: React.FC<TodoFormProps> = ({ className }) => {
       setTitle('');
       setPriority('medium');
       setTags([]);
+      setMemo('');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create todo');
     } finally {
@@ -140,6 +144,19 @@ const TodoForm: React.FC<TodoFormProps> = ({ className }) => {
           disabled={isSubmitting}
           maxTags={10}
           className="todo-form__tag-input"
+        />
+      </div>
+
+      <div className="todo-form__field">
+        <label className="todo-form__label">
+          Memo
+        </label>
+        <MemoEditor
+          value={memo}
+          onChange={setMemo}
+          placeholder="Add memo in markdown format..."
+          disabled={isSubmitting}
+          className="todo-form__memo-editor"
         />
       </div>
 

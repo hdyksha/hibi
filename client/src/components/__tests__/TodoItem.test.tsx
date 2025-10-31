@@ -14,6 +14,7 @@ const mockTodo: TodoItemType = {
   completed: false,
   priority: 'medium',
   tags: [],
+  memo: '',
   createdAt: '2024-01-01T10:00:00Z',
   updatedAt: '2024-01-01T10:00:00Z',
 };
@@ -24,6 +25,7 @@ const mockCompletedTodo: TodoItemType = {
   completed: true,
   priority: 'high',
   tags: ['work'],
+  memo: '',
   createdAt: '2024-01-01T10:00:00Z',
   updatedAt: '2024-01-01T12:00:00Z',
 };
@@ -319,7 +321,8 @@ describe('TodoItem', () => {
       expect(mockOnUpdate).toHaveBeenCalledWith('1', {
         title: 'Updated Todo',
         priority: 'high',
-        tags: []
+        tags: [],
+        memo: ''
       });
     });
 
@@ -398,7 +401,8 @@ describe('TodoItem', () => {
       expect(mockOnUpdate).toHaveBeenCalledWith('1', {
         title: 'Updated Title',
         priority: 'medium',
-        tags: []
+        tags: [],
+        memo: ''
       });
     });
 
@@ -424,7 +428,8 @@ describe('TodoItem', () => {
       expect(mockOnUpdate).toHaveBeenCalledWith('1', {
         title: 'Test Todo',
         priority: 'high',
-        tags: []
+        tags: [],
+        memo: ''
       });
     });
 
@@ -478,7 +483,8 @@ describe('TodoItem', () => {
       expect(mockOnUpdate).toHaveBeenCalledWith('1', {
         title: 'Test Todo',
         priority: 'medium',
-        tags: ['urgent'] // 'work' tag removed
+        tags: ['urgent'], // 'work' tag removed
+        memo: ''
       });
     });
 
@@ -525,7 +531,8 @@ describe('TodoItem', () => {
       expect(mockOnUpdate).toHaveBeenCalledWith('1', {
         title: 'Test Todo',
         priority: 'medium',
-        tags: ['new-tag']
+        tags: ['new-tag'],
+        memo: ''
       });
     });
 
@@ -608,7 +615,8 @@ describe('TodoItem', () => {
       expect(mockOnUpdate).toHaveBeenCalledWith('1', {
         title: 'Updated Todo Item',
         priority: 'low',
-        tags: []
+        tags: [],
+        memo: ''
       });
     });
 
