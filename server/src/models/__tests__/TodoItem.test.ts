@@ -662,7 +662,8 @@ describe('TodoItem Validation Functions', () => {
         tags: [],
         memo: '',
         createdAt: '2023-12-01T10:30:00.000Z',
-        updatedAt: '2023-12-01T10:30:00.000Z'
+        updatedAt: '2023-12-01T10:30:00.000Z',
+        completedAt: null
       };
       const result = validateTodoItem(todoItem);
       expect(result.isValid).toBe(true);
@@ -678,7 +679,8 @@ describe('TodoItem Validation Functions', () => {
         tags: ['work', 'urgent'],
         memo: 'Important task memo',
         createdAt: '2023-12-01T10:30:00.000Z',
-        updatedAt: '2023-12-01T10:30:00.000Z'
+        updatedAt: '2023-12-01T10:30:00.000Z',
+        completedAt: null
       };
       const result = validateTodoItem(todoItem);
       expect(result.isValid).toBe(true);
@@ -694,7 +696,8 @@ describe('TodoItem Validation Functions', () => {
         tags: ['personal'],
         memo: 'Personal task memo',
         createdAt: '2023-12-01T10:30:00.000Z',
-        updatedAt: '2023-12-01T10:30:00.000Z'
+        updatedAt: '2023-12-01T10:30:00.000Z',
+        completedAt: null
       };
       const result = validateTodoItem(todoItem);
       expect(result.isValid).toBe(true);
@@ -710,10 +713,11 @@ describe('TodoItem Validation Functions', () => {
         tags: ['work', ''] as any, // empty tag
         memo: '',
         createdAt: 'invalid-date',
-        updatedAt: 'invalid-date'
+        updatedAt: 'invalid-date',
+        completedAt: 'invalid-date' as any
       };
       const result = validateTodoItem(todoItem);
-      expect(result.errors).toHaveLength(7);
+      expect(result.errors).toHaveLength(8);
       
       const fieldNames = result.errors.map(error => error.field);
       expect(fieldNames).toContain('id');
@@ -723,6 +727,7 @@ describe('TodoItem Validation Functions', () => {
       expect(fieldNames).toContain('tags');
       expect(fieldNames).toContain('createdAt');
       expect(fieldNames).toContain('updatedAt');
+      expect(fieldNames).toContain('completedAt');
     });
 
     it('should pass validation for completed TodoItem with tags', () => {
@@ -734,7 +739,8 @@ describe('TodoItem Validation Functions', () => {
         tags: ['work', 'completed'],
         memo: 'Completed task memo',
         createdAt: '2023-12-01T10:30:00.000Z',
-        updatedAt: '2023-12-01T10:30:00.000Z'
+        updatedAt: '2023-12-01T10:30:00.000Z',
+        completedAt: '2023-12-01T11:00:00.000Z'
       };
       const result = validateTodoItem(todoItem);
       expect(result.isValid).toBe(true);
@@ -750,7 +756,8 @@ describe('TodoItem Validation Functions', () => {
         tags: ['work'],
         memo: '',
         createdAt: '2023-12-01T10:30:00.000Z',
-        updatedAt: '2023-12-01T10:30:00.000Z'
+        updatedAt: '2023-12-01T10:30:00.000Z',
+        completedAt: null
       };
       const result = validateTodoItem(todoItem);
       expect(result.isValid).toBe(false);
@@ -768,7 +775,8 @@ describe('TodoItem Validation Functions', () => {
         tags: ['work', ''], // empty tag
         memo: '',
         createdAt: '2023-12-01T10:30:00.000Z',
-        updatedAt: '2023-12-01T10:30:00.000Z'
+        updatedAt: '2023-12-01T10:30:00.000Z',
+        completedAt: null
       };
       const result = validateTodoItem(todoItem);
       expect(result.isValid).toBe(false);

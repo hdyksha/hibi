@@ -4,7 +4,7 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { TodoItem, CreateTodoItemInput, validateCreateTodoItemInput, validateUpdateTodoItemInput, TodoFilter, FilterStatus, Priority, FILTER_STATUS_VALUES, PRIORITY_VALUES } from '../models';
+import { TodoItem, CreateTodoItemInput, validateCreateTodoItemInput, validateUpdateTodoItemInput, TodoFilter, FilterStatus, Priority, FILTER_STATUS_VALUES, PRIORITY_VALUES, ArchiveGroup } from '../models';
 import { defaultStorageService } from '../services/FileStorageService';
 import { generateTodoId } from '../utils';
 
@@ -146,7 +146,8 @@ router.post('/', async (req: Request, res: Response) => {
             tags: input.tags || [],                  // 要件 7.1: デフォルトで空のタグ配列
             memo: input.memo || '',                  // 要件 8.1: デフォルトで空のメモ
             createdAt: now,                          // 要件 1.6: 作成日時を自動記録
-            updatedAt: now                           // 要件 3.5: 更新日時を自動設定
+            updatedAt: now,                          // 要件 3.5: 更新日時を自動設定
+            completedAt: null                        // 要件 3.4: 初期状態では未完了なのでnull
         };
 
         // Save to storage
@@ -212,7 +213,17 @@ router.put('/:id', async (req: Request, res: Response) => {
 
         // Handle different types of updates
         if (updateData.hasOwnProperty('completed')) {
-            updatedTodo.completed = Boolean(updateData.completed);  // 要件 3.1: completedフィールドの更新
+            const newCompletedStatus = Boolean(updateData.completed);
+            updatedTodo.completed = newCompletedStatus;  // 要件 3.1: completedフィールドの更新
+            
+            // 要件 3.4: todoアイテムが完了済みになった時、完了日時を記録する
+            if (newCompletedStatus && !existingTodo.completed) {
+                // 未完了から完了に変更された場合、完了日時を設定
+                updatedTodo.completedAt = new Date().toISOString();
+            } else if (!newCompletedStatus && existingTodo.completed) {
+                // 完了から未完了に変更された場合、完了日時をクリア
+                updatedTodo.completedAt = null;
+            }
         }
 
         if (updateData.hasOwnProperty('title')) {
@@ -286,6 +297,62 @@ router.delete('/:id', async (req: Request, res: Response) => {
         return res.status(500).json({
             error: 'Internal server error',
             message: 'Failed to delete todo item'
+        });
+    }
+});
+
+/**
+ * GET /api/todos/archive - Get completed todo items grouped by completion date
+ * Requirements: 9.1, 9.2, 9.3, 9.5
+ */
+router.get('/archive', async (_req: Request, res: Response) => {
+    try {
+        // Retrieve all todos from storage
+        const todos = await defaultStorageService.readTodos();
+
+        // Filter only completed todos that have a completedAt date
+        // 要件 9.1: 完了済みのtodoアイテムをアーカイブビューで表示する
+        const completedTodos = todos.filter(todo => todo.completed && todo.completedAt);
+
+        // Group todos by completion date (YYYY-MM-DD format)
+        // 要件 9.2: アーカイブビューで完了日によるグルーピング機能を提供する
+        const groupedTodos = new Map<string, TodoItem[]>();
+        
+        completedTodos.forEach(todo => {
+            if (todo.completedAt) {
+                // Extract date part from ISO string (YYYY-MM-DD)
+                const completionDate = todo.completedAt.split('T')[0];
+                
+                if (!groupedTodos.has(completionDate)) {
+                    groupedTodos.set(completionDate, []);
+                }
+                groupedTodos.get(completionDate)!.push(todo);
+            }
+        });
+
+        // Convert to ArchiveGroup array and sort by date (newest first)
+        // 要件 9.3: 完了日が新しいものから順に表示する
+        // 要件 9.5: アーカイブビューで各グループの完了タスク数を表示する
+        const archiveGroups: ArchiveGroup[] = Array.from(groupedTodos.entries())
+            .map(([date, tasks]) => ({
+                date,
+                tasks: tasks.sort((a, b) => {
+                    // Sort tasks within each group by completion time (newest first)
+                    return new Date(b.completedAt!).getTime() - new Date(a.completedAt!).getTime();
+                }),
+                count: tasks.length
+            }))
+            .sort((a, b) => {
+                // Sort groups by date (newest first)
+                return new Date(b.date).getTime() - new Date(a.date).getTime();
+            });
+
+        return res.status(200).json(archiveGroups);
+    } catch (error) {
+        console.error('Error retrieving archive:', error);
+        return res.status(500).json({
+            error: 'Internal server error',
+            message: 'Failed to retrieve archive data'
         });
     }
 });

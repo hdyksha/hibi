@@ -28,6 +28,17 @@ export interface TodoFilter {
     searchText?: string;      // 検索テキスト（タイトルとメモを対象）
 }
 
+/**
+ * アーカイブグループ用のインターフェース
+ * 要件 9.2: アーカイブビューで完了日によるグルーピング機能を提供する
+ * 要件 9.5: アーカイブビューで各グループの完了タスク数を表示する
+ */
+export interface ArchiveGroup {
+    date: string;        // YYYY-MM-DD format
+    tasks: TodoItem[];   // 完了済みtodoアイテム
+    count: number;       // 完了タスク数
+}
+
 export interface TodoItem {
     id: string;           // 一意のID (要件 1.5)
     title: string;        // タイトル (必須) (要件 1.3)
@@ -37,6 +48,7 @@ export interface TodoItem {
     memo: string;         // メモ (デフォルト: '') (要件 8.1)
     createdAt: string;    // 作成日時 (ISO 8601形式) (要件 1.6)
     updatedAt: string;    // 更新日時 (ISO 8601形式) (要件 3.5)
+    completedAt: string | null; // 完了日時 (ISO 8601形式) (要件 3.4)
 }
 
 /**
@@ -198,6 +210,36 @@ export function validateUpdatedAt(updatedAt: string): ValidationResult {
                 field: 'updatedAt',
                 message: 'UpdatedAt must be a valid ISO 8601 date string'
             });
+        }
+    }
+
+    return {
+        isValid: errors.length === 0,
+        errors
+    };
+}
+
+/**
+ * 完了日時のバリデーション
+ * 要件 3.4: todoアイテムが完了済みになった時、完了日時を記録する
+ */
+export function validateCompletedAt(completedAt: string | null): ValidationResult {
+    const errors: ValidationError[] = [];
+
+    if (completedAt !== null) {
+        if (typeof completedAt !== 'string') {
+            errors.push({
+                field: 'completedAt',
+                message: 'CompletedAt must be a string or null'
+            });
+        } else {
+            const date = new Date(completedAt);
+            if (isNaN(date.getTime())) {
+                errors.push({
+                    field: 'completedAt',
+                    message: 'CompletedAt must be a valid ISO 8601 date string'
+                });
+            }
         }
     }
 
@@ -392,6 +434,7 @@ export function validateTodoItem(todoItem: TodoItem): ValidationResult {
     const memoValidation = validateMemo(todoItem.memo);
     const createdAtValidation = validateCreatedAt(todoItem.createdAt);
     const updatedAtValidation = validateUpdatedAt(todoItem.updatedAt);
+    const completedAtValidation = validateCompletedAt(todoItem.completedAt);
 
     errors.push(...idValidation.errors);
     errors.push(...titleValidation.errors);
@@ -401,6 +444,7 @@ export function validateTodoItem(todoItem: TodoItem): ValidationResult {
     errors.push(...memoValidation.errors);
     errors.push(...createdAtValidation.errors);
     errors.push(...updatedAtValidation.errors);
+    errors.push(...completedAtValidation.errors);
 
     return {
         isValid: errors.length === 0,
