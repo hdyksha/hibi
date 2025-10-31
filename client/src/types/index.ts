@@ -15,6 +15,7 @@ export interface TodoItem {
   memo: string;
   createdAt: string;
   updatedAt: string;
+  completedAt: string | null;
 }
 
 export interface TodoFilter {
@@ -53,4 +54,10 @@ export interface ApiError {
 export interface ApiResponse<T> {
   data?: T;
   error?: ApiError;
+}
+
+export interface ArchiveGroup {
+  date: string;        // YYYY-MM-DD format
+  tasks: TodoItem[];   // 完了済みtodoアイテム
+  count: number;       // 完了タスク数
 }

@@ -7,3 +7,4 @@ export { default as TodoItem } from './TodoItem';
 export { default as TodoForm } from './TodoForm';
 export { default as Filter } from './Filter';
 export { default as MemoEditor } from './MemoEditor';
+export { default as Archive } from './Archive';

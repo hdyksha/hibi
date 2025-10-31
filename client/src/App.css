@@ -12,9 +12,38 @@
 }
 
 .App-header h1 {
-  margin: 0;
+  margin: 0 0 1rem 0;
   font-size: 2rem;
   font-weight: 600;
+}
+
+.App-nav {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.nav-button {
+  padding: 0.5rem 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  background-color: transparent;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.nav-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.nav-button.active {
+  background-color: white;
+  color: #2563eb;
+  border-color: white;
 }
 
 .App-main {
@@ -45,4 +74,14 @@
   .App-main > *:nth-child(3) {
     grid-area: todos;
   }
+}
+
+/* Archive view layout */
+.App-main:has(.archive) {
+  grid-template-columns: 1fr;
+  grid-template-areas: "archive";
+}
+
+.App-main .archive {
+  grid-area: archive;
 }

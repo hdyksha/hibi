@@ -4,7 +4,7 @@
  * Requirements: 全般
  */
 
-import { TodoItem, CreateTodoItemInput, UpdateTodoItemInput, ApiError, TodoFilter } from '../types';
+import { TodoItem, CreateTodoItemInput, UpdateTodoItemInput, ApiError, TodoFilter, ArchiveGroup } from '../types';
 
 export class ApiClientError extends Error {
   constructor(
@@ -192,6 +192,15 @@ export class TodoApiClient {
    */
   async getTags(): Promise<string[]> {
     return this.request<string[]>('/todos/tags');
+  }
+
+  /**
+   * Get completed todo items grouped by completion date
+   * GET /api/todos/archive
+   * Requirements: 9.1, 9.2, 9.3, 9.5
+   */
+  async getArchive(): Promise<ArchiveGroup[]> {
+    return this.request<ArchiveGroup[]>('/todos/archive');
   }
 }
 
