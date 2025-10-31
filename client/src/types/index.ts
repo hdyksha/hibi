@@ -12,6 +12,7 @@ export interface TodoItem {
   completed: boolean;
   priority: Priority;
   tags: string[];
+  memo: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -27,6 +28,7 @@ export interface CreateTodoItemInput {
   title: string;
   priority?: Priority;
   tags?: string[];
+  memo?: string;
 }
 
 export interface UpdateTodoItemInput {
@@ -34,6 +36,7 @@ export interface UpdateTodoItemInput {
   completed?: boolean;
   priority?: Priority;
   tags?: string[];
+  memo?: string;
 }
 
 export interface ValidationError {

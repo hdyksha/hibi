@@ -15,6 +15,7 @@ import {
   validateCreatedAt,
   validatePriority,
   validateTags,
+  validateMemo,
   validateCreateTodoItemInput,
   validateUpdateTodoItemInput,
   validateTodoItem
@@ -301,6 +302,57 @@ describe('TodoItem Validation Functions', () => {
     });
   });
 
+  describe('validateMemo', () => {
+    it('should pass validation for empty string', () => {
+      const result = validateMemo('');
+      expect(result.isValid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should pass validation for valid memo text', () => {
+      const result = validateMemo('This is a valid memo');
+      expect(result.isValid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should pass validation for memo with markdown', () => {
+      const result = validateMemo('# Header\n\n**Bold text** and *italic text*\n\n- List item 1\n- List item 2');
+      expect(result.isValid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should pass validation for long memo text', () => {
+      const longMemo = 'a'.repeat(1000);
+      const result = validateMemo(longMemo);
+      expect(result.isValid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should fail validation for non-string input', () => {
+      const result = validateMemo(123 as any);
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0].field).toBe('memo');
+      expect(result.errors[0].message).toBe('Memo must be a string');
+    });
+
+    it('should fail validation for null input', () => {
+      const result = validateMemo(null as any);
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0].field).toBe('memo');
+      expect(result.errors[0].message).toBe('Memo must be a string');
+    });
+
+    it('should fail validation for undefined input', () => {
+      const result = validateMemo(undefined as any);
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0].field).toBe('memo');
+      expect(result.errors[0].message).toBe('Memo must be a string');
+    });
+  });
+
   describe('validateCreateTodoItemInput', () => {
     it('should pass validation for valid input without priority and tags', () => {
       const input: CreateTodoItemInput = {
@@ -336,6 +388,28 @@ describe('TodoItem Validation Functions', () => {
         title: 'Valid todo title',
         priority: 'high',
         tags: ['work', 'urgent']
+      };
+      const result = validateCreateTodoItemInput(input);
+      expect(result.isValid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should pass validation for valid input with memo', () => {
+      const input: CreateTodoItemInput = {
+        title: 'Valid todo title',
+        memo: 'This is a memo for the task'
+      };
+      const result = validateCreateTodoItemInput(input);
+      expect(result.isValid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it('should pass validation for valid input with all fields', () => {
+      const input: CreateTodoItemInput = {
+        title: 'Valid todo title',
+        priority: 'high',
+        tags: ['work', 'urgent'],
+        memo: 'Complete task memo'
       };
       const result = validateCreateTodoItemInput(input);
       expect(result.isValid).toBe(true);
@@ -384,6 +458,18 @@ describe('TodoItem Validation Functions', () => {
       expect(result.errors).toHaveLength(1);
       expect(result.errors[0].field).toBe('tags');
       expect(result.errors[0].message).toBe('Tag at index 1 cannot be empty');
+    });
+
+    it('should fail validation for invalid memo', () => {
+      const input: CreateTodoItemInput = {
+        title: 'Valid title',
+        memo: 123 as any
+      };
+      const result = validateCreateTodoItemInput(input);
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0].field).toBe('memo');
+      expect(result.errors[0].message).toBe('Memo must be a string');
     });
 
     it('should fail validation for both invalid title and priority', () => {
@@ -454,12 +540,22 @@ describe('TodoItem Validation Functions', () => {
       expect(result.errors).toHaveLength(0);
     });
 
+    it('should pass validation for valid memo update', () => {
+      const input: UpdateTodoItemInput = {
+        memo: 'Updated memo content'
+      };
+      const result = validateUpdateTodoItemInput(input);
+      expect(result.isValid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
     it('should pass validation for all fields update', () => {
       const input: UpdateTodoItemInput = {
         title: 'Updated title',
         completed: true,
         priority: 'high',
-        tags: ['work', 'completed']
+        tags: ['work', 'completed'],
+        memo: 'Updated memo'
       };
       const result = validateUpdateTodoItemInput(input);
       expect(result.isValid).toBe(true);
@@ -524,22 +620,35 @@ describe('TodoItem Validation Functions', () => {
       expect(result.errors[0].message).toBe('Tag at index 1 cannot be empty');
     });
 
+    it('should fail validation for invalid memo', () => {
+      const input: UpdateTodoItemInput = {
+        memo: null as any
+      };
+      const result = validateUpdateTodoItemInput(input);
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0].field).toBe('memo');
+      expect(result.errors[0].message).toBe('Memo must be a string');
+    });
+
     it('should fail validation for multiple invalid fields', () => {
       const input: UpdateTodoItemInput = {
         title: '',
         completed: 'false' as any,
         priority: 'urgent' as Priority,
-        tags: ['work', ''] // empty tag
+        tags: ['work', ''], // empty tag
+        memo: 123 as any
       };
       const result = validateUpdateTodoItemInput(input);
       expect(result.isValid).toBe(false);
-      expect(result.errors).toHaveLength(4);
+      expect(result.errors).toHaveLength(5);
       
       const fieldNames = result.errors.map(error => error.field);
       expect(fieldNames).toContain('title');
       expect(fieldNames).toContain('completed');
       expect(fieldNames).toContain('priority');
       expect(fieldNames).toContain('tags');
+      expect(fieldNames).toContain('memo');
     });
   });
 
