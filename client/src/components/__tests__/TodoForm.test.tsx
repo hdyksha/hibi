@@ -54,9 +54,12 @@ describe('TodoForm', () => {
     renderTodoForm();
     
     expect(screen.getByLabelText('New Todo')).toBeInTheDocument();
-    expect(screen.getByLabelText('Priority')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Enter todo title...')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Create Todo' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Show advanced options' })).toBeInTheDocument();
+    
+    // Advanced options should be hidden by default
+    expect(screen.queryByLabelText('Priority')).not.toBeInTheDocument();
   });
 
   it('creates todo with valid title', async () => {
@@ -239,9 +242,73 @@ describe('TodoForm', () => {
     expect(screen.queryByText('Title is required')).not.toBeInTheDocument();
   });
 
+  describe('Advanced options toggle functionality', () => {
+    it('shows advanced options when toggle is clicked', () => {
+      renderTodoForm();
+      
+      const toggleButton = screen.getByRole('button', { name: 'Show advanced options' });
+      fireEvent.click(toggleButton);
+      
+      expect(screen.getByLabelText('Priority')).toBeInTheDocument();
+      expect(screen.getByText('Additional Details')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Hide advanced options' })).toBeInTheDocument();
+    });
+
+    it('hides advanced options when toggle is clicked again', () => {
+      renderTodoForm();
+      
+      const toggleButton = screen.getByRole('button', { name: 'Show advanced options' });
+      fireEvent.click(toggleButton);
+      
+      expect(screen.getByLabelText('Priority')).toBeInTheDocument();
+      
+      const hideButton = screen.getByRole('button', { name: 'Hide advanced options' });
+      fireEvent.click(hideButton);
+      
+      expect(screen.queryByLabelText('Priority')).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Show advanced options' })).toBeInTheDocument();
+    });
+
+    it('resets advanced panel state after successful creation', async () => {
+      const mockCreateTodo = vi.fn().mockResolvedValue(mockCreatedTodo);
+      mockUseTodoContext.mockReturnValue({
+        todos: [],
+        loading: false,
+        error: null,
+        refreshTodos: vi.fn(),
+        createTodo: mockCreateTodo,
+        updateTodo: vi.fn(),
+        toggleTodoCompletion: vi.fn(),
+        deleteTodo: vi.fn(),
+      });
+      
+      renderTodoForm();
+      
+      const titleInput = screen.getByLabelText('New Todo');
+      const toggleButton = screen.getByRole('button', { name: 'Show advanced options' });
+      
+      // Open advanced panel
+      fireEvent.click(toggleButton);
+      expect(screen.getByLabelText('Priority')).toBeInTheDocument();
+      
+      // Create todo
+      fireEvent.change(titleInput, { target: { value: 'Test Todo' } });
+      fireEvent.click(screen.getByRole('button', { name: 'Create Todo' }));
+      
+      await waitFor(() => {
+        expect(screen.queryByLabelText('Priority')).not.toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Show advanced options' })).toBeInTheDocument();
+      });
+    });
+  });
+
   describe('Priority functionality (Requirements 6.1, 6.2)', () => {
     it('defaults to medium priority', () => {
       renderTodoForm();
+      
+      // Open advanced options to access priority
+      const toggleButton = screen.getByRole('button', { name: 'Show advanced options' });
+      fireEvent.click(toggleButton);
       
       const prioritySelect = screen.getByLabelText('Priority');
       expect(prioritySelect).toHaveValue('medium');
@@ -249,6 +316,10 @@ describe('TodoForm', () => {
 
     it('allows selecting different priorities', () => {
       renderTodoForm();
+      
+      // Open advanced options to access priority
+      const toggleButton = screen.getByRole('button', { name: 'Show advanced options' });
+      fireEvent.click(toggleButton);
       
       const prioritySelect = screen.getByLabelText('Priority');
       
@@ -275,6 +346,11 @@ describe('TodoForm', () => {
       renderTodoForm();
       
       const titleInput = screen.getByLabelText('New Todo');
+      const toggleButton = screen.getByRole('button', { name: 'Show advanced options' });
+      
+      // Open advanced options to access priority
+      fireEvent.click(toggleButton);
+      
       const prioritySelect = screen.getByLabelText('Priority');
       const submitButton = screen.getByRole('button', { name: 'Create Todo' });
       
@@ -308,6 +384,11 @@ describe('TodoForm', () => {
       renderTodoForm();
       
       const titleInput = screen.getByLabelText('New Todo');
+      const toggleButton = screen.getByRole('button', { name: 'Show advanced options' });
+      
+      // Open advanced options to access priority
+      fireEvent.click(toggleButton);
+      
       const prioritySelect = screen.getByLabelText('Priority');
       
       fireEvent.change(titleInput, { target: { value: 'Test Todo' } });
@@ -315,7 +396,12 @@ describe('TodoForm', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Create Todo' }));
       
       await waitFor(() => {
-        expect(prioritySelect).toHaveValue('medium');
+        // Need to open advanced options again to check the reset value
+        const newToggleButton = screen.getByRole('button', { name: 'Show advanced options' });
+        fireEvent.click(newToggleButton);
+        
+        const newPrioritySelect = screen.getByLabelText('Priority');
+        expect(newPrioritySelect).toHaveValue('medium');
       });
     });
   });

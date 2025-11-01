@@ -27,6 +27,7 @@ export const TodoForm: React.FC<TodoFormProps> = ({ className }) => {
   const [memo, setMemo] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const { createTodo } = useTodoContext();
 
   const validateTitle = (title: string): ValidationResult => {
@@ -69,6 +70,7 @@ export const TodoForm: React.FC<TodoFormProps> = ({ className }) => {
       setPriority('medium');
       setTags([]);
       setMemo('');
+      setShowAdvanced(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create todo');
     } finally {
@@ -88,85 +90,113 @@ export const TodoForm: React.FC<TodoFormProps> = ({ className }) => {
     setPriority(e.target.value as Priority);
   };
 
+  const toggleAdvanced = () => {
+    setShowAdvanced(!showAdvanced);
+  };
+
   return (
     <form
       className={`todo-form ${className || ''}`}
       onSubmit={handleSubmit}
       noValidate
     >
-      <div className="todo-form__field">
-        <label htmlFor="todo-title" className="todo-form__label">
-          New Todo
-        </label>
-        <input
-          id="todo-title"
-          type="text"
-          value={title}
-          onChange={handleTitleChange}
-          placeholder="Enter todo title..."
-          className={`todo-form__input ${error ? 'todo-form__input--error' : ''}`}
-          disabled={isSubmitting}
-          maxLength={200}
-          required
-        />
-        {error && (
-          <div className="todo-form__error" role="alert">
-            {error}
+      <div className="todo-form__main">
+        <div className="todo-form__field">
+          <label htmlFor="todo-title" className="todo-form__label">
+            New Todo
+          </label>
+          <div className="todo-form__input-row">
+            <input
+              id="todo-title"
+              type="text"
+              value={title}
+              onChange={handleTitleChange}
+              placeholder="Enter todo title..."
+              className={`todo-form__input ${error ? 'todo-form__input--error' : ''}`}
+              disabled={isSubmitting}
+              maxLength={200}
+              required
+            />
+            <button
+              type="button"
+              onClick={toggleAdvanced}
+              className="todo-form__toggle"
+              disabled={isSubmitting}
+              aria-expanded={showAdvanced}
+              aria-label={showAdvanced ? 'Hide advanced options' : 'Show advanced options'}
+            >
+              {showAdvanced ? '▲' : '▼'}
+            </button>
           </div>
-        )}
+          {error && (
+            <div className="todo-form__error" role="alert">
+              {error}
+            </div>
+          )}
+        </div>
+
+        <div className="todo-form__actions">
+          <button
+            type="submit"
+            className="todo-form__submit"
+            disabled={isSubmitting || !title.trim()}
+          >
+            {isSubmitting ? 'Creating...' : 'Create Todo'}
+          </button>
+        </div>
       </div>
 
-      <div className="todo-form__field">
-        <label htmlFor="todo-priority" className="todo-form__label">
-          Priority
-        </label>
-        <select
-          id="todo-priority"
-          value={priority}
-          onChange={handlePriorityChange}
-          className="todo-form__select"
-          disabled={isSubmitting}
-        >
-          <option value="low">Low</option>
-          <option value="medium">Medium</option>
-          <option value="high">High</option>
-        </select>
-      </div>
+      {showAdvanced && (
+        <div className="todo-form__advanced">
+          <div className="todo-form__advanced-header">
+            <h3 className="todo-form__advanced-title">Additional Details</h3>
+          </div>
 
-      <div className="todo-form__field">
-        <label className="todo-form__label">
-          Tags
-        </label>
-        <TagInput
-          tags={tags}
-          onChange={setTags}
-          placeholder="Add tags (press Enter or comma to add)"
-          disabled={isSubmitting}
-          maxTags={10}
-          className="todo-form__tag-input"
-        />
-      </div>
+          <div className="todo-form__field">
+            <label htmlFor="todo-priority" className="todo-form__label">
+              Priority
+            </label>
+            <select
+              id="todo-priority"
+              value={priority}
+              onChange={handlePriorityChange}
+              className="todo-form__select"
+              disabled={isSubmitting}
+            >
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+          </div>
 
-      <div className="todo-form__field">
-        <label className="todo-form__label">
-          Memo
-        </label>
-        <MemoEditor
-          value={memo}
-          onChange={setMemo}
-          placeholder="Add memo in markdown format..."
-          disabled={isSubmitting}
-          className="todo-form__memo-editor"
-        />
-      </div>
+          <div className="todo-form__field">
+            <label className="todo-form__label">
+              Tags
+            </label>
+            <TagInput
+              tags={tags}
+              onChange={setTags}
+              placeholder="Add tags (press Enter or comma to add)"
+              disabled={isSubmitting}
+              maxTags={10}
+              className="todo-form__tag-input"
+            />
+          </div>
 
-      <button
-        type="submit"
-        className="todo-form__submit"
-        disabled={isSubmitting || !title.trim()}
-      >
-        {isSubmitting ? 'Creating...' : 'Create Todo'}
-      </button>
+          <div className="todo-form__field">
+            <label className="todo-form__label">
+              Memo
+            </label>
+            <MemoEditor
+              value={memo}
+              onChange={setMemo}
+              placeholder="Add memo in markdown format..."
+              disabled={isSubmitting}
+              className="todo-form__memo-editor"
+            />
+          </div>
+        </div>
+      )}
     </form>
   );
 };
