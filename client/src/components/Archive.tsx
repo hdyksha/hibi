@@ -5,8 +5,10 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { ArchiveGroup } from '../types';
+import { ArchiveGroup, TodoItem } from '../types';
 import { todoApiClient } from '../services';
+import { EditTaskModal } from './EditTaskModal';
+import { useTodoContext } from '../contexts/TodoContext';
 import './Archive.css';
 
 interface ArchiveProps {
@@ -17,6 +19,10 @@ export const Archive: React.FC<ArchiveProps> = ({ className }) => {
   const [archiveGroups, setArchiveGroups] = useState<ArchiveGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [editingTask, setEditingTask] = useState<TodoItem | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  const { updateTodo } = useTodoContext();
 
   useEffect(() => {
     loadArchiveData();
@@ -55,6 +61,27 @@ export const Archive: React.FC<ArchiveProps> = ({ className }) => {
 
   const getPriorityClass = (priority: string): string => {
     return `priority-${priority}`;
+  };
+
+  const handleEditClick = (task: TodoItem) => {
+    setEditingTask(task);
+    setIsModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setEditingTask(null);
+  };
+
+  const handleTaskUpdate = async (id: string, updates: { title?: string; tags?: string[]; memo?: string }) => {
+    try {
+      await updateTodo(id, updates);
+      // Reload archive data to reflect changes
+      await loadArchiveData();
+    } catch (error) {
+      // Error handling is managed by the modal component
+      throw error;
+    }
   };
 
   if (loading) {
@@ -145,12 +172,32 @@ export const Archive: React.FC<ArchiveProps> = ({ className }) => {
                       </div>
                     )}
                   </div>
+
+                  <div className="archive-task-actions">
+                    <button
+                      className="archive-task-edit"
+                      onClick={() => handleEditClick(task)}
+                      aria-label={`Edit task: ${task.title}`}
+                      title="タスクを編集"
+                    >
+                      ✏️
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
         ))}
       </div>
+
+      {editingTask && (
+        <EditTaskModal
+          task={editingTask}
+          isOpen={isModalOpen}
+          onClose={handleModalClose}
+          onSave={handleTaskUpdate}
+        />
+      )}
     </div>
   );
 };

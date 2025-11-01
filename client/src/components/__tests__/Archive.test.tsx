@@ -9,19 +9,38 @@ import { vi } from 'vitest';
 import { Archive } from '../Archive';
 import { todoApiClient } from '../../services';
 import { ArchiveGroup } from '../../types';
+import { TodoProvider } from '../../contexts/TodoContext';
 
 // Mock the API client
 vi.mock('../../services', () => ({
   todoApiClient: {
     getArchive: vi.fn(),
+    getTodos: vi.fn(),
+    getTags: vi.fn(),
+    createTodo: vi.fn(),
+    updateTodo: vi.fn(),
+    toggleTodoCompletion: vi.fn(),
+    deleteTodo: vi.fn(),
   },
 }));
 
 const mockApiClient = todoApiClient as any;
 
+// Helper function to render Archive with TodoProvider
+const renderArchive = (props = {}) => {
+  return render(
+    <TodoProvider>
+      <Archive {...props} />
+    </TodoProvider>
+  );
+};
+
 describe('Archive Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Mock the required methods for TodoProvider
+    mockApiClient.getTodos.mockResolvedValue([]);
+    mockApiClient.getTags.mockResolvedValue([]);
   });
 
   const mockArchiveData: ArchiveGroup[] = [
@@ -75,7 +94,7 @@ describe('Archive Component', () => {
   it('displays loading state initially', () => {
     mockApiClient.getArchive.mockImplementation(() => new Promise(() => {}));
     
-    render(<Archive />);
+    renderArchive();
     
     expect(screen.getByText('アーカイブを読み込み中...')).toBeInTheDocument();
   });
@@ -83,7 +102,7 @@ describe('Archive Component', () => {
   it('displays archive groups with completed tasks', async () => {
     mockApiClient.getArchive.mockResolvedValue(mockArchiveData);
     
-    render(<Archive />);
+    renderArchive();
     
     await waitFor(() => {
       expect(screen.getByText('アーカイブ')).toBeInTheDocument();
@@ -120,7 +139,7 @@ describe('Archive Component', () => {
   it('displays empty state when no completed tasks exist', async () => {
     mockApiClient.getArchive.mockResolvedValue([]);
     
-    render(<Archive />);
+    renderArchive();
     
     await waitFor(() => {
       expect(screen.getByText('完了済みのタスクはありません。')).toBeInTheDocument();
@@ -131,7 +150,7 @@ describe('Archive Component', () => {
     const errorMessage = 'Network error';
     mockApiClient.getArchive.mockRejectedValue(new Error(errorMessage));
     
-    render(<Archive />);
+    renderArchive();
     
     await waitFor(() => {
       expect(screen.getByText(`エラー: ${errorMessage}`)).toBeInTheDocument();
@@ -143,7 +162,7 @@ describe('Archive Component', () => {
   it('groups tasks by completion date correctly', async () => {
     mockApiClient.getArchive.mockResolvedValue(mockArchiveData);
     
-    render(<Archive />);
+    renderArchive();
     
     await waitFor(() => {
       expect(screen.getByText('アーカイブ')).toBeInTheDocument();
@@ -163,7 +182,7 @@ describe('Archive Component', () => {
   it('displays tasks with proper archive styling without line-through', async () => {
     mockApiClient.getArchive.mockResolvedValue(mockArchiveData);
     
-    render(<Archive />);
+    renderArchive();
     
     await waitFor(() => {
       expect(screen.getByText('Complete project')).toBeInTheDocument();
@@ -182,7 +201,7 @@ describe('Archive Component', () => {
   it('displays archive-specific visual elements', async () => {
     mockApiClient.getArchive.mockResolvedValue(mockArchiveData);
     
-    render(<Archive />);
+    renderArchive();
     
     await waitFor(() => {
       expect(screen.getByText('Complete project')).toBeInTheDocument();
@@ -208,5 +227,25 @@ describe('Archive Component', () => {
     const archiveHeader = document.querySelector('.archive-header');
     expect(archiveHeader).toBeInTheDocument();
     expect(archiveHeader).toHaveClass('archive-header');
+  });
+
+  it('displays edit buttons for archived tasks', async () => {
+    mockApiClient.getArchive.mockResolvedValue(mockArchiveData);
+    
+    renderArchive();
+    
+    await waitFor(() => {
+      expect(screen.getByText('Complete project')).toBeInTheDocument();
+    });
+
+    // Check that edit buttons are present for each task
+    const editButtons = screen.getAllByLabelText(/Edit task:/);
+    expect(editButtons).toHaveLength(3); // 3 tasks in mockArchiveData
+    
+    // Verify edit buttons have proper attributes
+    editButtons.forEach(button => {
+      expect(button).toHaveAttribute('title', 'タスクを編集');
+      expect(button).toHaveClass('archive-task-edit');
+    });
   });
 });

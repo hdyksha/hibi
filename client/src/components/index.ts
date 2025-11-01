@@ -9,3 +9,4 @@ export { Filter } from './Filter';
 export { MemoEditor } from './MemoEditor';
 export { Archive } from './Archive';
 export { TagInput } from './TagInput';
+export { EditTaskModal } from './EditTaskModal';
