@@ -5,21 +5,27 @@
 
 .App-header {
   background-color: #2563eb;
-  padding: 1.5rem;
+  padding: 1rem 1.5rem;
   color: white;
-  text-align: center;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
 .App-header h1 {
-  margin: 0 0 1rem 0;
-  font-size: 2rem;
+  margin: 0;
+  font-size: 1.75rem;
   font-weight: 600;
 }
 
 .App-nav {
   display: flex;
-  justify-content: center;
   gap: 0.5rem;
 }
 
@@ -53,6 +59,21 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 1.5rem;
+}
+
+@media (max-width: 767px) {
+  .header-content {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .App-header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .App-nav {
+    justify-content: center;
+  }
 }
 
 @media (min-width: 768px) {

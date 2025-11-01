@@ -11,10 +11,18 @@ vi.mock('./components', () => ({
 }));
 
 describe('App', () => {
-  it('renders the todo app title', () => {
+  it('renders the Hibi app title', () => {
     render(<App />);
-    const titleElement = screen.getByText('Todo App');
+    const titleElement = screen.getByText('Hibi');
     expect(titleElement).toBeInTheDocument();
+  });
+
+  it('renders navigation buttons in header', () => {
+    render(<App />);
+    const tasksButton = screen.getByText('タスク一覧');
+    const archiveButton = screen.getByText('アーカイブ');
+    expect(tasksButton).toBeInTheDocument();
+    expect(archiveButton).toBeInTheDocument();
   });
 
   it('renders the TodoForm, Filter, and TodoList components', () => {

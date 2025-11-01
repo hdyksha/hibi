@@ -13,21 +13,23 @@ function AppContent() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>Todo App</h1>
-        <nav className="App-nav">
-          <button
-            className={`nav-button ${currentView === 'todos' ? 'active' : ''}`}
-            onClick={() => setCurrentView('todos')}
-          >
-            タスク一覧
-          </button>
-          <button
-            className={`nav-button ${currentView === 'archive' ? 'active' : ''}`}
-            onClick={() => setCurrentView('archive')}
-          >
-            アーカイブ
-          </button>
-        </nav>
+        <div className="header-content">
+          <h1>Hibi</h1>
+          <nav className="App-nav">
+            <button
+              className={`nav-button ${currentView === 'todos' ? 'active' : ''}`}
+              onClick={() => setCurrentView('todos')}
+            >
+              タスク一覧
+            </button>
+            <button
+              className={`nav-button ${currentView === 'archive' ? 'active' : ''}`}
+              onClick={() => setCurrentView('archive')}
+            >
+              アーカイブ
+            </button>
+          </nav>
+        </div>
       </header>
       <main className="App-main">
         {currentView === 'todos' ? (
