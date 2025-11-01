@@ -13,6 +13,7 @@ interface FilterProps {
   availableTags: string[];
   onFilterChange: (filter: TodoFilter) => void;
   className?: string;
+  hideStatusFilter?: boolean;
 }
 
 const FILTER_STATUS_OPTIONS: { value: FilterStatus; label: string }[] = [
@@ -32,6 +33,7 @@ export const Filter: React.FC<FilterProps> = ({
   availableTags,
   onFilterChange,
   className,
+  hideStatusFilter = false,
 }) => {
   const [searchText, setSearchText] = useState(filter.searchText || '');
 
@@ -120,24 +122,26 @@ export const Filter: React.FC<FilterProps> = ({
       </div>
 
       {/* Status Filter */}
-      <div className="filter__section">
-        <label className="filter__label">Status</label>
-        <div className="filter__radio-group">
-          {FILTER_STATUS_OPTIONS.map(option => (
-            <label key={option.value} className="filter__radio-label">
-              <input
-                type="radio"
-                name="status"
-                value={option.value}
-                checked={(filter.status || 'pending') === option.value}
-                onChange={() => handleStatusChange(option.value)}
-                className="filter__radio-input"
-              />
-              <span className="filter__radio-text">{option.label}</span>
-            </label>
-          ))}
+      {!hideStatusFilter && (
+        <div className="filter__section">
+          <label className="filter__label">Status</label>
+          <div className="filter__radio-group">
+            {FILTER_STATUS_OPTIONS.map(option => (
+              <label key={option.value} className="filter__radio-label">
+                <input
+                  type="radio"
+                  name="status"
+                  value={option.value}
+                  checked={(filter.status || 'pending') === option.value}
+                  onChange={() => handleStatusChange(option.value)}
+                  className="filter__radio-input"
+                />
+                <span className="filter__radio-text">{option.label}</span>
+              </label>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Priority Filter */}
       <div className="filter__section">
@@ -184,7 +188,7 @@ export const Filter: React.FC<FilterProps> = ({
         <div className="filter__summary">
           <div className="filter__summary-title">Active Filters:</div>
           <div className="filter__summary-items">
-            {filter.status && filter.status !== 'all' && (
+            {!hideStatusFilter && filter.status && filter.status !== 'all' && (
               <span className="filter__summary-item">
                 Status: {FILTER_STATUS_OPTIONS.find(opt => opt.value === filter.status)?.label}
               </span>

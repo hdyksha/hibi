@@ -4,7 +4,7 @@
  */
 
 
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
 import { Archive } from '../Archive';
 import { todoApiClient } from '../../services';
@@ -125,11 +125,13 @@ describe('Archive Component', () => {
     expect(screen.getByText('medium')).toBeInTheDocument();
     expect(screen.getByText('low')).toBeInTheDocument();
 
-    // Check tags
-    expect(screen.getByText('work')).toBeInTheDocument();
-    expect(screen.getByText('urgent')).toBeInTheDocument();
-    expect(screen.getByText('review')).toBeInTheDocument();
-    expect(screen.getByText('personal')).toBeInTheDocument();
+    // Check tags (using more specific selectors to avoid conflicts with filter tags)
+    const archiveTags = document.querySelectorAll('.archive-task-tag');
+    const tagTexts = Array.from(archiveTags).map(tag => tag.textContent);
+    expect(tagTexts).toContain('work');
+    expect(tagTexts).toContain('urgent');
+    expect(tagTexts).toContain('review');
+    expect(tagTexts).toContain('personal');
 
     // Check memos
     expect(screen.getByText('Important project deadline')).toBeInTheDocument();
@@ -246,6 +248,177 @@ describe('Archive Component', () => {
     editButtons.forEach(button => {
       expect(button).toHaveAttribute('title', 'タスクを編集');
       expect(button).toHaveClass('archive-task-edit');
+    });
+  });
+
+  describe('Archive Filter Functionality', () => {
+    beforeEach(() => {
+      mockApiClient.getArchive.mockResolvedValue(mockArchiveData);
+    });
+
+    it('displays filter component in archive view', async () => {
+      renderArchive();
+      
+      await waitFor(() => {
+        expect(screen.getByText('アーカイブ')).toBeInTheDocument();
+      });
+
+      // Check that filter component is rendered
+      expect(screen.getByText('Filters')).toBeInTheDocument();
+      expect(screen.getByLabelText('Search')).toBeInTheDocument();
+      expect(screen.getByText('Priority')).toBeInTheDocument();
+      expect(screen.getByText('Tags')).toBeInTheDocument();
+      
+      // Status filter should be hidden in archive view
+      expect(screen.queryByText('Status')).not.toBeInTheDocument();
+    });
+
+    it('filters tasks by search text', async () => {
+      renderArchive();
+      
+      await waitFor(() => {
+        expect(screen.getByText('Complete project')).toBeInTheDocument();
+      });
+
+      // Initially all tasks should be visible
+      expect(screen.getByText('Complete project')).toBeInTheDocument();
+      expect(screen.getByText('Review documents')).toBeInTheDocument();
+      expect(screen.getByText('Buy groceries')).toBeInTheDocument();
+
+      // Search for "project"
+      const searchInput = screen.getByLabelText('Search');
+      fireEvent.change(searchInput, { target: { value: 'project' } });
+
+      // Only "Complete project" should be visible
+      expect(screen.getByText('Complete project')).toBeInTheDocument();
+      expect(screen.queryByText('Review documents')).not.toBeInTheDocument();
+      expect(screen.queryByText('Buy groceries')).not.toBeInTheDocument();
+    });
+
+    it('filters tasks by priority', async () => {
+      renderArchive();
+      
+      await waitFor(() => {
+        expect(screen.getByText('Complete project')).toBeInTheDocument();
+      });
+
+      // Filter by high priority
+      const prioritySelect = screen.getByLabelText('Priority');
+      fireEvent.change(prioritySelect, { target: { value: 'high' } });
+
+      // Only high priority task should be visible
+      expect(screen.getByText('Complete project')).toBeInTheDocument();
+      expect(screen.queryByText('Review documents')).not.toBeInTheDocument();
+      expect(screen.queryByText('Buy groceries')).not.toBeInTheDocument();
+    });
+
+    it('filters tasks by tags', async () => {
+      renderArchive();
+      
+      await waitFor(() => {
+        expect(screen.getByText('Complete project')).toBeInTheDocument();
+      });
+
+      // Filter by "work" tag (use the checkbox input specifically)
+      const workTagCheckbox = screen.getByRole('checkbox', { name: 'work' });
+      fireEvent.click(workTagCheckbox);
+
+      // Only tasks with "work" tag should be visible
+      expect(screen.getByText('Complete project')).toBeInTheDocument();
+      expect(screen.queryByText('Review documents')).not.toBeInTheDocument();
+      expect(screen.queryByText('Buy groceries')).not.toBeInTheDocument();
+    });
+
+    it('shows filtered task count', async () => {
+      renderArchive();
+      
+      await waitFor(() => {
+        expect(screen.getByText('3 件の完了済みタスク')).toBeInTheDocument();
+      });
+
+      // Apply a filter
+      const prioritySelect = screen.getByLabelText('Priority');
+      fireEvent.change(prioritySelect, { target: { value: 'high' } });
+
+      // Should show filtered count
+      expect(screen.getByText('1 / 3 件の完了済みタスク')).toBeInTheDocument();
+      expect(screen.getByText('(フィルター適用中)')).toBeInTheDocument();
+    });
+
+    it('shows empty state when no tasks match filter', async () => {
+      renderArchive();
+      
+      await waitFor(() => {
+        expect(screen.getByText('Complete project')).toBeInTheDocument();
+      });
+
+      // Search for something that doesn't exist
+      const searchInput = screen.getByLabelText('Search');
+      fireEvent.change(searchInput, { target: { value: 'nonexistent' } });
+
+      // Should show empty filter state
+      expect(screen.getByText('フィルター条件に一致するタスクがありません。')).toBeInTheDocument();
+    });
+
+    it('clears all filters when clear button is clicked', async () => {
+      renderArchive();
+      
+      await waitFor(() => {
+        expect(screen.getByText('Complete project')).toBeInTheDocument();
+      });
+
+      // Apply multiple filters
+      const searchInput = screen.getByLabelText('Search');
+      fireEvent.change(searchInput, { target: { value: 'project' } });
+      
+      const prioritySelect = screen.getByLabelText('Priority');
+      fireEvent.change(prioritySelect, { target: { value: 'high' } });
+
+      // Clear all filters
+      const clearButton = screen.getByText('Clear All');
+      fireEvent.click(clearButton);
+
+      // All tasks should be visible again
+      expect(screen.getByText('Complete project')).toBeInTheDocument();
+      expect(screen.getByText('Review documents')).toBeInTheDocument();
+      expect(screen.getByText('Buy groceries')).toBeInTheDocument();
+      
+      // Count should be back to original
+      expect(screen.getByText('3 件の完了済みタスク')).toBeInTheDocument();
+    });
+
+    it('combines multiple filters correctly', async () => {
+      renderArchive();
+      
+      await waitFor(() => {
+        expect(screen.getByText('Complete project')).toBeInTheDocument();
+      });
+
+      // Apply search and tag filter
+      const searchInput = screen.getByLabelText('Search');
+      fireEvent.change(searchInput, { target: { value: 'Complete' } });
+      
+      const workTagCheckbox = screen.getByRole('checkbox', { name: 'work' });
+      fireEvent.click(workTagCheckbox);
+
+      // Only "Complete project" should match both filters
+      expect(screen.getByText('Complete project')).toBeInTheDocument();
+      expect(screen.queryByText('Review documents')).not.toBeInTheDocument();
+      expect(screen.queryByText('Buy groceries')).not.toBeInTheDocument();
+    });
+
+    it('extracts available tags from archive data', async () => {
+      renderArchive();
+      
+      await waitFor(() => {
+        expect(screen.getByText('Complete project')).toBeInTheDocument();
+      });
+
+      // Check that all tags from archive data are available as filter options
+      expect(screen.getByRole('checkbox', { name: 'work' })).toBeInTheDocument();
+      expect(screen.getByRole('checkbox', { name: 'urgent' })).toBeInTheDocument();
+      expect(screen.getByRole('checkbox', { name: 'review' })).toBeInTheDocument();
+      expect(screen.getByRole('checkbox', { name: 'personal' })).toBeInTheDocument();
     });
   });
 });

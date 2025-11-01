@@ -186,5 +186,61 @@ describe('Filter Component', () => {
     expect(screen.queryByText('Tags')).not.toBeInTheDocument();
   });
 
+  it('hides status filter when hideStatusFilter is true', () => {
+    const filter: TodoFilter = {};
+    
+    render(
+      <Filter
+        filter={filter}
+        availableTags={mockAvailableTags}
+        onFilterChange={mockOnFilterChange}
+        hideStatusFilter={true}
+      />
+    );
 
+    expect(screen.queryByText('Status')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('All')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Pending')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Completed')).not.toBeInTheDocument();
+  });
+
+  it('shows status filter by default when hideStatusFilter is false or undefined', () => {
+    const filter: TodoFilter = {};
+    
+    render(
+      <Filter
+        filter={filter}
+        availableTags={mockAvailableTags}
+        onFilterChange={mockOnFilterChange}
+        hideStatusFilter={false}
+      />
+    );
+
+    expect(screen.getByText('Status')).toBeInTheDocument();
+    expect(screen.getByLabelText('All')).toBeInTheDocument();
+    expect(screen.getByLabelText('Pending')).toBeInTheDocument();
+    expect(screen.getByLabelText('Completed')).toBeInTheDocument();
+  });
+
+  it('excludes status from active filters summary when hideStatusFilter is true', () => {
+    const filter: TodoFilter = {
+      status: 'completed',
+      priority: 'high',
+      searchText: 'test'
+    };
+    
+    render(
+      <Filter
+        filter={filter}
+        availableTags={mockAvailableTags}
+        onFilterChange={mockOnFilterChange}
+        hideStatusFilter={true}
+      />
+    );
+
+    expect(screen.getByText('Active Filters:')).toBeInTheDocument();
+    expect(screen.queryByText('Status: Completed')).not.toBeInTheDocument();
+    expect(screen.getByText('Priority: High')).toBeInTheDocument();
+    expect(screen.getByText('Search: "test"')).toBeInTheDocument();
+  });
 });

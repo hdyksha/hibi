@@ -4,10 +4,11 @@
  * Requirements: 9.1, 9.2, 9.3, 9.4, 9.5
  */
 
-import React, { useState, useEffect } from 'react';
-import { ArchiveGroup, TodoItem } from '../types';
+import React, { useState, useEffect, useMemo } from 'react';
+import { ArchiveGroup, TodoItem, TodoFilter } from '../types';
 import { todoApiClient } from '../services';
 import { EditTaskModal } from './EditTaskModal';
+import { Filter } from './Filter';
 import { useTodoContext } from '../contexts/TodoContext';
 import './Archive.css';
 
@@ -21,12 +22,72 @@ export const Archive: React.FC<ArchiveProps> = ({ className }) => {
   const [error, setError] = useState<string | null>(null);
   const [editingTask, setEditingTask] = useState<TodoItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [archiveFilter, setArchiveFilter] = useState<TodoFilter>({});
   
   const { updateTodo } = useTodoContext();
 
   useEffect(() => {
     loadArchiveData();
   }, []);
+
+  // Get all available tags from archive data
+  const availableArchiveTags = useMemo(() => {
+    const tagSet = new Set<string>();
+    archiveGroups.forEach(group => {
+      group.tasks.forEach(task => {
+        task.tags.forEach(tag => tagSet.add(tag));
+      });
+    });
+    return Array.from(tagSet).sort();
+  }, [archiveGroups]);
+
+  // Filter archive groups based on current filter
+  const filteredArchiveGroups = useMemo(() => {
+    if (Object.keys(archiveFilter).length === 0) {
+      return archiveGroups;
+    }
+
+    return archiveGroups.map(group => {
+      const filteredTasks = group.tasks.filter(task => {
+        // Priority filter
+        if (archiveFilter.priority && task.priority !== archiveFilter.priority) {
+          return false;
+        }
+
+        // Tags filter
+        if (archiveFilter.tags && archiveFilter.tags.length > 0) {
+          const hasMatchingTag = archiveFilter.tags.some(filterTag => 
+            task.tags.includes(filterTag)
+          );
+          if (!hasMatchingTag) {
+            return false;
+          }
+        }
+
+        // Search text filter
+        if (archiveFilter.searchText) {
+          const searchLower = archiveFilter.searchText.toLowerCase();
+          const titleMatch = task.title.toLowerCase().includes(searchLower);
+          const memoMatch = task.memo?.toLowerCase().includes(searchLower) || false;
+          const tagMatch = task.tags.some(tag => 
+            tag.toLowerCase().includes(searchLower)
+          );
+          
+          if (!titleMatch && !memoMatch && !tagMatch) {
+            return false;
+          }
+        }
+
+        return true;
+      });
+
+      return {
+        ...group,
+        tasks: filteredTasks,
+        count: filteredTasks.length
+      };
+    }).filter(group => group.tasks.length > 0);
+  }, [archiveGroups, archiveFilter]);
 
   const loadArchiveData = async () => {
     try {
@@ -117,17 +178,43 @@ export const Archive: React.FC<ArchiveProps> = ({ className }) => {
     );
   }
 
+  const totalFilteredTasks = filteredArchiveGroups.reduce((total, group) => total + group.count, 0);
+  const totalTasks = archiveGroups.reduce((total, group) => total + group.count, 0);
+  const hasActiveFilter = Object.keys(archiveFilter).length > 0;
+
   return (
     <div className={`archive ${className || ''}`}>
       <div className="archive-header">
         <h2>アーカイブ</h2>
         <p className="archive-summary">
-          {archiveGroups.reduce((total, group) => total + group.count, 0)} 件の完了済みタスク
+          {hasActiveFilter ? (
+            <>
+              {totalFilteredTasks} / {totalTasks} 件の完了済みタスク
+              {totalFilteredTasks !== totalTasks && (
+                <span className="filter-indicator"> (フィルター適用中)</span>
+              )}
+            </>
+          ) : (
+            `${totalTasks} 件の完了済みタスク`
+          )}
         </p>
       </div>
 
-      <div className="archive-groups">
-        {archiveGroups.map((group) => (
+      <Filter
+        filter={archiveFilter}
+        availableTags={availableArchiveTags}
+        onFilterChange={setArchiveFilter}
+        className="archive-filter"
+        hideStatusFilter={true}
+      />
+
+      {filteredArchiveGroups.length === 0 ? (
+        <div className="archive-empty">
+          <p>フィルター条件に一致するタスクがありません。</p>
+        </div>
+      ) : (
+        <div className="archive-groups">
+          {filteredArchiveGroups.map((group) => (
           <div key={group.date} className="archive-group">
             <div className="archive-group-header">
               <h3 className="archive-group-date">
@@ -188,7 +275,8 @@ export const Archive: React.FC<ArchiveProps> = ({ className }) => {
             </div>
           </div>
         ))}
-      </div>
+        </div>
+      )}
 
       {editingTask && (
         <EditTaskModal
