@@ -9,7 +9,6 @@ import { TodoItem } from '../types';
 import { EditTaskModal } from './EditTaskModal';
 import { Filter } from './Filter';
 import { useTodoContext } from '../contexts/TodoContext';
-import { useArchive } from '../hooks/useArchive';
 import './Archive.css';
 
 interface ArchiveProps {
@@ -20,7 +19,7 @@ export const Archive: React.FC<ArchiveProps> = ({ className }) => {
   const [editingTask, setEditingTask] = useState<TodoItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   
-  const { updateTodo } = useTodoContext();
+  const { updateTodo, archive } = useTodoContext();
   const {
     loading,
     error,
@@ -32,7 +31,7 @@ export const Archive: React.FC<ArchiveProps> = ({ className }) => {
     hasActiveFilter,
     setFilter,
     refreshArchive,
-  } = useArchive();
+  } = archive;
 
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);

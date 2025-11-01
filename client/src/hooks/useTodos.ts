@@ -6,6 +6,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { TodoItem, CreateTodoItemInput, UpdateTodoItemInput, TodoFilter } from '../types';
 import { todoApiClient } from '../services';
+import { useFilter } from './useFilter';
 
 export interface UseTodosReturn {
     todos: TodoItem[];
@@ -13,44 +14,32 @@ export interface UseTodosReturn {
     error: string | null;
     filter: TodoFilter;
     availableTags: string[];
+    hasActiveFilter: boolean;
     refreshTodos: () => Promise<void>;
     setFilter: (filter: TodoFilter) => void;
+    clearFilter: () => void;
     createTodo: (input: CreateTodoItemInput) => Promise<TodoItem>;
     updateTodo: (id: string, input: UpdateTodoItemInput) => Promise<TodoItem>;
     toggleTodoCompletion: (id: string) => Promise<TodoItem>;
     deleteTodo: (id: string) => Promise<void>;
 }
 
-const FILTER_STORAGE_KEY = 'todo-app-filter';
-
-const getInitialFilter = (): TodoFilter => {
-    try {
-        const stored = localStorage.getItem(FILTER_STORAGE_KEY);
-        if (stored) {
-            return JSON.parse(stored);
-        }
-    } catch (error) {
-        console.warn('Failed to load filter from localStorage:', error);
-    }
-    // Default to showing only pending (incomplete) tasks
-    return { status: 'pending' };
-};
-
 export const useTodos = (): UseTodosReturn => {
     const [todos, setTodos] = useState<TodoItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [filter, setFilterState] = useState<TodoFilter>(getInitialFilter);
     const [availableTags, setAvailableTags] = useState<string[]>([]);
 
-    const setFilter = useCallback((newFilter: TodoFilter) => {
-        setFilterState(newFilter);
-        try {
-            localStorage.setItem(FILTER_STORAGE_KEY, JSON.stringify(newFilter));
-        } catch (error) {
-            console.warn('Failed to save filter to localStorage:', error);
-        }
-    }, []);
+    // Use common filter hook with default to show only pending tasks
+    const { 
+        filter, 
+        setFilter, 
+        clearFilter, 
+        hasActiveFilter 
+    } = useFilter({
+        storageKey: 'todo-app-filter',
+        defaultFilter: { status: 'pending' }
+    });
 
     const refreshTodos = useCallback(async () => {
         try {
@@ -136,8 +125,10 @@ export const useTodos = (): UseTodosReturn => {
         error,
         filter,
         availableTags,
+        hasActiveFilter,
         refreshTodos,
         setFilter,
+        clearFilter,
         createTodo,
         updateTodo,
         toggleTodoCompletion,

@@ -42,6 +42,13 @@ describe('Frontend-Backend Integration Tests', () => {
         json: async () => [],
       });
 
+      // Step 1: Initial load - GET /api/todos/archive (empty state)
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => [],
+      });
+
       render(<App />);
 
       // Wait for initial load
@@ -201,8 +208,8 @@ describe('Frontend-Backend Integration Tests', () => {
       });
 
       // Verify all API calls were made in correct order
-      // Updated count includes additional calls for tags API
-      expect(mockFetch).toHaveBeenCalledTimes(10); // GET, GET(tags), POST, GET, GET(tags), GET(for toggle), PUT, GET, DELETE, GET
+      // Updated count includes additional calls for tags API and archive API
+      expect(mockFetch).toHaveBeenCalledTimes(11); // GET, GET(tags), GET(archive), POST, GET, GET(tags), GET(for toggle), PUT, GET, DELETE, GET
     });
 
 
