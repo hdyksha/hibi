@@ -127,22 +127,7 @@
   transform: translateY(-1px);
 }
 
-.archive-task::before {
-  content: '✓';
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  width: 24px;
-  height: 24px;
-  background: #4caf50;
-  color: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
-  font-weight: bold;
-}
+
 
 .archive-task-content {
   display: flex;
