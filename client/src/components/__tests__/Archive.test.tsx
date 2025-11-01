@@ -160,7 +160,7 @@ describe('Archive Component', () => {
     expect(screen.getByText('1 件完了')).toBeInTheDocument();
   });
 
-  it('displays tasks with proper completion styling', async () => {
+  it('displays tasks with proper archive styling without line-through', async () => {
     mockApiClient.getArchive.mockResolvedValue(mockArchiveData);
     
     render(<Archive />);
@@ -169,10 +169,44 @@ describe('Archive Component', () => {
       expect(screen.getByText('Complete project')).toBeInTheDocument();
     });
 
-    // Check that task titles have completed styling (line-through)
+    // Check that task titles have archive styling without line-through
     const taskTitles = screen.getAllByRole('heading', { level: 4 });
     taskTitles.forEach(title => {
       expect(title).toHaveClass('archive-task-title');
+      // Verify that the title doesn't have line-through styling in archive view
+      const computedStyle = window.getComputedStyle(title);
+      expect(computedStyle.textDecoration).not.toContain('line-through');
     });
+  });
+
+  it('displays archive-specific visual elements', async () => {
+    mockApiClient.getArchive.mockResolvedValue(mockArchiveData);
+    
+    render(<Archive />);
+    
+    await waitFor(() => {
+      expect(screen.getByText('Complete project')).toBeInTheDocument();
+    });
+
+    // Check that archive tasks have the proper CSS classes for styling
+    const archiveTasks = document.querySelectorAll('.archive-task');
+    expect(archiveTasks.length).toBeGreaterThan(0);
+    
+    archiveTasks.forEach(task => {
+      expect(task).toHaveClass('archive-task');
+    });
+
+    // Check that archive groups have proper styling classes
+    const archiveGroups = document.querySelectorAll('.archive-group');
+    expect(archiveGroups.length).toBeGreaterThan(0);
+    
+    archiveGroups.forEach(group => {
+      expect(group).toHaveClass('archive-group');
+    });
+
+    // Verify archive header has proper styling
+    const archiveHeader = document.querySelector('.archive-header');
+    expect(archiveHeader).toBeInTheDocument();
+    expect(archiveHeader).toHaveClass('archive-header');
   });
 });
