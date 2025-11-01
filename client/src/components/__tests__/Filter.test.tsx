@@ -185,4 +185,6 @@ describe('Filter Component', () => {
 
     expect(screen.queryByText('Tags')).not.toBeInTheDocument();
   });
+
+
 });

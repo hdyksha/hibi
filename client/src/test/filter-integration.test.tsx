@@ -101,6 +101,7 @@ describe('Filter Integration', () => {
 
     await waitFor(() => {
       expect(mockGetTodos).toHaveBeenCalledWith({
+        status: 'pending',
         searchText: 'work'
       });
     });

@@ -37,11 +37,7 @@ export const Filter: React.FC<FilterProps> = ({
 
   const handleStatusChange = useCallback((status: FilterStatus) => {
     const newFilter = { ...filter };
-    if (status === 'all') {
-      delete newFilter.status;
-    } else {
-      newFilter.status = status;
-    }
+    newFilter.status = status;
     onFilterChange(newFilter);
   }, [filter, onFilterChange]);
 
@@ -133,7 +129,7 @@ export const Filter: React.FC<FilterProps> = ({
                 type="radio"
                 name="status"
                 value={option.value}
-                checked={(filter.status || 'all') === option.value}
+                checked={(filter.status || 'pending') === option.value}
                 onChange={() => handleStatusChange(option.value)}
                 className="filter__radio-input"
               />

@@ -21,12 +21,36 @@ export interface UseTodosReturn {
     deleteTodo: (id: string) => Promise<void>;
 }
 
+const FILTER_STORAGE_KEY = 'todo-app-filter';
+
+const getInitialFilter = (): TodoFilter => {
+    try {
+        const stored = localStorage.getItem(FILTER_STORAGE_KEY);
+        if (stored) {
+            return JSON.parse(stored);
+        }
+    } catch (error) {
+        console.warn('Failed to load filter from localStorage:', error);
+    }
+    // Default to showing only pending (incomplete) tasks
+    return { status: 'pending' };
+};
+
 export const useTodos = (): UseTodosReturn => {
     const [todos, setTodos] = useState<TodoItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [filter, setFilter] = useState<TodoFilter>({});
+    const [filter, setFilterState] = useState<TodoFilter>(getInitialFilter);
     const [availableTags, setAvailableTags] = useState<string[]>([]);
+
+    const setFilter = useCallback((newFilter: TodoFilter) => {
+        setFilterState(newFilter);
+        try {
+            localStorage.setItem(FILTER_STORAGE_KEY, JSON.stringify(newFilter));
+        } catch (error) {
+            console.warn('Failed to save filter to localStorage:', error);
+        }
+    }, []);
 
     const refreshTodos = useCallback(async () => {
         try {

@@ -49,8 +49,8 @@ describe('Frontend-Backend Integration Tests', () => {
         expect(screen.getByText('No todos yet. Create your first todo!')).toBeInTheDocument();
       });
 
-      // Verify initial GET request
-      expect(mockFetch).toHaveBeenCalledWith('/api/todos', {
+      // Verify initial GET request (now includes default pending filter)
+      expect(mockFetch).toHaveBeenCalledWith('/api/todos?status=pending', {
         headers: {
           'Content-Type': 'application/json',
         },
