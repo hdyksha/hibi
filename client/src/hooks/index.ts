@@ -3,3 +3,4 @@
  */
 
 export { useTodos } from './useTodos';
+export { useArchive } from './useArchive';

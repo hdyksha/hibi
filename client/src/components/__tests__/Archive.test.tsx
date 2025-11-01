@@ -254,6 +254,8 @@ describe('Archive Component', () => {
   describe('Archive Filter Functionality', () => {
     beforeEach(() => {
       mockApiClient.getArchive.mockResolvedValue(mockArchiveData);
+      // Clear localStorage to prevent filter state interference between tests
+      localStorage.clear();
     });
 
     it('displays filter component in archive view', async () => {
@@ -341,8 +343,10 @@ describe('Archive Component', () => {
       fireEvent.change(prioritySelect, { target: { value: 'high' } });
 
       // Should show filtered count
-      expect(screen.getByText('1 / 3 件の完了済みタスク')).toBeInTheDocument();
-      expect(screen.getByText('(フィルター適用中)')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByText('1 / 3 件の完了済みタスク')).toBeInTheDocument();
+        expect(screen.getByText('(フィルター適用中)')).toBeInTheDocument();
+      });
     });
 
     it('shows empty state when no tasks match filter', async () => {
@@ -374,17 +378,22 @@ describe('Archive Component', () => {
       const prioritySelect = screen.getByLabelText('Priority');
       fireEvent.change(prioritySelect, { target: { value: 'high' } });
 
+      // Wait for filters to be applied
+      await waitFor(() => {
+        expect(screen.getByText('Clear All')).toBeInTheDocument();
+      });
+
       // Clear all filters
       const clearButton = screen.getByText('Clear All');
       fireEvent.click(clearButton);
 
-      // All tasks should be visible again
-      expect(screen.getByText('Complete project')).toBeInTheDocument();
-      expect(screen.getByText('Review documents')).toBeInTheDocument();
-      expect(screen.getByText('Buy groceries')).toBeInTheDocument();
-      
-      // Count should be back to original
-      expect(screen.getByText('3 件の完了済みタスク')).toBeInTheDocument();
+      // Wait for filters to be cleared and all tasks to be visible again
+      await waitFor(() => {
+        expect(screen.getByText('Complete project')).toBeInTheDocument();
+        expect(screen.getByText('Review documents')).toBeInTheDocument();
+        expect(screen.getByText('Buy groceries')).toBeInTheDocument();
+        expect(screen.getByText('3 件の完了済みタスク')).toBeInTheDocument();
+      });
     });
 
     it('combines multiple filters correctly', async () => {
@@ -401,10 +410,12 @@ describe('Archive Component', () => {
       const workTagCheckbox = screen.getByRole('checkbox', { name: 'work' });
       fireEvent.click(workTagCheckbox);
 
-      // Only "Complete project" should match both filters
-      expect(screen.getByText('Complete project')).toBeInTheDocument();
-      expect(screen.queryByText('Review documents')).not.toBeInTheDocument();
-      expect(screen.queryByText('Buy groceries')).not.toBeInTheDocument();
+      // Wait for filters to be applied and only "Complete project" should match both filters
+      await waitFor(() => {
+        expect(screen.getByText('Complete project')).toBeInTheDocument();
+        expect(screen.queryByText('Review documents')).not.toBeInTheDocument();
+        expect(screen.queryByText('Buy groceries')).not.toBeInTheDocument();
+      });
     });
 
     it('extracts available tags from archive data', async () => {
@@ -415,10 +426,12 @@ describe('Archive Component', () => {
       });
 
       // Check that all tags from archive data are available as filter options
-      expect(screen.getByRole('checkbox', { name: 'work' })).toBeInTheDocument();
-      expect(screen.getByRole('checkbox', { name: 'urgent' })).toBeInTheDocument();
-      expect(screen.getByRole('checkbox', { name: 'review' })).toBeInTheDocument();
-      expect(screen.getByRole('checkbox', { name: 'personal' })).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByRole('checkbox', { name: 'work' })).toBeInTheDocument();
+        expect(screen.getByRole('checkbox', { name: 'urgent' })).toBeInTheDocument();
+        expect(screen.getByRole('checkbox', { name: 'review' })).toBeInTheDocument();
+        expect(screen.getByRole('checkbox', { name: 'personal' })).toBeInTheDocument();
+      });
     });
   });
 });
