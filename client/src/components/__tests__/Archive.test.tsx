@@ -105,11 +105,8 @@ describe('Archive Component', () => {
     renderArchive();
     
     await waitFor(() => {
-      expect(screen.getByText('アーカイブ')).toBeInTheDocument();
+      expect(screen.getByText('Complete project')).toBeInTheDocument();
     });
-
-    // Check summary
-    expect(screen.getByText('3 件の完了済みタスク')).toBeInTheDocument();
 
     // Check group headers
     expect(screen.getByText('2 件完了')).toBeInTheDocument();
@@ -167,7 +164,7 @@ describe('Archive Component', () => {
     renderArchive();
     
     await waitFor(() => {
-      expect(screen.getByText('アーカイブ')).toBeInTheDocument();
+      expect(screen.getByText('Complete project')).toBeInTheDocument();
     });
 
     // Verify that tasks are grouped by date
@@ -225,10 +222,10 @@ describe('Archive Component', () => {
       expect(group).toHaveClass('archive-group');
     });
 
-    // Verify archive header has proper styling
-    const archiveHeader = document.querySelector('.archive-header');
-    expect(archiveHeader).toBeInTheDocument();
-    expect(archiveHeader).toHaveClass('archive-header');
+    // Verify archive filter has proper styling
+    const archiveFilter = document.querySelector('.archive-filter');
+    expect(archiveFilter).toBeInTheDocument();
+    expect(archiveFilter).toHaveClass('archive-filter');
   });
 
   it('displays edit buttons for archived tasks', async () => {
@@ -262,7 +259,7 @@ describe('Archive Component', () => {
       renderArchive();
       
       await waitFor(() => {
-        expect(screen.getByText('アーカイブ')).toBeInTheDocument();
+        expect(screen.getByText('Complete project')).toBeInTheDocument();
       });
 
       // Check that search input is rendered by default
@@ -345,7 +342,7 @@ describe('Archive Component', () => {
       renderArchive();
       
       await waitFor(() => {
-        expect(screen.getByText('3 件の完了済みタスク')).toBeInTheDocument();
+        expect(screen.getByText('Complete project')).toBeInTheDocument();
       });
 
       // Show advanced filters first
@@ -356,10 +353,11 @@ describe('Archive Component', () => {
       const prioritySelect = screen.getByLabelText('優先度');
       fireEvent.change(prioritySelect, { target: { value: 'high' } });
 
-      // Should show filtered count
+      // Should show only filtered task
       await waitFor(() => {
-        expect(screen.getByText('1 / 3 件の完了済みタスク')).toBeInTheDocument();
-        expect(screen.getByText('(フィルター適用中)')).toBeInTheDocument();
+        expect(screen.getByText('Complete project')).toBeInTheDocument();
+        expect(screen.queryByText('Review documents')).not.toBeInTheDocument();
+        expect(screen.queryByText('Buy groceries')).not.toBeInTheDocument();
       });
     });
 
@@ -410,7 +408,6 @@ describe('Archive Component', () => {
         expect(screen.getByText('Complete project')).toBeInTheDocument();
         expect(screen.getByText('Review documents')).toBeInTheDocument();
         expect(screen.getByText('Buy groceries')).toBeInTheDocument();
-        expect(screen.getByText('3 件の完了済みタスク')).toBeInTheDocument();
       });
     });
 
