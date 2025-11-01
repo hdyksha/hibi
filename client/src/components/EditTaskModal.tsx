@@ -14,7 +14,8 @@ interface EditTaskModalProps {
   task: TodoItem;
   isOpen: boolean;
   onClose: () => void;
-  onSave: (id: string, updates: { title?: string; tags?: string[]; memo?: string }) => Promise<void>;
+  onSave: (id: string, updates: { title?: string; priority?: Priority; tags?: string[]; memo?: string }) => Promise<void>;
+  showPriority?: boolean; // Optional prop to show/hide priority editing
 }
 
 export const EditTaskModal: React.FC<EditTaskModalProps> = ({
@@ -22,8 +23,10 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
   isOpen,
   onClose,
   onSave,
+  showPriority = false,
 }) => {
   const [editTitle, setEditTitle] = useState(task.title);
+  const [editPriority, setEditPriority] = useState(task.priority);
   const [editTags, setEditTags] = useState(task.tags || []);
   const [editMemo, setEditMemo] = useState(task.memo || '');
   const [isSaving, setIsSaving] = useState(false);
@@ -33,6 +36,7 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       setEditTitle(task.title);
+      setEditPriority(task.priority);
       setEditTags(task.tags || []);
       setEditMemo(task.memo || '');
       setError(null);
@@ -47,6 +51,7 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
 
     const hasChanges = 
       editTitle.trim() !== task.title || 
+      editPriority !== task.priority ||
       JSON.stringify(editTags) !== JSON.stringify(task.tags || []) ||
       editMemo !== (task.memo || '');
 
@@ -59,11 +64,17 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
       setIsSaving(true);
       setError(null);
       
-      await onSave(task.id, {
+      const updates: { title?: string; priority?: Priority; tags?: string[]; memo?: string } = {
         title: editTitle.trim(),
         tags: editTags,
         memo: editMemo,
-      });
+      };
+      
+      if (showPriority) {
+        updates.priority = editPriority;
+      }
+      
+      await onSave(task.id, updates);
       
       onClose();
     } catch (err) {
@@ -75,6 +86,7 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
 
   const handleCancel = () => {
     setEditTitle(task.title);
+    setEditPriority(task.priority);
     setEditTags(task.tags || []);
     setEditMemo(task.memo || '');
     setError(null);
@@ -139,6 +151,25 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
               autoFocus
             />
           </div>
+
+          {showPriority && (
+            <div className="edit-task-modal-field">
+              <label htmlFor="edit-priority" className="edit-task-modal-label">
+                優先度
+              </label>
+              <select
+                id="edit-priority"
+                value={editPriority}
+                onChange={(e) => setEditPriority(e.target.value as Priority)}
+                className="edit-task-modal-select"
+                disabled={isSaving}
+              >
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+          )}
 
           <div className="edit-task-modal-field">
             <label className="edit-task-modal-label">

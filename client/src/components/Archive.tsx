@@ -196,6 +196,7 @@ export const Archive: React.FC<ArchiveProps> = ({ className }) => {
           isOpen={isModalOpen}
           onClose={handleModalClose}
           onSave={handleTaskUpdate}
+          showPriority={false}
         />
       )}
     </div>

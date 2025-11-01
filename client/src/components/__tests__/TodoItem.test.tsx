@@ -278,7 +278,7 @@ describe('TodoItem', () => {
       expect(todoItem).toHaveClass('todo-item--priority-high');
     });
 
-    it('shows edit button and allows editing', () => {
+    it('shows edit button', () => {
       render(
         <TodoItem
           todo={mockTodo}
@@ -290,75 +290,29 @@ describe('TodoItem', () => {
 
       const editButton = screen.getByLabelText('Edit todo: Test Todo');
       expect(editButton).toBeInTheDocument();
+    });
 
+    it('opens edit modal when edit button is clicked', () => {
+      render(
+        <TodoItem
+          todo={mockTodo}
+          onToggleComplete={mockOnToggleComplete}
+          onDelete={mockOnDelete}
+          onUpdate={mockOnUpdate}
+        />
+      );
+
+      const editButton = screen.getByLabelText('Edit todo: Test Todo');
       fireEvent.click(editButton);
 
+      // Modal should be open with task data
+      expect(screen.getByText('タスクを編集')).toBeInTheDocument();
       expect(screen.getByDisplayValue('Test Todo')).toBeInTheDocument();
-      const prioritySelect = screen.getByRole('combobox');
-      expect(prioritySelect).toHaveValue('medium');
-    });
-
-    it('calls onUpdate when edit is saved', () => {
-      render(
-        <TodoItem
-          todo={mockTodo}
-          onToggleComplete={mockOnToggleComplete}
-          onDelete={mockOnDelete}
-          onUpdate={mockOnUpdate}
-        />
-      );
-
-      const editButton = screen.getByLabelText('Edit todo: Test Todo');
-      fireEvent.click(editButton);
-
-      const titleInput = screen.getByDisplayValue('Test Todo');
-      const prioritySelect = screen.getByRole('combobox');
-
-      fireEvent.change(titleInput, { target: { value: 'Updated Todo' } });
-      fireEvent.change(prioritySelect, { target: { value: 'high' } });
-
-      const saveButton = screen.getByText('Save');
-      fireEvent.click(saveButton);
-
-      expect(mockOnUpdate).toHaveBeenCalledWith('1', {
-        title: 'Updated Todo',
-        priority: 'high',
-        tags: [],
-        memo: ''
-      });
-    });
-
-    it('cancels edit without calling onUpdate', () => {
-      render(
-        <TodoItem
-          todo={mockTodo}
-          onToggleComplete={mockOnToggleComplete}
-          onDelete={mockOnDelete}
-          onUpdate={mockOnUpdate}
-        />
-      );
-
-      const editButton = screen.getByLabelText('Edit todo: Test Todo');
-      fireEvent.click(editButton);
-
-      const titleInput = screen.getByDisplayValue('Test Todo');
-      fireEvent.change(titleInput, { target: { value: 'Updated Todo' } });
-
-      const cancelButton = screen.getByText('Cancel');
-      fireEvent.click(cancelButton);
-
-      expect(mockOnUpdate).not.toHaveBeenCalled();
-      expect(screen.getByText('Test Todo')).toBeInTheDocument();
     });
   });
 
-  describe('Inline editing functionality (Requirements 5.1, 5.2, 5.3, 5.4, 5.5)', () => {
-    const todoWithTags: TodoItemType = {
-      ...mockTodo,
-      tags: ['work', 'urgent']
-    };
-
-    it('enters edit mode when edit button is clicked (Requirement 5.1)', () => {
+  describe('Modal editing functionality (Requirements 5.1, 5.2, 5.3, 5.4, 5.5)', () => {
+    it('opens edit modal when edit button is clicked (Requirement 5.1)', () => {
       render(
         <TodoItem
           todo={mockTodo}
@@ -371,17 +325,14 @@ describe('TodoItem', () => {
       const editButton = screen.getByLabelText('Edit todo: Test Todo');
       fireEvent.click(editButton);
 
-      // Should show edit form
+      // Should show edit modal
+      expect(screen.getByText('タスクを編集')).toBeInTheDocument();
       expect(screen.getByDisplayValue('Test Todo')).toBeInTheDocument();
-      expect(screen.getByRole('combobox')).toBeInTheDocument();
-      expect(screen.getByText('Save')).toBeInTheDocument();
-      expect(screen.getByText('Cancel')).toBeInTheDocument();
-
-      // Should hide edit button
-      expect(screen.queryByLabelText('Edit todo: Test Todo')).not.toBeInTheDocument();
+      expect(screen.getByText('保存')).toBeInTheDocument();
+      expect(screen.getByText('キャンセル')).toBeInTheDocument();
     });
 
-    it('allows title editing (Requirement 5.3)', () => {
+    it('displays priority field in modal for todo items', () => {
       render(
         <TodoItem
           todo={mockTodo}
@@ -394,276 +345,10 @@ describe('TodoItem', () => {
       const editButton = screen.getByLabelText('Edit todo: Test Todo');
       fireEvent.click(editButton);
 
-      const titleInput = screen.getByDisplayValue('Test Todo');
-      fireEvent.change(titleInput, { target: { value: 'Updated Title' } });
-
-      const saveButton = screen.getByText('Save');
-      fireEvent.click(saveButton);
-
-      expect(mockOnUpdate).toHaveBeenCalledWith('1', {
-        title: 'Updated Title',
-        priority: 'medium',
-        tags: [],
-        memo: ''
-      });
-    });
-
-    it('allows priority editing (Requirement 5.3)', () => {
-      render(
-        <TodoItem
-          todo={mockTodo}
-          onToggleComplete={mockOnToggleComplete}
-          onDelete={mockOnDelete}
-          onUpdate={mockOnUpdate}
-        />
-      );
-
-      const editButton = screen.getByLabelText('Edit todo: Test Todo');
-      fireEvent.click(editButton);
-
-      const prioritySelect = screen.getByRole('combobox');
-      fireEvent.change(prioritySelect, { target: { value: 'high' } });
-
-      const saveButton = screen.getByText('Save');
-      fireEvent.click(saveButton);
-
-      expect(mockOnUpdate).toHaveBeenCalledWith('1', {
-        title: 'Test Todo',
-        priority: 'high',
-        tags: [],
-        memo: ''
-      });
-    });
-
-    it('displays tag editing interface (Requirement 5.3)', () => {
-      render(
-        <TodoItem
-          todo={todoWithTags}
-          onToggleComplete={mockOnToggleComplete}
-          onDelete={mockOnDelete}
-          onUpdate={mockOnUpdate}
-        />
-      );
-
-      const editButton = screen.getByLabelText('Edit todo: Test Todo');
-      fireEvent.click(editButton);
-
-      // TagInput component should be rendered with existing tags
-      expect(screen.getByText('work')).toBeInTheDocument();
-      expect(screen.getByText('urgent')).toBeInTheDocument();
-      
-      // Should show tag input interface
-      const tagInputContainer = document.querySelector('.tag-input__input');
-      expect(tagInputContainer).toBeInTheDocument();
-      
-      // Should show remove buttons for existing tags
-      expect(screen.getByLabelText('Remove tag: work')).toBeInTheDocument();
-      expect(screen.getByLabelText('Remove tag: urgent')).toBeInTheDocument();
-    });
-
-    it('updates todo when tags are modified (Requirement 5.3)', () => {
-      render(
-        <TodoItem
-          todo={todoWithTags}
-          onToggleComplete={mockOnToggleComplete}
-          onDelete={mockOnDelete}
-          onUpdate={mockOnUpdate}
-        />
-      );
-
-      const editButton = screen.getByLabelText('Edit todo: Test Todo');
-      fireEvent.click(editButton);
-
-      // Remove a tag by clicking the remove button
-      const removeWorkButton = screen.getByLabelText('Remove tag: work');
-      fireEvent.click(removeWorkButton);
-
-      const saveButton = screen.getByText('Save');
-      fireEvent.click(saveButton);
-
-      // Should update with modified tags
-      expect(mockOnUpdate).toHaveBeenCalledWith('1', {
-        title: 'Test Todo',
-        priority: 'medium',
-        tags: ['urgent'], // 'work' tag removed
-        memo: ''
-      });
-    });
-
-    it('shows placeholder when no tags exist (Requirement 5.3)', () => {
-      render(
-        <TodoItem
-          todo={mockTodo} // Todo without tags
-          onToggleComplete={mockOnToggleComplete}
-          onDelete={mockOnDelete}
-          onUpdate={mockOnUpdate}
-        />
-      );
-
-      const editButton = screen.getByLabelText('Edit todo: Test Todo');
-      fireEvent.click(editButton);
-
-      // Should show placeholder when no tags exist
-      const tagInput = screen.getByPlaceholderText('Edit tags...');
-      expect(tagInput).toBeInTheDocument();
-    });
-
-    it('adds new tags during editing (Requirement 5.3)', () => {
-      render(
-        <TodoItem
-          todo={mockTodo} // Todo without tags
-          onToggleComplete={mockOnToggleComplete}
-          onDelete={mockOnDelete}
-          onUpdate={mockOnUpdate}
-        />
-      );
-
-      const editButton = screen.getByLabelText('Edit todo: Test Todo');
-      fireEvent.click(editButton);
-
-      // Add a new tag
-      const tagInput = screen.getByPlaceholderText('Edit tags...');
-      fireEvent.change(tagInput, { target: { value: 'new-tag' } });
-      fireEvent.keyDown(tagInput, { key: 'Enter' });
-
-      const saveButton = screen.getByText('Save');
-      fireEvent.click(saveButton);
-
-      // Should update with new tag
-      expect(mockOnUpdate).toHaveBeenCalledWith('1', {
-        title: 'Test Todo',
-        priority: 'medium',
-        tags: ['new-tag'],
-        memo: ''
-      });
-    });
-
-    it('does not update when tags are not modified (Requirement 5.2)', () => {
-      render(
-        <TodoItem
-          todo={todoWithTags}
-          onToggleComplete={mockOnToggleComplete}
-          onDelete={mockOnDelete}
-          onUpdate={mockOnUpdate}
-        />
-      );
-
-      const editButton = screen.getByLabelText('Edit todo: Test Todo');
-      fireEvent.click(editButton);
-
-      // Don't modify tags, just save
-      const saveButton = screen.getByText('Save');
-      fireEvent.click(saveButton);
-
-      // Should not call onUpdate when no changes are made
-      expect(mockOnUpdate).not.toHaveBeenCalled();
-    });
-
-    it('cancels edit and returns to original display (Requirement 5.4)', () => {
-      render(
-        <TodoItem
-          todo={mockTodo}
-          onToggleComplete={mockOnToggleComplete}
-          onDelete={mockOnDelete}
-          onUpdate={mockOnUpdate}
-        />
-      );
-
-      const editButton = screen.getByLabelText('Edit todo: Test Todo');
-      fireEvent.click(editButton);
-
-      // Make changes
-      const titleInput = screen.getByDisplayValue('Test Todo');
-      fireEvent.change(titleInput, { target: { value: 'Changed Title' } });
-
-      const prioritySelect = screen.getByRole('combobox');
-      fireEvent.change(prioritySelect, { target: { value: 'high' } });
-
-      // Cancel edit
-      const cancelButton = screen.getByText('Cancel');
-      fireEvent.click(cancelButton);
-
-      // Should return to original display
-      expect(screen.getByText('Test Todo')).toBeInTheDocument();
-      expect(screen.getByText('Medium')).toBeInTheDocument();
-      expect(screen.getByLabelText('Edit todo: Test Todo')).toBeInTheDocument();
-
-      // Should not call onUpdate
-      expect(mockOnUpdate).not.toHaveBeenCalled();
-    });
-
-    it('updates todo item when valid changes are submitted (Requirement 5.2)', () => {
-      render(
-        <TodoItem
-          todo={mockTodo}
-          onToggleComplete={mockOnToggleComplete}
-          onDelete={mockOnDelete}
-          onUpdate={mockOnUpdate}
-        />
-      );
-
-      const editButton = screen.getByLabelText('Edit todo: Test Todo');
-      fireEvent.click(editButton);
-
-      const titleInput = screen.getByDisplayValue('Test Todo');
-      const prioritySelect = screen.getByRole('combobox');
-
-      fireEvent.change(titleInput, { target: { value: 'Updated Todo Item' } });
-      fireEvent.change(prioritySelect, { target: { value: 'low' } });
-
-      const saveButton = screen.getByText('Save');
-      fireEvent.click(saveButton);
-
-      expect(mockOnUpdate).toHaveBeenCalledWith('1', {
-        title: 'Updated Todo Item',
-        priority: 'low',
-        tags: [],
-        memo: ''
-      });
-    });
-
-    it('does not update when no changes are made', () => {
-      render(
-        <TodoItem
-          todo={mockTodo}
-          onToggleComplete={mockOnToggleComplete}
-          onDelete={mockOnDelete}
-          onUpdate={mockOnUpdate}
-        />
-      );
-
-      const editButton = screen.getByLabelText('Edit todo: Test Todo');
-      fireEvent.click(editButton);
-
-      // Don't make any changes
-      const saveButton = screen.getByText('Save');
-      fireEvent.click(saveButton);
-
-      // Should not call onUpdate when no changes are made
-      expect(mockOnUpdate).not.toHaveBeenCalled();
-    });
-
-    it('does not update when title is empty', () => {
-      render(
-        <TodoItem
-          todo={mockTodo}
-          onToggleComplete={mockOnToggleComplete}
-          onDelete={mockOnDelete}
-          onUpdate={mockOnUpdate}
-        />
-      );
-
-      const editButton = screen.getByLabelText('Edit todo: Test Todo');
-      fireEvent.click(editButton);
-
-      const titleInput = screen.getByDisplayValue('Test Todo');
-      fireEvent.change(titleInput, { target: { value: '   ' } }); // Empty/whitespace title
-
-      const saveButton = screen.getByText('Save');
-      fireEvent.click(saveButton);
-
-      // Should not call onUpdate when title is empty
-      expect(mockOnUpdate).not.toHaveBeenCalled();
+      // Should show priority field since showPriority=true for TodoItem
+      expect(screen.getByLabelText('優先度')).toBeInTheDocument();
+      const prioritySelect = screen.getByLabelText('優先度') as HTMLSelectElement;
+      expect(prioritySelect.value).toBe('medium');
     });
   });
 });

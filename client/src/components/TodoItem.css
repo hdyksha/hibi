@@ -193,76 +193,7 @@
   background-color: #e3f2fd;
 }
 
-/* Edit form styles */
-.todo-item__edit-form {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  width: 100%;
-}
 
-.todo-item__edit-input {
-  padding: 0.5rem;
-  border: 1px solid #d0d0d0;
-  border-radius: 4px;
-  font-size: 1rem;
-}
-
-.todo-item__edit-input:focus {
-  outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
-}
-
-.todo-item__edit-select {
-  padding: 0.5rem;
-  border: 1px solid #d0d0d0;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  background-color: white;
-  cursor: pointer;
-}
-
-.todo-item__edit-select:focus {
-  outline: none;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
-}
-
-.todo-item__edit-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.todo-item__save {
-  padding: 0.5rem 1rem;
-  background-color: #28a745;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.todo-item__save:hover {
-  background-color: #218838;
-}
-
-.todo-item__cancel {
-  padding: 0.5rem 1rem;
-  background-color: #6c757d;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.todo-item__cancel:hover {
-  background-color: #5a6268;
-}
 
 /* Responsive design */
 @media (max-width: 480px) {
@@ -282,22 +213,6 @@
   .todo-item__title {
     font-size: 1rem;
   }
-}/* 
-Memo-related styles */
-.todo-item__memo-section {
-  margin-top: 12px;
-}
-
-.todo-item__memo-label {
-  display: block;
-  font-weight: 500;
-  margin-bottom: 8px;
-  color: #495057;
-  font-size: 14px;
-}
-
-.todo-item__memo-editor {
-  width: 100%;
 }
 
 .todo-item__memo {

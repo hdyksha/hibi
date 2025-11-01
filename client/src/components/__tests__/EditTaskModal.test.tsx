@@ -112,6 +112,66 @@ describe('EditTaskModal Component', () => {
     });
   });
 
+  it('shows priority field when showPriority is true', () => {
+    render(
+      <EditTaskModal
+        task={mockTask}
+        isOpen={true}
+        onClose={mockOnClose}
+        onSave={mockOnSave}
+        showPriority={true}
+      />
+    );
+
+    expect(screen.getByLabelText('優先度')).toBeInTheDocument();
+    const prioritySelect = screen.getByLabelText('優先度') as HTMLSelectElement;
+    expect(prioritySelect.value).toBe('medium');
+  });
+
+  it('hides priority field when showPriority is false', () => {
+    render(
+      <EditTaskModal
+        task={mockTask}
+        isOpen={true}
+        onClose={mockOnClose}
+        onSave={mockOnSave}
+        showPriority={false}
+      />
+    );
+
+    expect(screen.queryByLabelText('優先度')).not.toBeInTheDocument();
+  });
+
+  it('calls onSave with priority when showPriority is true and priority is changed', async () => {
+    mockOnSave.mockResolvedValue(undefined);
+
+    render(
+      <EditTaskModal
+        task={mockTask}
+        isOpen={true}
+        onClose={mockOnClose}
+        onSave={mockOnSave}
+        showPriority={true}
+      />
+    );
+
+    // Change the priority
+    const prioritySelect = screen.getByLabelText('優先度');
+    fireEvent.change(prioritySelect, { target: { value: 'high' } });
+
+    // Click save
+    fireEvent.click(screen.getByText('保存'));
+
+    await waitFor(() => {
+      expect(mockOnSave).toHaveBeenCalledWith('1', {
+        title: 'Test Task',
+        priority: 'high',
+        tags: ['work', 'important'],
+        memo: 'Test memo content',
+      });
+    });
+  });
+
   it('shows error when title is empty', async () => {
     render(
       <EditTaskModal
