@@ -29,6 +29,12 @@
   flex-direction: column;
 }
 
+.edit-task-modal *,
+.edit-task-modal *::before,
+.edit-task-modal *::after {
+  box-sizing: border-box;
+}
+
 .edit-task-modal-header {
   display: flex;
   align-items: center;
@@ -101,6 +107,7 @@
   border-radius: 6px;
   font-size: 1rem;
   transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
 }
 
 .edit-task-modal-input:focus {
@@ -123,6 +130,7 @@
   font-size: 1rem;
   transition: border-color 0.2s, box-shadow 0.2s;
   background-color: white;
+  box-sizing: border-box;
 }
 
 .edit-task-modal-select:focus {
@@ -139,11 +147,28 @@
 
 .edit-task-modal-tags {
   width: 100%;
+  box-sizing: border-box;
 }
 
 .edit-task-modal-memo {
   width: 100%;
   min-height: 200px;
+  box-sizing: border-box;
+}
+
+/* Ensure TagInput and MemoEditor components fit properly within modal */
+.edit-task-modal-tags .tag-input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.edit-task-modal-memo .memo-editor {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.edit-task-modal-memo .memo-editor__textarea {
+  box-sizing: border-box;
 }
 
 .edit-task-modal-actions {
