@@ -7,7 +7,7 @@
 import React, { useState } from 'react';
 import { TodoItem } from '../types';
 import { EditTaskModal } from './EditTaskModal';
-import { Filter } from './Filter';
+import { ArchiveFilter } from './ArchiveFilter';
 import { useTodoContext } from '../contexts/TodoContext';
 import './Archive.css';
 
@@ -127,12 +127,11 @@ export const Archive: React.FC<ArchiveProps> = ({ className }) => {
         </p>
       </div>
 
-      <Filter
+      <ArchiveFilter
         filter={filter}
         availableTags={availableTags}
         onFilterChange={setFilter}
         className="archive-filter"
-        hideStatusFilter={true}
       />
 
       {filteredGroups.length === 0 ? (
