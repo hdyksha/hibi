@@ -23,7 +23,7 @@ describe('MemoEditor', () => {
     );
 
     expect(screen.getByLabelText('Memo editor')).toBeInTheDocument();
-    expect(screen.getByText('✏️ Edit')).toHaveClass('memo-editor__toolbar-btn--active');
+    expect(screen.getByText('✏️ Edit')).toHaveClass('bg-blue-600');
   });
 
   it('displays placeholder text', () => {
@@ -63,7 +63,7 @@ describe('MemoEditor', () => {
     const previewButton = screen.getByLabelText('Preview mode');
     fireEvent.click(previewButton);
 
-    expect(previewButton).toHaveClass('memo-editor__toolbar-btn--active');
+    expect(previewButton).toHaveClass('bg-blue-600');
     expect(screen.getByLabelText('Memo preview')).toBeInTheDocument();
   });
 
@@ -96,7 +96,7 @@ describe('MemoEditor', () => {
     const splitButton = screen.getByLabelText('Split view mode');
     fireEvent.click(splitButton);
 
-    expect(splitButton).toHaveClass('memo-editor__toolbar-btn--active');
+    expect(splitButton).toHaveClass('bg-blue-600');
     expect(screen.getByLabelText('Memo editor')).toBeInTheDocument();
     expect(screen.getByLabelText('Memo preview')).toBeInTheDocument();
   });
