@@ -5,7 +5,6 @@
  */
 
 import React, { useState, KeyboardEvent } from 'react';
-import './TagInput.css';
 
 interface TagInputProps {
   tags: string[];
@@ -98,15 +97,21 @@ export const TagInput: React.FC<TagInputProps> = ({
   };
 
   return (
-    <div className={`tag-input ${className}`}>
-      <div className="tag-input__container">
-        <div className="tag-input__tags">
+    <div className={`w-full ${className}`}>
+      <div className="flex items-start gap-2">
+        <div className={`flex flex-wrap items-center gap-1.5 min-h-10 px-3 py-2 border-2 rounded-md bg-white flex-1 cursor-text transition-colors duration-200 ${
+          disabled ? 'bg-slate-50 border-slate-200' : 'border-slate-300 focus-within:border-blue-500'
+        }`}>
           {tags.map((tag, index) => (
-            <span key={index} className="tag-input__tag">
-              <span className="tag-input__tag-text">{tag}</span>
+            <span key={index} className="inline-flex items-center bg-blue-100 text-blue-700 px-2 py-1 rounded-2xl text-sm font-medium max-w-48">
+              <span className="overflow-hidden text-ellipsis whitespace-nowrap">
+                {tag}
+              </span>
               <button
                 type="button"
-                className="tag-input__tag-remove"
+                className={`bg-none border-none text-blue-700 cursor-pointer text-lg font-bold ml-1.5 p-0 w-4 h-4 flex items-center justify-center rounded-full transition-colors duration-200 ${
+                  disabled ? 'cursor-not-allowed opacity-50' : 'hover:bg-blue-200'
+                }`}
                 onClick={() => removeTag(index)}
                 disabled={disabled}
                 aria-label={`Remove tag: ${tag}`}
@@ -121,14 +126,16 @@ export const TagInput: React.FC<TagInputProps> = ({
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
             placeholder={tags.length === 0 ? placeholder : ''}
-            className="tag-input__input"
+            className="border-none outline-none bg-transparent text-base py-1 min-w-30 flex-1 disabled:cursor-not-allowed"
             disabled={disabled}
           />
         </div>
         {inputValue && (
           <button
             type="button"
-            className="tag-input__add-button"
+            className={`bg-blue-600 text-white border-none rounded px-4 py-2 text-sm font-medium cursor-pointer transition-colors duration-200 whitespace-nowrap ${
+              disabled ? 'bg-slate-400 cursor-not-allowed' : 'hover:bg-blue-700'
+            }`}
             onClick={handleAddClick}
             disabled={disabled}
             aria-label="Add tag"
@@ -138,11 +145,11 @@ export const TagInput: React.FC<TagInputProps> = ({
         )}
       </div>
       {error && (
-        <div className="tag-input__error" role="alert">
+        <div className="text-red-600 text-sm mt-1 font-medium" role="alert">
           {error}
         </div>
       )}
-      <div className="tag-input__help">
+      <div className="text-slate-500 text-xs mt-1 leading-snug">
         Press Enter or comma to add tags. {tags.length}/{maxTags} tags used.
       </div>
     </div>

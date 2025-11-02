@@ -9,7 +9,6 @@ import { CreateTodoItemInput, Priority } from '../types';
 import { useTodoContext } from '../contexts';
 import { TagInput } from './TagInput';
 import { MemoEditor } from './MemoEditor';
-import './TodoForm.css';
 
 interface ValidationResult {
   isValid: boolean;
@@ -96,23 +95,27 @@ export const TodoForm: React.FC<TodoFormProps> = ({ className }) => {
 
   return (
     <form
-      className={`todo-form ${className || ''}`}
+      className={`bg-white/95 backdrop-blur-xl border border-slate-200/50 rounded-xl shadow-lg overflow-hidden mb-6 ${className || ''}`}
       onSubmit={handleSubmit}
       noValidate
     >
-      <div className="todo-form__main">
-        <div className="todo-form__field">
-          <label htmlFor="todo-title" className="todo-form__label">
+      <div className="p-6">
+        <div className="flex flex-col gap-4">
+          <label htmlFor="todo-title" className="text-lg font-semibold text-slate-800">
             New Todo
           </label>
-          <div className="todo-form__input-row">
+          <div className="flex gap-3 items-stretch">
             <input
               id="todo-title"
               type="text"
               value={title}
               onChange={handleTitleChange}
               placeholder="Enter todo title..."
-              className={`todo-form__input ${error ? 'todo-form__input--error' : ''}`}
+              className={`flex-1 px-4 py-3 border rounded-lg text-base transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/25 focus:border-blue-500 ${
+                error 
+                  ? 'border-red-300 focus:border-red-500 focus:ring-red-500/25' 
+                  : 'border-slate-300 hover:border-slate-400'
+              } ${isSubmitting ? 'bg-slate-50 cursor-not-allowed opacity-60' : 'bg-white'}`}
               disabled={isSubmitting}
               maxLength={200}
               required
@@ -120,7 +123,11 @@ export const TodoForm: React.FC<TodoFormProps> = ({ className }) => {
             <button
               type="button"
               onClick={toggleAdvanced}
-              className="todo-form__toggle"
+              className={`px-4 py-3 bg-slate-100 border border-slate-300 rounded-lg cursor-pointer text-sm text-slate-600 transition-all duration-200 min-w-12 flex items-center justify-center ${
+                isSubmitting 
+                  ? 'bg-slate-50 cursor-not-allowed opacity-60' 
+                  : 'hover:bg-slate-200 hover:border-slate-400 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/25 focus:border-blue-500'
+              }`}
               disabled={isSubmitting}
               aria-expanded={showAdvanced}
               aria-label={showAdvanced ? 'Hide advanced options' : 'Show advanced options'}
@@ -129,16 +136,20 @@ export const TodoForm: React.FC<TodoFormProps> = ({ className }) => {
             </button>
           </div>
           {error && (
-            <div className="todo-form__error" role="alert">
+            <div className="text-red-600 text-sm mt-1" role="alert">
               {error}
             </div>
           )}
         </div>
 
-        <div className="todo-form__actions">
+        <div className="flex justify-start mt-4">
           <button
             type="submit"
-            className="todo-form__submit"
+            className={`px-6 py-3 bg-blue-600 text-white border-none rounded-lg text-base font-medium cursor-pointer transition-all duration-200 shadow-md ${
+              isSubmitting || !title.trim()
+                ? 'bg-slate-400 cursor-not-allowed opacity-60'
+                : 'hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50'
+            }`}
             disabled={isSubmitting || !title.trim()}
           >
             {isSubmitting ? 'Creating...' : 'Create Todo'}
@@ -147,53 +158,57 @@ export const TodoForm: React.FC<TodoFormProps> = ({ className }) => {
       </div>
 
       {showAdvanced && (
-        <div className="todo-form__advanced">
-          <div className="todo-form__advanced-header">
-            <h3 className="todo-form__advanced-title">Additional Details</h3>
+        <div className="border-t border-slate-200 bg-slate-50/50 p-6 animate-fade-in">
+          <div className="mb-4">
+            <h3 className="text-base font-semibold text-slate-700 m-0">Additional Details</h3>
           </div>
 
-          <div className="todo-form__field">
-            <label htmlFor="todo-priority" className="todo-form__label">
-              Priority
-            </label>
-            <select
-              id="todo-priority"
-              value={priority}
-              onChange={handlePriorityChange}
-              className="todo-form__select"
-              disabled={isSubmitting}
-            >
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-            </select>
-          </div>
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
+              <label htmlFor="todo-priority" className="text-sm font-medium text-slate-700">
+                Priority
+              </label>
+              <select
+                id="todo-priority"
+                value={priority}
+                onChange={handlePriorityChange}
+                className={`px-4 py-3 border border-slate-300 rounded-lg text-base bg-white cursor-pointer transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/25 focus:border-blue-500 ${
+                  isSubmitting ? 'bg-slate-50 cursor-not-allowed opacity-60' : 'hover:border-slate-400'
+                }`}
+                disabled={isSubmitting}
+              >
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
 
-          <div className="todo-form__field">
-            <label className="todo-form__label">
-              Tags
-            </label>
-            <TagInput
-              tags={tags}
-              onChange={setTags}
-              placeholder="Add tags (press Enter or comma to add)"
-              disabled={isSubmitting}
-              maxTags={10}
-              className="todo-form__tag-input"
-            />
-          </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-slate-700">
+                Tags
+              </label>
+              <TagInput
+                tags={tags}
+                onChange={setTags}
+                placeholder="Add tags (press Enter or comma to add)"
+                disabled={isSubmitting}
+                maxTags={10}
+                className="w-full"
+              />
+            </div>
 
-          <div className="todo-form__field">
-            <label className="todo-form__label">
-              Memo
-            </label>
-            <MemoEditor
-              value={memo}
-              onChange={setMemo}
-              placeholder="Add memo in markdown format..."
-              disabled={isSubmitting}
-              className="todo-form__memo-editor"
-            />
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-slate-700">
+                Memo
+              </label>
+              <MemoEditor
+                value={memo}
+                onChange={setMemo}
+                placeholder="Add memo in markdown format..."
+                disabled={isSubmitting}
+                className="w-full min-h-32 max-h-72"
+              />
+            </div>
           </div>
         </div>
       )}

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import './App.css';
 import { TodoList, TodoForm, Filter, Archive } from './components';
 import { TodoProvider } from './contexts';
 import { useTodoContext } from './contexts';
@@ -11,37 +10,71 @@ function AppContent() {
   const [currentView, setCurrentView] = useState<ViewMode>('todos');
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <div className="header-content">
-          <h1>Hibi</h1>
-          <nav className="App-nav">
-            <button
-              className={`nav-button ${currentView === 'todos' ? 'active' : ''}`}
-              onClick={() => setCurrentView('todos')}
-            >
-              タスク一覧
-            </button>
-            <button
-              className={`nav-button ${currentView === 'archive' ? 'active' : ''}`}
-              onClick={() => setCurrentView('archive')}
-            >
-              アーカイブ
-            </button>
-          </nav>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-slate-50 to-gray-100">
+      {/* Sophisticated Header */}
+      <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/90 border-b border-gray-200/50 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo */}
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-gradient-to-br from-slate-700 to-slate-900 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">H</span>
+              </div>
+              <h1 className="text-2xl font-bold text-slate-800">
+                Hibi
+              </h1>
+            </div>
+            
+            {/* Navigation */}
+            <nav className="flex space-x-1 bg-slate-100 rounded-lg p-1">
+              <button
+                className={`px-5 py-2 rounded-md font-medium text-sm transition-all duration-200 ${
+                  currentView === 'todos'
+                    ? 'bg-white text-slate-800 shadow-sm'
+                    : 'text-slate-600 hover:text-slate-800 hover:bg-white/60'
+                }`}
+                onClick={() => setCurrentView('todos')}
+              >
+                タスク一覧
+              </button>
+              <button
+                className={`px-5 py-2 rounded-md font-medium text-sm transition-all duration-200 ${
+                  currentView === 'archive'
+                    ? 'bg-white text-slate-800 shadow-sm'
+                    : 'text-slate-600 hover:text-slate-800 hover:bg-white/60'
+                }`}
+                onClick={() => setCurrentView('archive')}
+              >
+                アーカイブ
+              </button>
+            </nav>
+          </div>
         </div>
       </header>
-      <main className="App-main">
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {currentView === 'todos' ? (
-          <>
-            <TodoForm />
-            <Filter
-              filter={filter}
-              availableTags={availableTags}
-              onFilterChange={setFilter}
-            />
-            <TodoList />
-          </>
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            {/* Form Section */}
+            <div className="lg:col-span-4">
+              <TodoForm />
+            </div>
+            
+            {/* Filter Sidebar */}
+            <div className="lg:col-span-1">
+              <Filter
+                filter={filter}
+                availableTags={availableTags}
+                onFilterChange={setFilter}
+              />
+            </div>
+            
+            {/* Todo List */}
+            <div className="lg:col-span-3">
+              <TodoList />
+            </div>
+          </div>
         ) : (
           <Archive />
         )}

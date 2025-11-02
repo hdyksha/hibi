@@ -5,10 +5,10 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { TodoItem, Priority } from '../types';
 import { TagInput } from './TagInput';
 import { MemoEditor } from './MemoEditor';
-import './EditTaskModal.css';
 
 interface EditTaskModalProps {
   task: TodoItem;
@@ -109,18 +109,20 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
     return null;
   }
 
-  return (
+  const modalContent = (
     <div 
-      className="edit-task-modal-backdrop" 
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" 
       onClick={handleBackdropClick}
       onKeyDown={handleKeyDown}
       tabIndex={-1}
     >
-      <div className="edit-task-modal" role="dialog" aria-labelledby="edit-task-title">
-        <div className="edit-task-modal-header">
-          <h2 id="edit-task-title">タスクを編集</h2>
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col" role="dialog" aria-labelledby="edit-task-title">
+        <div className="flex items-center justify-between p-6 border-b border-slate-200 bg-slate-50">
+          <h2 id="edit-task-title" className="text-xl font-semibold text-slate-800 m-0">タスクを編集</h2>
           <button
-            className="edit-task-modal-close"
+            className={`bg-none border-none text-2xl cursor-pointer text-slate-500 p-1 rounded transition-colors duration-200 ${
+              isSaving ? 'opacity-50 cursor-not-allowed' : 'hover:text-slate-700 hover:bg-slate-200'
+            }`}
             onClick={handleCancel}
             aria-label="閉じる"
             disabled={isSaving}
@@ -129,15 +131,15 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
           </button>
         </div>
 
-        <div className="edit-task-modal-content">
+        <div className="p-6 overflow-y-auto flex-1">
           {error && (
-            <div className="edit-task-modal-error">
+            <div className="bg-red-50 border border-red-200 text-red-700 p-3 rounded-md mb-4 text-sm">
               {error}
             </div>
           )}
 
-          <div className="edit-task-modal-field">
-            <label htmlFor="edit-title" className="edit-task-modal-label">
+          <div className="mb-6">
+            <label htmlFor="edit-title" className="block font-medium text-slate-700 mb-2 text-sm">
               タイトル *
             </label>
             <input
@@ -145,7 +147,9 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
               type="text"
               value={editTitle}
               onChange={(e) => setEditTitle(e.target.value)}
-              className="edit-task-modal-input"
+              className={`w-full px-3 py-3 border border-slate-300 rounded-md text-base transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/25 focus:border-blue-500 ${
+                isSaving ? 'bg-slate-50 text-slate-500 cursor-not-allowed' : ''
+              }`}
               maxLength={200}
               disabled={isSaving}
               autoFocus
@@ -153,15 +157,17 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
           </div>
 
           {showPriority && (
-            <div className="edit-task-modal-field">
-              <label htmlFor="edit-priority" className="edit-task-modal-label">
+            <div className="mb-6">
+              <label htmlFor="edit-priority" className="block font-medium text-slate-700 mb-2 text-sm">
                 優先度
               </label>
               <select
                 id="edit-priority"
                 value={editPriority}
                 onChange={(e) => setEditPriority(e.target.value as Priority)}
-                className="edit-task-modal-select"
+                className={`w-full px-3 py-3 border border-slate-300 rounded-md text-base transition-all duration-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/25 focus:border-blue-500 ${
+                  isSaving ? 'bg-slate-50 text-slate-500 cursor-not-allowed' : ''
+                }`}
                 disabled={isSaving}
               >
                 <option value="low">Low</option>
@@ -171,8 +177,8 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
             </div>
           )}
 
-          <div className="edit-task-modal-field">
-            <label className="edit-task-modal-label">
+          <div className="mb-6">
+            <label className="block font-medium text-slate-700 mb-2 text-sm">
               タグ
             </label>
             <TagInput
@@ -180,36 +186,40 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
               onChange={setEditTags}
               placeholder="タグを追加..."
               maxTags={10}
-              className="edit-task-modal-tags"
+              className="w-full"
               disabled={isSaving}
             />
           </div>
 
-          <div className="edit-task-modal-field">
-            <label className="edit-task-modal-label">
+          <div className="mb-6">
+            <label className="block font-medium text-slate-700 mb-2 text-sm">
               メモ
             </label>
             <MemoEditor
               value={editMemo}
               onChange={setEditMemo}
               placeholder="メモをマークダウン形式で入力..."
-              className="edit-task-modal-memo"
+              className="w-full min-h-48"
               disabled={isSaving}
             />
           </div>
         </div>
 
-        <div className="edit-task-modal-actions">
+        <div className="flex gap-3 justify-end p-6 border-t border-slate-200 bg-slate-50">
           <button
             onClick={handleCancel}
-            className="edit-task-modal-button edit-task-modal-button--cancel"
+            className={`px-6 py-3 rounded-md font-medium text-sm cursor-pointer transition-all duration-200 border border-slate-300 bg-white text-slate-700 ${
+              isSaving ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-50 hover:border-slate-400'
+            }`}
             disabled={isSaving}
           >
             キャンセル
           </button>
           <button
             onClick={handleSave}
-            className="edit-task-modal-button edit-task-modal-button--save"
+            className={`px-6 py-3 rounded-md font-medium text-sm cursor-pointer transition-all duration-200 bg-blue-600 text-white ${
+              isSaving ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'
+            }`}
             disabled={isSaving}
           >
             {isSaving ? '保存中...' : '保存'}
@@ -218,4 +228,6 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 };

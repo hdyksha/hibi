@@ -6,11 +6,6 @@
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
-  /* Light theme colors */
-  color: #213547;
-  background-color: #ffffff;
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -18,14 +13,49 @@
   -webkit-text-size-adjust: 100%;
 }
 
-body {
-  margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
-  background-color: #f8f9fa;
+@layer utilities {
+  .animate-fade-in-up {
+    animation: fadeInUp 0.3s ease-out;
+  }
+  
+  .animate-slide-in-right {
+    animation: slideInRight 0.3s ease-out;
+  }
+  
+  .animate-fade-in {
+    animation: fadeIn 0.2s ease-out;
+  }
 }
 
-#root {
-  width: 100%;
-  min-height: 100vh;
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
