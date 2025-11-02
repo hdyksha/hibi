@@ -8,6 +8,7 @@ import React, { useState } from 'react';
 import { TodoItem } from '../types';
 import { EditTaskModal } from './EditTaskModal';
 import { ArchiveFilter } from './ArchiveFilter';
+import { MarkdownPreview } from './MarkdownPreview';
 import { useTodoContext } from '../contexts/TodoContext';
 
 interface ArchiveProps {
@@ -172,9 +173,10 @@ export const Archive: React.FC<ArchiveProps> = ({ className }) => {
 
                       {task.memo && (
                         <div className="mt-3 p-4 bg-slate-50 rounded-lg border border-slate-200">
-                          <p className="m-0 text-slate-700 text-sm leading-relaxed whitespace-pre-wrap italic">
-                            {task.memo}
-                          </p>
+                          <MarkdownPreview
+                            content={task.memo}
+                            className="text-slate-700"
+                          />
                         </div>
                       )}
                     </div>

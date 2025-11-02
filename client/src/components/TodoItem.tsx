@@ -7,7 +7,7 @@
 import React, { useState } from 'react';
 import { TodoItem, Priority } from '../types';
 import { EditTaskModal } from './EditTaskModal';
-import { MemoEditor } from './MemoEditor';
+import { MarkdownPreview } from './MarkdownPreview';
 
 interface TodoItemProps {
   todo: TodoItem;
@@ -143,11 +143,9 @@ export const TodoItemComponent: React.FC<TodoItemProps> = ({
               </button>
               {showMemo && (
                 <div className="mt-3 p-4 bg-slate-50 rounded-lg border border-slate-200">
-                  <MemoEditor
-                    value={todo.memo}
-                    onChange={() => {}} // Read-only in display mode
-                    disabled={true}
-                    className="border-none bg-transparent"
+                  <MarkdownPreview
+                    content={todo.memo}
+                    className="text-slate-700"
                   />
                 </div>
               )}
