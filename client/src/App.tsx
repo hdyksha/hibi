@@ -53,26 +53,29 @@ function AppContent() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         {currentView === 'todos' ? (
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          <div className="space-y-3">
             {/* Form Section */}
-            <div className="lg:col-span-4">
+            <div>
               <TodoForm />
             </div>
             
-            {/* Filter Sidebar */}
-            <div className="lg:col-span-1">
-              <Filter
-                filter={filter}
-                availableTags={availableTags}
-                onFilterChange={setFilter}
-              />
-            </div>
-            
-            {/* Todo List */}
-            <div className="lg:col-span-3">
-              <TodoList />
+            {/* Filter and Todo List */}
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+              {/* Filter Sidebar */}
+              <div className="lg:col-span-1">
+                <Filter
+                  filter={filter}
+                  availableTags={availableTags}
+                  onFilterChange={setFilter}
+                />
+              </div>
+              
+              {/* Todo List */}
+              <div className="lg:col-span-3">
+                <TodoList />
+              </div>
             </div>
           </div>
         ) : (

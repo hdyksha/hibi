@@ -116,7 +116,7 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
       onKeyDown={handleKeyDown}
       tabIndex={-1}
     >
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col" role="dialog" aria-labelledby="edit-task-title">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col" role="dialog" aria-labelledby="edit-task-title">
         <div className="flex items-center justify-between p-6 border-b border-slate-200 bg-slate-50">
           <h2 id="edit-task-title" className="text-xl font-semibold text-slate-800 m-0">タスクを編集</h2>
           <button
