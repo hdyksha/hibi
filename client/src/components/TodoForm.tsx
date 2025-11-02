@@ -9,6 +9,7 @@ import { CreateTodoItemInput, Priority } from '../types';
 import { useTodoContext } from '../contexts';
 import { TagInput } from './TagInput';
 import { MemoEditor } from './MemoEditor';
+import { InlineErrorMessage, InlineLoadingSpinner } from './';
 
 interface ValidationResult {
   isValid: boolean;
@@ -136,9 +137,7 @@ export const TodoForm: React.FC<TodoFormProps> = ({ className }) => {
             </button>
           </div>
           {error && (
-            <div className="text-red-600 text-sm mt-1" role="alert">
-              {error}
-            </div>
+            <InlineErrorMessage message={error} className="mt-1" />
           )}
         </div>
 
@@ -152,7 +151,14 @@ export const TodoForm: React.FC<TodoFormProps> = ({ className }) => {
             }`}
             disabled={isSubmitting || !title.trim()}
           >
-            {isSubmitting ? 'Creating...' : 'Create Todo'}
+            {isSubmitting ? (
+              <span className="flex items-center gap-2">
+                <InlineLoadingSpinner size="sm" />
+                Creating...
+              </span>
+            ) : (
+              'Create Todo'
+            )}
           </button>
         </div>
       </div>

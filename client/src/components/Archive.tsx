@@ -9,6 +9,7 @@ import { TodoItem } from '../types';
 import { EditTaskModal } from './EditTaskModal';
 import { ArchiveFilter } from './ArchiveFilter';
 import { MarkdownPreview } from './MarkdownPreview';
+import { LoadingSpinner, ErrorMessage } from './';
 import { useTodoContext } from '../contexts/TodoContext';
 
 interface ArchiveProps {
@@ -82,9 +83,7 @@ export const Archive: React.FC<ArchiveProps> = ({ className }) => {
   if (loading) {
     return (
       <div className={`p-3 sm:p-4 max-w-4xl mx-auto ${className || ''}`}>
-        <div className="text-center py-6 sm:py-8 text-slate-600">
-          <p className="text-sm sm:text-base">Loading archive...</p>
-        </div>
+        <LoadingSpinner message="Loading archive..." />
       </div>
     );
   }
@@ -92,15 +91,11 @@ export const Archive: React.FC<ArchiveProps> = ({ className }) => {
   if (error) {
     return (
       <div className={`p-3 sm:p-4 max-w-4xl mx-auto ${className || ''}`}>
-        <div className="text-center py-6 sm:py-8 text-red-600">
-          <p className="text-sm sm:text-base">Error: {error}</p>
-          <button 
-            onClick={refreshArchive} 
-            className="mt-4 px-4 py-3 bg-blue-600 text-white border-none rounded-md cursor-pointer text-sm hover:bg-blue-700 transition-colors duration-200 min-h-[44px] active:bg-blue-800"
-          >
-            Retry
-          </button>
-        </div>
+        <ErrorMessage 
+          message={error} 
+          onRetry={refreshArchive}
+          retryLabel="Retry"
+        />
       </div>
     );
   }

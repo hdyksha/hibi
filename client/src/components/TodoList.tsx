@@ -6,7 +6,7 @@
 
 import React from 'react';
 import { useTodoContext } from '../contexts';
-import { TodoItem } from './';
+import { TodoItem, LoadingSpinner, ErrorMessage } from './';
 import { Priority } from '../types';
 
 interface TodoListProps {
@@ -51,7 +51,7 @@ export const TodoList: React.FC<TodoListProps> = ({ className }) => {
   if (loading) {
     return (
       <div className={`w-full p-3 sm:p-4 ${className || ''}`}>
-        <div className="text-center py-6 sm:py-8 text-slate-600 text-base sm:text-lg">Loading todos...</div>
+        <LoadingSpinner message="Loading todos..." />
       </div>
     );
   }
@@ -59,15 +59,11 @@ export const TodoList: React.FC<TodoListProps> = ({ className }) => {
   if (error) {
     return (
       <div className={`w-full p-3 sm:p-4 ${className || ''}`}>
-        <div className="text-center py-6 sm:py-8 text-red-600 bg-red-50 border border-red-200 rounded-lg">
-          <div className="mb-4 text-sm sm:text-base">Error: {error}</div>
-          <button 
-            onClick={refreshTodos} 
-            className="px-4 py-3 bg-blue-600 text-white border-none rounded-md cursor-pointer text-sm transition-all duration-200 hover:bg-blue-700 hover:-translate-y-0.5 shadow-md hover:shadow-lg min-h-[44px] active:bg-blue-800"
-          >
-            Retry
-          </button>
-        </div>
+        <ErrorMessage 
+          message={error} 
+          onRetry={refreshTodos}
+          retryLabel="Retry"
+        />
       </div>
     );
   }
