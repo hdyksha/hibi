@@ -91,11 +91,11 @@ export const Filter: React.FC<FilterProps> = ({
   const hasActiveFilters = Object.keys(filter).length > 0;
 
   return (
-    <div className={`bg-white/95 backdrop-blur-xl rounded-lg shadow-md border border-slate-200/50 p-6 space-y-6 animate-slide-in-right ${className || ''}`}>
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h3 className="text-xl font-medium text-slate-800 flex items-center space-x-2">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div className={`bg-white/95 backdrop-blur-xl rounded-lg shadow-md border border-slate-200/50 p-4 sm:p-6 space-y-4 sm:space-y-6 animate-slide-in-right ${className || ''}`}>
+      {/* Header - Mobile responsive */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <h3 className="text-lg sm:text-xl font-medium text-slate-800 flex items-center space-x-2">
+          <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
           </svg>
           <span>Filters</span>
@@ -105,8 +105,9 @@ export const Filter: React.FC<FilterProps> = ({
             type="button"
             onClick={handleClearFilters}
             className="
-              px-3 py-1 bg-slate-100 text-slate-700 rounded-md text-sm font-medium
-              hover:bg-slate-200 transition-colors duration-200
+              px-3 py-2 bg-slate-100 text-slate-700 rounded-md text-sm font-medium
+              hover:bg-slate-200 transition-colors duration-200 min-h-[44px] active:bg-slate-300
+              self-start sm:self-auto
             "
           >
             Clear
@@ -114,7 +115,7 @@ export const Filter: React.FC<FilterProps> = ({
         )}
       </div>
 
-      {/* Search Box */}
+      {/* Search Box - Mobile responsive */}
       <div className="space-y-2">
         <label htmlFor="search-input" className="block text-sm font-medium text-slate-700 flex items-center space-x-1">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -129,9 +130,9 @@ export const Filter: React.FC<FilterProps> = ({
           onChange={handleSearchChange}
           placeholder="Search by title, memo, tags..."
           className="
-            w-full px-4 py-3 rounded-lg border border-slate-200 
+            w-full px-3 sm:px-4 py-3 rounded-lg border border-slate-200 text-sm sm:text-base
             focus:outline-none focus:ring-2 focus:ring-slate-400/30 focus:border-slate-400
-            transition-all duration-200
+            transition-all duration-200 min-h-[48px]
           "
         />
       </div>
@@ -165,7 +166,7 @@ export const Filter: React.FC<FilterProps> = ({
         </div>
       )}
 
-      {/* Priority Filter */}
+      {/* Priority Filter - Mobile responsive */}
       <div className="space-y-2">
         <label htmlFor="priority-select" className="block text-sm font-medium text-slate-700 flex items-center space-x-1">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -178,9 +179,9 @@ export const Filter: React.FC<FilterProps> = ({
           value={filter.priority || ''}
           onChange={(e) => handlePriorityChange(e.target.value as Priority | '')}
           className="
-            w-full px-4 py-3 rounded-lg border border-slate-200 bg-white
+            w-full px-3 sm:px-4 py-3 rounded-lg border border-slate-200 bg-white text-sm sm:text-base
             focus:outline-none focus:ring-2 focus:ring-slate-400/30 focus:border-slate-400
-            transition-all duration-200
+            transition-all duration-200 min-h-[48px]
           "
         >
           <option value="">All Priorities</option>
@@ -190,7 +191,7 @@ export const Filter: React.FC<FilterProps> = ({
         </select>
       </div>
 
-      {/* Tags Filter */}
+      {/* Tags Filter - Mobile responsive */}
       {availableTags.length > 0 && (
         <div className="space-y-3">
           <label className="block text-sm font-medium text-slate-700 flex items-center space-x-1">
@@ -199,11 +200,11 @@ export const Filter: React.FC<FilterProps> = ({
             </svg>
             <span>Tags</span>
           </label>
-          <div className="space-y-2 max-h-40 overflow-y-auto">
+          <div className="space-y-2 max-h-32 sm:max-h-40 overflow-y-auto">
             {availableTags.map(tag => (
               <label key={tag} className="
                 flex items-center space-x-3 p-2 rounded-md hover:bg-slate-50 
-                cursor-pointer transition-colors duration-200
+                cursor-pointer transition-colors duration-200 min-h-[44px] active:bg-slate-100
               ">
                 <input
                   type="checkbox"
@@ -224,33 +225,33 @@ export const Filter: React.FC<FilterProps> = ({
         </div>
       )}
 
-      {/* Active Filters Summary */}
+      {/* Active Filters Summary - Mobile responsive */}
       {hasActiveFilters && (
-        <div className="pt-4 border-t border-gray-200 space-y-3">
+        <div className="pt-3 sm:pt-4 border-t border-gray-200 space-y-2 sm:space-y-3">
           <div className="text-sm font-medium text-slate-700 flex items-center space-x-1">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <span>Active Filters:</span>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1 sm:gap-2">
             {!hideStatusFilter && filter.status && filter.status !== 'all' && (
-              <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-md text-xs font-medium">
+              <span className="px-2 sm:px-3 py-1 bg-slate-100 text-slate-700 rounded-md text-xs font-medium">
                 Status: {FILTER_STATUS_OPTIONS.find(opt => opt.value === filter.status)?.label}
               </span>
             )}
             {filter.priority && (
-              <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-md text-xs font-medium">
+              <span className="px-2 sm:px-3 py-1 bg-slate-100 text-slate-700 rounded-md text-xs font-medium">
                 Priority: {PRIORITY_OPTIONS.find(opt => opt.value === filter.priority)?.label}
               </span>
             )}
             {filter.tags && filter.tags.length > 0 && (
-              <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-md text-xs font-medium">
+              <span className="px-2 sm:px-3 py-1 bg-slate-100 text-slate-700 rounded-md text-xs font-medium">
                 Tags: {filter.tags.join(', ')}
               </span>
             )}
             {filter.searchText && (
-              <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-md text-xs font-medium">
+              <span className="px-2 sm:px-3 py-1 bg-slate-100 text-slate-700 rounded-md text-xs font-medium">
                 Search: "{filter.searchText}"
               </span>
             )}

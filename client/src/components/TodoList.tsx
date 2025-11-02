@@ -50,20 +50,20 @@ export const TodoList: React.FC<TodoListProps> = ({ className }) => {
 
   if (loading) {
     return (
-      <div className={`w-full p-4 ${className || ''}`}>
-        <div className="text-center py-8 text-slate-600 text-lg">Loading todos...</div>
+      <div className={`w-full p-3 sm:p-4 ${className || ''}`}>
+        <div className="text-center py-6 sm:py-8 text-slate-600 text-base sm:text-lg">Loading todos...</div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className={`w-full p-4 ${className || ''}`}>
-        <div className="text-center py-8 text-red-600 bg-red-50 border border-red-200 rounded-lg">
-          <div className="mb-4">Error: {error}</div>
+      <div className={`w-full p-3 sm:p-4 ${className || ''}`}>
+        <div className="text-center py-6 sm:py-8 text-red-600 bg-red-50 border border-red-200 rounded-lg">
+          <div className="mb-4 text-sm sm:text-base">Error: {error}</div>
           <button 
             onClick={refreshTodos} 
-            className="px-4 py-2 bg-blue-600 text-white border-none rounded-md cursor-pointer text-sm transition-all duration-200 hover:bg-blue-700 hover:-translate-y-0.5 shadow-md hover:shadow-lg"
+            className="px-4 py-3 bg-blue-600 text-white border-none rounded-md cursor-pointer text-sm transition-all duration-200 hover:bg-blue-700 hover:-translate-y-0.5 shadow-md hover:shadow-lg min-h-[44px] active:bg-blue-800"
           >
             Retry
           </button>
@@ -73,13 +73,13 @@ export const TodoList: React.FC<TodoListProps> = ({ className }) => {
   }
 
   return (
-    <div className={`w-full p-4 ${className || ''}`}>
+    <div className={`w-full p-3 sm:p-4 ${className || ''}`}>
       {!todos || todos.length === 0 ? (
-        <div className="text-center py-8 text-slate-600 text-lg">
+        <div className="text-center py-6 sm:py-8 text-slate-600 text-base sm:text-lg">
           No todos yet. Create your first todo!
         </div>
       ) : (
-        <ul className="list-none p-0 m-0 space-y-3">
+        <ul className="list-none p-0 m-0 space-y-2 sm:space-y-3">
           {todos.map(todo => (
             <li key={todo.id}>
               <TodoItem

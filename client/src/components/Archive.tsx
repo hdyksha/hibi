@@ -81,9 +81,9 @@ export const Archive: React.FC<ArchiveProps> = ({ className }) => {
 
   if (loading) {
     return (
-      <div className={`p-4 max-w-4xl mx-auto ${className || ''}`}>
-        <div className="text-center py-8 text-slate-600">
-          <p>Loading archive...</p>
+      <div className={`p-3 sm:p-4 max-w-4xl mx-auto ${className || ''}`}>
+        <div className="text-center py-6 sm:py-8 text-slate-600">
+          <p className="text-sm sm:text-base">Loading archive...</p>
         </div>
       </div>
     );
@@ -91,12 +91,12 @@ export const Archive: React.FC<ArchiveProps> = ({ className }) => {
 
   if (error) {
     return (
-      <div className={`p-4 max-w-4xl mx-auto ${className || ''}`}>
-        <div className="text-center py-8 text-red-600">
-          <p>Error: {error}</p>
+      <div className={`p-3 sm:p-4 max-w-4xl mx-auto ${className || ''}`}>
+        <div className="text-center py-6 sm:py-8 text-red-600">
+          <p className="text-sm sm:text-base">Error: {error}</p>
           <button 
             onClick={refreshArchive} 
-            className="mt-4 px-4 py-2 bg-blue-600 text-white border-none rounded-md cursor-pointer text-sm hover:bg-blue-700 transition-colors duration-200"
+            className="mt-4 px-4 py-3 bg-blue-600 text-white border-none rounded-md cursor-pointer text-sm hover:bg-blue-700 transition-colors duration-200 min-h-[44px] active:bg-blue-800"
           >
             Retry
           </button>
@@ -107,55 +107,55 @@ export const Archive: React.FC<ArchiveProps> = ({ className }) => {
 
   if (totalTasks === 0) {
     return (
-      <div className={`p-4 max-w-4xl mx-auto ${className || ''}`}>
-        <div className="text-center py-8 text-slate-600">
-          <p>No completed tasks.</p>
+      <div className={`p-3 sm:p-4 max-w-4xl mx-auto ${className || ''}`}>
+        <div className="text-center py-6 sm:py-8 text-slate-600">
+          <p className="text-sm sm:text-base">No completed tasks.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={`p-4 max-w-4xl mx-auto ${className || ''}`}>
+    <div className={`p-3 sm:p-4 max-w-4xl mx-auto ${className || ''}`}>
       <ArchiveFilter
         filter={filter}
         availableTags={availableTags}
         onFilterChange={setFilter}
-        className="mb-8 bg-white rounded-xl p-6 shadow-md border border-slate-200"
+        className="mb-6 sm:mb-8 bg-white rounded-xl p-4 sm:p-6 shadow-md border border-slate-200"
         data-testid="archive-filter"
       />
 
       {filteredGroups.length === 0 ? (
-        <div className="text-center py-8 text-slate-600">
-          <p>No tasks match the current filters.</p>
+        <div className="text-center py-6 sm:py-8 text-slate-600">
+          <p className="text-sm sm:text-base">No tasks match the current filters.</p>
         </div>
       ) : (
-        <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-6 sm:gap-8">
           {filteredGroups.map((group) => (
-            <div key={group.date} className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-7 shadow-md border border-slate-200" data-testid="archive-group">
-              <div className="flex justify-between items-center mb-4 pb-2 border-b-2 border-slate-300">
-                <h3 className="text-xl font-semibold text-slate-800 m-0">
+            <div key={group.date} className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-4 sm:p-7 shadow-md border border-slate-200" data-testid="archive-group">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 sm:mb-4 pb-2 border-b-2 border-slate-300 gap-2">
+                <h3 className="text-lg sm:text-xl font-semibold text-slate-800 m-0">
                   {formatDate(group.date)}
                 </h3>
-                <span className="bg-green-500 text-white px-3 py-1 rounded-xl text-sm font-medium">
+                <span className="bg-green-500 text-white px-3 py-1 rounded-xl text-sm font-medium self-start sm:self-auto">
                   {group.count} completed
                 </span>
               </div>
 
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-2 sm:gap-3">
                 {group.tasks.map((task) => (
-                  <div key={task.id} className="bg-white rounded-lg p-5 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 relative flex justify-between items-start" data-testid="archive-task">
-                    <div className="flex flex-col gap-2 flex-1">
-                      <div className="flex justify-between items-start gap-4">
-                        <h4 className="text-base font-semibold text-slate-800 m-0 flex-1">
+                  <div key={task.id} className="bg-white rounded-lg p-3 sm:p-5 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 relative flex justify-between items-start" data-testid="archive-task">
+                    <div className="flex flex-col gap-2 flex-1 min-w-0">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-4">
+                        <h4 className="text-sm sm:text-base font-semibold text-slate-800 m-0 flex-1 break-words">
                           {task.title}
                         </h4>
-                        <div className="flex items-center gap-3 flex-shrink-0">
+                        <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 self-start">
                           <span className={`px-2 py-1 rounded text-xs font-semibold uppercase border ${getPriorityStyles(task.priority)}`}>
                             {task.priority}
                           </span>
                           {task.completedAt && (
-                            <span className="text-slate-500 text-sm">
+                            <span className="text-slate-500 text-xs sm:text-sm">
                               {formatTime(task.completedAt)}
                             </span>
                           )}
@@ -173,18 +173,18 @@ export const Archive: React.FC<ArchiveProps> = ({ className }) => {
                       )}
 
                       {task.memo && (
-                        <div className="mt-3 p-4 bg-slate-50 rounded-lg border border-slate-200">
+                        <div className="mt-2 sm:mt-3 p-3 sm:p-4 bg-slate-50 rounded-lg border border-slate-200">
                           <MarkdownPreview
                             content={task.memo}
-                            className="text-slate-700"
+                            className="text-slate-700 text-sm sm:text-base"
                           />
                         </div>
                       )}
                     </div>
 
-                    <div className="flex flex-col gap-2 ml-4 mt-1">
+                    <div className="flex flex-col gap-2 ml-3 sm:ml-4 mt-1">
                       <button
-                        className="bg-none border-none cursor-pointer p-2 rounded-md transition-all duration-200 text-slate-400 hover:bg-slate-100 hover:text-slate-600 hover:scale-110 active:scale-95 flex items-center justify-center w-9 h-9"
+                        className="bg-none border-none cursor-pointer p-2 rounded-md transition-all duration-200 text-slate-400 hover:bg-slate-100 hover:text-slate-600 hover:scale-110 active:scale-95 flex items-center justify-center w-10 h-10 sm:w-9 sm:h-9 min-h-[44px] sm:min-h-0"
                         onClick={() => handleEditClick(task)}
                         aria-label={`Edit task: ${task.title}`}
                         title="Edit task"
