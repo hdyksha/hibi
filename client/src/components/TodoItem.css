@@ -20,10 +20,8 @@
 }
 
 .todo-item--completed {
-  background-color: #f0f9ff;
+  background-color: #e8f4fd;
   border-color: #bfdbfe;
-  opacity: 0.85;
-  transform: scale(0.98);
 }
 
 .todo-item__content {
