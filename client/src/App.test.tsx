@@ -19,8 +19,8 @@ describe('App', () => {
 
   it('renders navigation buttons in header', () => {
     render(<App />);
-    const tasksButton = screen.getByText('タスク一覧');
-    const archiveButton = screen.getByText('アーカイブ');
+    const tasksButton = screen.getByText('Tasks');
+    const archiveButton = screen.getByText('Archive');
     expect(tasksButton).toBeInTheDocument();
     expect(archiveButton).toBeInTheDocument();
   });

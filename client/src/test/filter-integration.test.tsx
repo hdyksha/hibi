@@ -53,17 +53,12 @@ describe('Filter Integration', () => {
     expect(screen.getByLabelText('Search')).toBeInTheDocument();
     expect(screen.getByText('Status')).toBeInTheDocument();
     
-    // Use more specific selector for Priority in filter section
-    const filterSection = screen.getByText('Filters').closest('.filter');
-    expect(filterSection).toBeInTheDocument();
-    
-    // Check for priority select within filter section
+    // Check for priority select
     const prioritySelect = screen.getByDisplayValue('All Priorities');
     expect(prioritySelect).toBeInTheDocument();
     
     // Check for tags section in filter
-    const filterTagsSection = screen.getAllByText('Tags');
-    expect(filterTagsSection.length).toBeGreaterThan(0);
+    expect(screen.getByText('Tags')).toBeInTheDocument();
   });
 
   it('shows available tags from API', async () => {
@@ -71,8 +66,7 @@ describe('Filter Integration', () => {
 
     await waitFor(() => {
       // Check for filter component
-      const filterComponent = screen.getByText('Filters').closest('.filter');
-      expect(filterComponent).toBeInTheDocument();
+      expect(screen.getByText('Filters')).toBeInTheDocument();
       
       // Check for tag checkboxes within filter component
       const workCheckbox = screen.getByRole('checkbox', { name: 'work' });

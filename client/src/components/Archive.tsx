@@ -33,12 +33,12 @@ export const Archive: React.FC<ArchiveProps> = ({ className }) => {
 
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('ja-JP', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      weekday: 'long'
-    });
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const weekday = date.toLocaleDateString('en-US', { weekday: 'short' });
+    
+    return `${year}/${month}/${day} ${weekday}`;
   };
 
   const formatTime = (isoString: string): string => {
@@ -83,7 +83,7 @@ export const Archive: React.FC<ArchiveProps> = ({ className }) => {
     return (
       <div className={`p-4 max-w-4xl mx-auto ${className || ''}`}>
         <div className="text-center py-8 text-slate-600">
-          <p>アーカイブを読み込み中...</p>
+          <p>Loading archive...</p>
         </div>
       </div>
     );
@@ -93,12 +93,12 @@ export const Archive: React.FC<ArchiveProps> = ({ className }) => {
     return (
       <div className={`p-4 max-w-4xl mx-auto ${className || ''}`}>
         <div className="text-center py-8 text-red-600">
-          <p>エラー: {error}</p>
+          <p>Error: {error}</p>
           <button 
             onClick={refreshArchive} 
             className="mt-4 px-4 py-2 bg-blue-600 text-white border-none rounded-md cursor-pointer text-sm hover:bg-blue-700 transition-colors duration-200"
           >
-            再試行
+            Retry
           </button>
         </div>
       </div>
@@ -109,7 +109,7 @@ export const Archive: React.FC<ArchiveProps> = ({ className }) => {
     return (
       <div className={`p-4 max-w-4xl mx-auto ${className || ''}`}>
         <div className="text-center py-8 text-slate-600">
-          <p>完了済みのタスクはありません。</p>
+          <p>No completed tasks.</p>
         </div>
       </div>
     );
@@ -122,28 +122,29 @@ export const Archive: React.FC<ArchiveProps> = ({ className }) => {
         availableTags={availableTags}
         onFilterChange={setFilter}
         className="mb-8 bg-white rounded-xl p-6 shadow-md border border-slate-200"
+        data-testid="archive-filter"
       />
 
       {filteredGroups.length === 0 ? (
         <div className="text-center py-8 text-slate-600">
-          <p>フィルター条件に一致するタスクがありません。</p>
+          <p>No tasks match the current filters.</p>
         </div>
       ) : (
         <div className="flex flex-col gap-8">
           {filteredGroups.map((group) => (
-            <div key={group.date} className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-7 shadow-md border border-slate-200">
+            <div key={group.date} className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-7 shadow-md border border-slate-200" data-testid="archive-group">
               <div className="flex justify-between items-center mb-4 pb-2 border-b-2 border-slate-300">
                 <h3 className="text-xl font-semibold text-slate-800 m-0">
                   {formatDate(group.date)}
                 </h3>
                 <span className="bg-green-500 text-white px-3 py-1 rounded-xl text-sm font-medium">
-                  {group.count} 件完了
+                  {group.count} completed
                 </span>
               </div>
 
               <div className="flex flex-col gap-3">
                 {group.tasks.map((task) => (
-                  <div key={task.id} className="bg-white rounded-lg p-5 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 relative flex justify-between items-start">
+                  <div key={task.id} className="bg-white rounded-lg p-5 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 relative flex justify-between items-start" data-testid="archive-task">
                     <div className="flex flex-col gap-2 flex-1">
                       <div className="flex justify-between items-start gap-4">
                         <h4 className="text-base font-semibold text-slate-800 m-0 flex-1">
@@ -186,7 +187,7 @@ export const Archive: React.FC<ArchiveProps> = ({ className }) => {
                         className="bg-none border-none cursor-pointer p-2 rounded-md transition-all duration-200 text-slate-400 hover:bg-slate-100 hover:text-slate-600 hover:scale-110 active:scale-95 flex items-center justify-center w-9 h-9"
                         onClick={() => handleEditClick(task)}
                         aria-label={`Edit task: ${task.title}`}
-                        title="タスクを編集"
+                        title="Edit task"
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />

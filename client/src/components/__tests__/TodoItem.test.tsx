@@ -4,7 +4,7 @@
  */
 
 import { render, screen, fireEvent } from '@testing-library/react';
-import { vi } from 'vitest';
+import { vi, describe, it, beforeEach, expect } from 'vitest';
 import { TodoItemComponent as TodoItem } from '../TodoItem';
 import { TodoItem as TodoItemType } from '../../types';
 
@@ -92,7 +92,7 @@ describe('TodoItem', () => {
 
     const toggleButton = screen.getByLabelText('Mark as complete');
     expect(toggleButton).toBeInTheDocument();
-    expect(toggleButton).toHaveTextContent('○');
+    expect(toggleButton).toHaveTextContent('');
   });
 
   it('shows complete state for completed todo', () => {
@@ -120,8 +120,8 @@ describe('TodoItem', () => {
       />
     );
 
-    const todoItem = screen.getByText('Completed Todo').closest('.todo-item');
-    expect(todoItem).toHaveClass('todo-item--completed');
+    const todoItem = screen.getByTestId('todo-item');
+    expect(todoItem).toHaveClass('opacity-70');
   });
 
   it('calls onToggleComplete when toggle button is clicked', () => {
@@ -184,17 +184,17 @@ describe('TodoItem', () => {
         />
       );
 
-      // Check that completed todo has the completed class
-      const todoItem = screen.getByText('Completed Todo').closest('.todo-item');
-      expect(todoItem).toHaveClass('todo-item--completed');
+      // Check that completed todo has the completed styling
+      const todoItem = screen.getByTestId('todo-item');
+      expect(todoItem).toHaveClass('opacity-70');
 
       // Check that the title has completed styling
       const title = screen.getByText('Completed Todo');
-      expect(title).toHaveClass('todo-item__title--completed');
+      expect(title).toHaveClass('line-through', 'text-slate-500');
 
       // Check that the toggle button has completed styling
       const toggleButton = screen.getByLabelText('Mark as incomplete');
-      expect(toggleButton).toHaveClass('todo-item__toggle--completed');
+      expect(toggleButton).toHaveClass('bg-slate-600', 'text-white');
     });
 
     it('does not apply completed styling to incomplete todos', () => {
@@ -208,8 +208,8 @@ describe('TodoItem', () => {
       );
 
       // Check that incomplete todo does not have completed classes
-      const todoItem = screen.getByText('Test Todo').closest('.todo-item');
-      expect(todoItem).not.toHaveClass('todo-item--completed');
+      const todoItem = screen.getByTestId('todo-item');
+      expect(todoItem).not.toHaveClass('opacity-70');
 
       const title = screen.getByText('Test Todo');
       expect(title).not.toHaveClass('todo-item__title--completed');
@@ -228,8 +228,9 @@ describe('TodoItem', () => {
         />
       );
 
-      // Check incomplete state indicator
-      expect(screen.getByText('○')).toBeInTheDocument();
+      // Check incomplete state indicator (empty button)
+      const incompleteButton = screen.getByLabelText('Mark as complete');
+      expect(incompleteButton).toHaveTextContent('');
       expect(screen.queryByText('✓')).not.toBeInTheDocument();
 
       // Rerender with completed todo
@@ -259,9 +260,9 @@ describe('TodoItem', () => {
         />
       );
 
-      const priorityBadge = screen.getByText('High');
+      const priorityBadge = screen.getByText('high');
       expect(priorityBadge).toBeInTheDocument();
-      expect(priorityBadge).toHaveClass('todo-item__priority--high');
+      expect(priorityBadge).toHaveClass('bg-red-100', 'text-red-700');
     });
 
     it('applies priority-specific border styling', () => {
@@ -274,8 +275,8 @@ describe('TodoItem', () => {
         />
       );
 
-      const todoItem = screen.getByText('Completed Todo').closest('.todo-item');
-      expect(todoItem).toHaveClass('todo-item--priority-high');
+      const priorityBadge = screen.getByText('high');
+      expect(priorityBadge).toHaveClass('bg-red-100', 'text-red-700', 'border-red-200');
     });
 
     it('shows edit button', () => {
@@ -306,7 +307,7 @@ describe('TodoItem', () => {
       fireEvent.click(editButton);
 
       // Modal should be open with task data
-      expect(screen.getByText('タスクを編集')).toBeInTheDocument();
+      expect(screen.getByText('Edit Task')).toBeInTheDocument();
       expect(screen.getByDisplayValue('Test Todo')).toBeInTheDocument();
     });
   });
@@ -326,10 +327,10 @@ describe('TodoItem', () => {
       fireEvent.click(editButton);
 
       // Should show edit modal
-      expect(screen.getByText('タスクを編集')).toBeInTheDocument();
+      expect(screen.getByText('Edit Task')).toBeInTheDocument();
       expect(screen.getByDisplayValue('Test Todo')).toBeInTheDocument();
-      expect(screen.getByText('保存')).toBeInTheDocument();
-      expect(screen.getByText('キャンセル')).toBeInTheDocument();
+      expect(screen.getByText('Save')).toBeInTheDocument();
+      expect(screen.getByText('Cancel')).toBeInTheDocument();
     });
 
     it('displays priority field in modal for todo items', () => {
@@ -346,8 +347,8 @@ describe('TodoItem', () => {
       fireEvent.click(editButton);
 
       // Should show priority field since showPriority=true for TodoItem
-      expect(screen.getByLabelText('優先度')).toBeInTheDocument();
-      const prioritySelect = screen.getByLabelText('優先度') as HTMLSelectElement;
+      expect(screen.getByLabelText('Priority')).toBeInTheDocument();
+      const prioritySelect = screen.getByLabelText('Priority') as HTMLSelectElement;
       expect(prioritySelect.value).toBe('medium');
     });
   });

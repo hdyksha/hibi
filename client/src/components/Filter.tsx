@@ -98,7 +98,7 @@ export const Filter: React.FC<FilterProps> = ({
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
           </svg>
-          <span>フィルター</span>
+          <span>Filters</span>
         </h3>
         {hasActiveFilters && (
           <button
@@ -109,7 +109,7 @@ export const Filter: React.FC<FilterProps> = ({
               hover:bg-slate-200 transition-colors duration-200
             "
           >
-            クリア
+            Clear
           </button>
         )}
       </div>
@@ -120,14 +120,14 @@ export const Filter: React.FC<FilterProps> = ({
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
-          <span>検索</span>
+          <span>Search</span>
         </label>
         <input
           id="search-input"
           type="text"
           value={searchText}
           onChange={handleSearchChange}
-          placeholder="タイトル、メモ、タグで検索..."
+          placeholder="Search by title, memo, tags..."
           className="
             w-full px-4 py-3 rounded-lg border border-slate-200 
             focus:outline-none focus:ring-2 focus:ring-slate-400/30 focus:border-slate-400
@@ -143,7 +143,7 @@ export const Filter: React.FC<FilterProps> = ({
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span>ステータス</span>
+            <span>Status</span>
           </label>
           <div className="space-y-2">
             {FILTER_STATUS_OPTIONS.map(option => (
@@ -171,7 +171,7 @@ export const Filter: React.FC<FilterProps> = ({
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11l5-5m0 0l5 5m-5-5v12" />
           </svg>
-          <span>優先度</span>
+          <span>Priority</span>
         </label>
         <select
           id="priority-select"
@@ -183,7 +183,7 @@ export const Filter: React.FC<FilterProps> = ({
             transition-all duration-200
           "
         >
-          <option value="">すべての優先度</option>
+          <option value="">All Priorities</option>
           <option value="high">● 高</option>
           <option value="medium">● 中</option>
           <option value="low">● 低</option>
@@ -197,7 +197,7 @@ export const Filter: React.FC<FilterProps> = ({
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
             </svg>
-            <span>タグ</span>
+            <span>Tags</span>
           </label>
           <div className="space-y-2 max-h-40 overflow-y-auto">
             {availableTags.map(tag => (
@@ -231,27 +231,27 @@ export const Filter: React.FC<FilterProps> = ({
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span>アクティブフィルター:</span>
+            <span>Active Filters:</span>
           </div>
           <div className="flex flex-wrap gap-2">
             {!hideStatusFilter && filter.status && filter.status !== 'all' && (
               <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-md text-xs font-medium">
-                ステータス: {FILTER_STATUS_OPTIONS.find(opt => opt.value === filter.status)?.label}
+                Status: {FILTER_STATUS_OPTIONS.find(opt => opt.value === filter.status)?.label}
               </span>
             )}
             {filter.priority && (
               <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-md text-xs font-medium">
-                優先度: {PRIORITY_OPTIONS.find(opt => opt.value === filter.priority)?.label}
+                Priority: {PRIORITY_OPTIONS.find(opt => opt.value === filter.priority)?.label}
               </span>
             )}
             {filter.tags && filter.tags.length > 0 && (
               <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-md text-xs font-medium">
-                タグ: {filter.tags.join(', ')}
+                Tags: {filter.tags.join(', ')}
               </span>
             )}
             {filter.searchText && (
               <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-md text-xs font-medium">
-                検索: "{filter.searchText}"
+                Search: "{filter.searchText}"
               </span>
             )}
           </div>

@@ -221,6 +221,6 @@ describe('TagInput Component', () => {
   it('applies custom className', () => {
     const { container } = render(<TagInput tags={[]} onChange={mockOnChange} className="custom-class" />);
     
-    expect(container.firstChild).toHaveClass('tag-input', 'custom-class');
+    expect(container.firstChild).toHaveClass('w-full', 'custom-class');
   });
 });

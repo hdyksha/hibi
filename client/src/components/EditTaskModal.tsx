@@ -45,7 +45,7 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
 
   const handleSave = async () => {
     if (!editTitle.trim()) {
-      setError('タイトルは必須です');
+      setError('Title is required');
       return;
     }
 
@@ -118,13 +118,13 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
     >
       <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col" role="dialog" aria-labelledby="edit-task-title">
         <div className="flex items-center justify-between p-6 border-b border-slate-200 bg-slate-50">
-          <h2 id="edit-task-title" className="text-xl font-semibold text-slate-800 m-0">タスクを編集</h2>
+          <h2 id="edit-task-title" className="text-xl font-semibold text-slate-800 m-0">Edit Task</h2>
           <button
             className={`bg-none border-none text-2xl cursor-pointer text-slate-500 p-1 rounded transition-colors duration-200 ${
               isSaving ? 'opacity-50 cursor-not-allowed' : 'hover:text-slate-700 hover:bg-slate-200'
             }`}
             onClick={handleCancel}
-            aria-label="閉じる"
+            aria-label="Close"
             disabled={isSaving}
           >
             ×
@@ -140,7 +140,7 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
 
           <div className="mb-6">
             <label htmlFor="edit-title" className="block font-medium text-slate-700 mb-2 text-sm">
-              タイトル *
+              Title *
             </label>
             <input
               id="edit-title"
@@ -159,7 +159,7 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
           {showPriority && (
             <div className="mb-6">
               <label htmlFor="edit-priority" className="block font-medium text-slate-700 mb-2 text-sm">
-                優先度
+                Priority
               </label>
               <select
                 id="edit-priority"
@@ -179,12 +179,12 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
 
           <div className="mb-6">
             <label className="block font-medium text-slate-700 mb-2 text-sm">
-              タグ
+              Tags
             </label>
             <TagInput
               tags={editTags}
               onChange={setEditTags}
-              placeholder="タグを追加..."
+              placeholder="Add tags..."
               maxTags={10}
               className="w-full"
               disabled={isSaving}
@@ -193,12 +193,12 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
 
           <div className="mb-6">
             <label className="block font-medium text-slate-700 mb-2 text-sm">
-              メモ
+              Memo
             </label>
             <MemoEditor
               value={editMemo}
               onChange={setEditMemo}
-              placeholder="メモをマークダウン形式で入力..."
+              placeholder="Enter memo in markdown format..."
               className="w-full min-h-48"
               disabled={isSaving}
             />
@@ -213,7 +213,7 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
             }`}
             disabled={isSaving}
           >
-            キャンセル
+            Cancel
           </button>
           <button
             onClick={handleSave}
@@ -222,7 +222,7 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
             }`}
             disabled={isSaving}
           >
-            {isSaving ? '保存中...' : '保存'}
+            {isSaving ? 'Saving...' : 'Save'}
           </button>
         </div>
       </div>

@@ -1,7 +1,7 @@
 /**
  * Default Filter Behavior Tests
  * Tests the default display showing only pending tasks
- * Requirements: 2.1, 2.2, ユーザビリティ向上
+ * Requirements: 2.1, 2.2, Usability improvement
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';

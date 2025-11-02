@@ -42,7 +42,7 @@ export const TodoItemComponent: React.FC<TodoItemProps> = ({
 
   const handleTaskUpdate = async (id: string, updates: { title?: string; priority?: Priority; tags?: string[]; memo?: string }) => {
     try {
-      await onUpdate(id, updates);
+      onUpdate(id, updates);
     } catch (error) {
       // Error handling is managed by the modal component
       throw error;
@@ -68,20 +68,22 @@ export const TodoItemComponent: React.FC<TodoItemProps> = ({
   };
 
   return (
-    <div className={`
-      group relative bg-white/95 backdrop-blur-xl rounded-lg shadow-md border border-slate-200/50 
-      p-5 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 animate-fade-in-up
-      ${todo.completed ? 'opacity-70 bg-slate-50/80' : ''}
-    `}>
-      
+    <div
+      data-testid="todo-item"
+      className={`
+        group relative bg-white/95 backdrop-blur-xl rounded-lg shadow-md border border-slate-200/50 
+        p-5 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 animate-fade-in-up
+        ${todo.completed ? 'opacity-70 bg-slate-50/80' : ''}
+      `}>
+
       <div className="flex items-start space-x-4">
         {/* Completion Toggle */}
         <button
           className={`
             flex-shrink-0 w-6 h-6 rounded-full border-2 transition-all duration-200
             flex items-center justify-center text-xs font-bold
-            ${todo.completed 
-              ? 'bg-slate-600 border-slate-600 text-white shadow-md' 
+            ${todo.completed
+              ? 'bg-slate-600 border-slate-600 text-white shadow-md'
               : 'border-slate-300 hover:border-slate-500 hover:bg-slate-50'
             }
           `}
@@ -90,7 +92,7 @@ export const TodoItemComponent: React.FC<TodoItemProps> = ({
         >
           {todo.completed ? '✓' : ''}
         </button>
-        
+
         {/* Content */}
         <div className="flex-1 min-w-0">
           {/* Header */}
@@ -101,7 +103,7 @@ export const TodoItemComponent: React.FC<TodoItemProps> = ({
             `}>
               {todo.title}
             </h3>
-            
+
             {/* Priority Badge */}
             <span className={`
               ml-3 px-3 py-1 rounded-md text-xs font-medium uppercase tracking-wide
@@ -110,7 +112,7 @@ export const TodoItemComponent: React.FC<TodoItemProps> = ({
               {todo.priority}
             </span>
           </div>
-          
+
           {/* Tags */}
           {todo.tags && todo.tags.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-3">
@@ -124,7 +126,7 @@ export const TodoItemComponent: React.FC<TodoItemProps> = ({
               ))}
             </div>
           )}
-          
+
           {/* Memo */}
           {todo.memo && (
             <div className="overflow-hidden transition-all duration-200 group-hover:mb-3 max-h-0 group-hover:max-h-96 opacity-0 group-hover:opacity-100">
@@ -139,7 +141,7 @@ export const TodoItemComponent: React.FC<TodoItemProps> = ({
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <span>{showMemo ? 'メモを隠す' : 'メモを表示'}</span>
+                <span>{showMemo ? 'Hide Memo' : 'Show Memo'}</span>
               </button>
               {showMemo && (
                 <div className="mt-3 p-4 bg-slate-50 rounded-lg border border-slate-200">
@@ -151,7 +153,7 @@ export const TodoItemComponent: React.FC<TodoItemProps> = ({
               )}
             </div>
           )}
-          
+
           {/* Metadata */}
           <div className="overflow-hidden transition-all duration-200 max-h-0 group-hover:max-h-10 opacity-0 group-hover:opacity-100">
             <div className="flex items-center space-x-4 text-xs text-slate-500">
@@ -159,20 +161,20 @@ export const TodoItemComponent: React.FC<TodoItemProps> = ({
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
-                <span>作成: {formatDate(todo.createdAt)}</span>
+                <span>Created: {formatDate(todo.createdAt)}</span>
               </span>
               {todo.updatedAt !== todo.createdAt && (
                 <span className="flex items-center space-x-1">
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                   </svg>
-                  <span>更新: {formatDate(todo.updatedAt)}</span>
+                  <span>Updated: {formatDate(todo.updatedAt)}</span>
                 </span>
               )}
             </div>
           </div>
         </div>
-        
+
         {/* Actions */}
         <div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           <div className="flex space-x-2">

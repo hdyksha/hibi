@@ -96,7 +96,7 @@ describe('Archive Component', () => {
     
     renderArchive();
     
-    expect(screen.getByText('アーカイブを読み込み中...')).toBeInTheDocument();
+    expect(screen.getByText('Loading archive...')).toBeInTheDocument();
   });
 
   it('displays archive groups with completed tasks', async () => {
@@ -109,8 +109,8 @@ describe('Archive Component', () => {
     });
 
     // Check group headers
-    expect(screen.getByText('2 件完了')).toBeInTheDocument();
-    expect(screen.getByText('1 件完了')).toBeInTheDocument();
+    expect(screen.getByText('2 completed')).toBeInTheDocument();
+    expect(screen.getByText('1 completed')).toBeInTheDocument();
 
     // Check task titles
     expect(screen.getByText('Complete project')).toBeInTheDocument();
@@ -123,12 +123,11 @@ describe('Archive Component', () => {
     expect(screen.getByText('low')).toBeInTheDocument();
 
     // Check tags (using more specific selectors to avoid conflicts with filter tags)
-    const archiveTags = document.querySelectorAll('.archive-task-tag');
-    const tagTexts = Array.from(archiveTags).map(tag => tag.textContent);
-    expect(tagTexts).toContain('work');
-    expect(tagTexts).toContain('urgent');
-    expect(tagTexts).toContain('review');
-    expect(tagTexts).toContain('personal');
+    // Check for tags by their text content
+    expect(screen.getByText('work')).toBeInTheDocument();
+    expect(screen.getByText('urgent')).toBeInTheDocument();
+    expect(screen.getByText('review')).toBeInTheDocument();
+    expect(screen.getByText('personal')).toBeInTheDocument();
 
     // Check memos
     expect(screen.getByText('Important project deadline')).toBeInTheDocument();
@@ -141,7 +140,7 @@ describe('Archive Component', () => {
     renderArchive();
     
     await waitFor(() => {
-      expect(screen.getByText('完了済みのタスクはありません。')).toBeInTheDocument();
+      expect(screen.getByText('No completed tasks.')).toBeInTheDocument();
     });
   });
 
@@ -152,10 +151,10 @@ describe('Archive Component', () => {
     renderArchive();
     
     await waitFor(() => {
-      expect(screen.getByText(`エラー: ${errorMessage}`)).toBeInTheDocument();
+      expect(screen.getByText(`Error: ${errorMessage}`)).toBeInTheDocument();
     });
 
-    expect(screen.getByText('再試行')).toBeInTheDocument();
+    expect(screen.getByText('Retry')).toBeInTheDocument();
   });
 
   it('groups tasks by completion date correctly', async () => {
@@ -168,14 +167,14 @@ describe('Archive Component', () => {
     });
 
     // Verify that tasks are grouped by date
-    const groups = screen.getAllByText(/件完了/);
+    const groups = screen.getAllByText(/completed/);
     expect(groups).toHaveLength(2);
     
     // First group should have 2 tasks
-    expect(screen.getByText('2 件完了')).toBeInTheDocument();
+    expect(screen.getByText('2 completed')).toBeInTheDocument();
     
     // Second group should have 1 task
-    expect(screen.getByText('1 件完了')).toBeInTheDocument();
+    expect(screen.getByText('1 completed')).toBeInTheDocument();
   });
 
   it('displays tasks with proper archive styling without line-through', async () => {
@@ -190,10 +189,9 @@ describe('Archive Component', () => {
     // Check that task titles have archive styling without line-through
     const taskTitles = screen.getAllByRole('heading', { level: 4 });
     taskTitles.forEach(title => {
-      expect(title).toHaveClass('archive-task-title');
       // Verify that the title doesn't have line-through styling in archive view
-      const computedStyle = window.getComputedStyle(title);
-      expect(computedStyle.textDecoration).not.toContain('line-through');
+      expect(title).not.toHaveClass('line-through');
+      expect(title).toHaveClass('text-slate-800');
     });
   });
 
@@ -206,26 +204,17 @@ describe('Archive Component', () => {
       expect(screen.getByText('Complete project')).toBeInTheDocument();
     });
 
-    // Check that archive tasks have the proper CSS classes for styling
-    const archiveTasks = document.querySelectorAll('.archive-task');
-    expect(archiveTasks.length).toBeGreaterThan(0);
+    // Check that archive tasks are rendered with proper test IDs
+    const archiveTasks = screen.getAllByTestId('archive-task');
+    expect(archiveTasks.length).toBe(3); // 3 tasks in mockArchiveData
     
-    archiveTasks.forEach(task => {
-      expect(task).toHaveClass('archive-task');
-    });
-
-    // Check that archive groups have proper styling classes
-    const archiveGroups = document.querySelectorAll('.archive-group');
-    expect(archiveGroups.length).toBeGreaterThan(0);
+    // Check that archive groups are rendered with proper test IDs
+    const archiveGroups = screen.getAllByTestId('archive-group');
+    expect(archiveGroups.length).toBe(2); // 2 groups in mockArchiveData
     
-    archiveGroups.forEach(group => {
-      expect(group).toHaveClass('archive-group');
-    });
-
-    // Verify archive filter has proper styling
-    const archiveFilter = document.querySelector('.archive-filter');
+    // Verify archive filter is present
+    const archiveFilter = screen.getByTestId('archive-filter');
     expect(archiveFilter).toBeInTheDocument();
-    expect(archiveFilter).toHaveClass('archive-filter');
   });
 
   it('displays edit buttons for archived tasks', async () => {
@@ -243,8 +232,8 @@ describe('Archive Component', () => {
     
     // Verify edit buttons have proper attributes
     editButtons.forEach(button => {
-      expect(button).toHaveAttribute('title', 'タスクを編集');
-      expect(button).toHaveClass('archive-task-edit');
+      expect(button).toHaveAttribute('title', 'Edit task');
+      expect(button).toHaveClass('text-slate-400', 'hover:text-slate-600');
     });
   });
 
@@ -263,15 +252,15 @@ describe('Archive Component', () => {
       });
 
       // Check that search input is rendered by default
-      expect(screen.getByPlaceholderText('タスクを検索...')).toBeInTheDocument();
+      expect(screen.getByPlaceholderText('Search tasks...')).toBeInTheDocument();
       
       // Check that toggle button is rendered
-      expect(screen.getByRole('button', { name: '詳細フィルターを表示' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Show advanced filters' })).toBeInTheDocument();
       
       // Advanced filters should not be visible by default
-      expect(screen.queryByText('詳細フィルター')).not.toBeInTheDocument();
-      expect(screen.queryByText('優先度')).not.toBeInTheDocument();
-      expect(screen.queryByText('タグ')).not.toBeInTheDocument();
+      expect(screen.queryByText('Advanced Filters')).not.toBeInTheDocument();
+      expect(screen.queryByText('Priority')).not.toBeInTheDocument();
+      expect(screen.queryByText('Tags')).not.toBeInTheDocument();
     });
 
     it('filters tasks by search text', async () => {
@@ -287,7 +276,7 @@ describe('Archive Component', () => {
       expect(screen.getByText('Buy groceries')).toBeInTheDocument();
 
       // Search for "project"
-      const searchInput = screen.getByPlaceholderText('タスクを検索...');
+      const searchInput = screen.getByPlaceholderText('Search tasks...');
       fireEvent.change(searchInput, { target: { value: 'project' } });
 
       // Only "Complete project" should be visible
@@ -304,11 +293,11 @@ describe('Archive Component', () => {
       });
 
       // Show advanced filters first
-      const toggleButton = screen.getByRole('button', { name: '詳細フィルターを表示' });
+      const toggleButton = screen.getByRole('button', { name: 'Show advanced filters' });
       fireEvent.click(toggleButton);
 
       // Filter by high priority
-      const prioritySelect = screen.getByLabelText('優先度');
+      const prioritySelect = screen.getByLabelText('Priority');
       fireEvent.change(prioritySelect, { target: { value: 'high' } });
 
       // Only high priority task should be visible
@@ -325,7 +314,7 @@ describe('Archive Component', () => {
       });
 
       // Show advanced filters first
-      const toggleButton = screen.getByRole('button', { name: '詳細フィルターを表示' });
+      const toggleButton = screen.getByRole('button', { name: 'Show advanced filters' });
       fireEvent.click(toggleButton);
 
       // Filter by "work" tag (use the checkbox input specifically)
@@ -346,11 +335,11 @@ describe('Archive Component', () => {
       });
 
       // Show advanced filters first
-      const toggleButton = screen.getByRole('button', { name: '詳細フィルターを表示' });
+      const toggleButton = screen.getByRole('button', { name: 'Show advanced filters' });
       fireEvent.click(toggleButton);
 
       // Apply a filter
-      const prioritySelect = screen.getByLabelText('優先度');
+      const prioritySelect = screen.getByLabelText('Priority');
       fireEvent.change(prioritySelect, { target: { value: 'high' } });
 
       // Should show only filtered task
@@ -369,11 +358,11 @@ describe('Archive Component', () => {
       });
 
       // Search for something that doesn't exist
-      const searchInput = screen.getByPlaceholderText('タスクを検索...');
+      const searchInput = screen.getByPlaceholderText('Search tasks...');
       fireEvent.change(searchInput, { target: { value: 'nonexistent' } });
 
       // Should show empty filter state
-      expect(screen.getByText('フィルター条件に一致するタスクがありません。')).toBeInTheDocument();
+      expect(screen.getByText('No tasks match the current filters.')).toBeInTheDocument();
     });
 
     it('clears all filters when clear button is clicked', async () => {
@@ -384,23 +373,23 @@ describe('Archive Component', () => {
       });
 
       // Apply multiple filters
-      const searchInput = screen.getByPlaceholderText('タスクを検索...');
+      const searchInput = screen.getByPlaceholderText('Search tasks...');
       fireEvent.change(searchInput, { target: { value: 'project' } });
       
       // Show advanced filters first
-      const toggleButton = screen.getByRole('button', { name: '詳細フィルターを表示' });
+      const toggleButton = screen.getByRole('button', { name: 'Show advanced filters' });
       fireEvent.click(toggleButton);
       
-      const prioritySelect = screen.getByLabelText('優先度');
+      const prioritySelect = screen.getByLabelText('Priority');
       fireEvent.change(prioritySelect, { target: { value: 'high' } });
 
       // Wait for filters to be applied
       await waitFor(() => {
-        expect(screen.getByText('フィルターをクリア')).toBeInTheDocument();
+        expect(screen.getByText('Clear Filters')).toBeInTheDocument();
       });
 
       // Clear all filters
-      const clearButton = screen.getByText('フィルターをクリア');
+      const clearButton = screen.getByText('Clear Filters');
       fireEvent.click(clearButton);
 
       // Wait for filters to be cleared and all tasks to be visible again
@@ -419,11 +408,11 @@ describe('Archive Component', () => {
       });
 
       // Apply search and tag filter
-      const searchInput = screen.getByPlaceholderText('タスクを検索...');
+      const searchInput = screen.getByPlaceholderText('Search tasks...');
       fireEvent.change(searchInput, { target: { value: 'Complete' } });
       
       // Show advanced filters first
-      const toggleButton = screen.getByRole('button', { name: '詳細フィルターを表示' });
+      const toggleButton = screen.getByRole('button', { name: 'Show advanced filters' });
       fireEvent.click(toggleButton);
       
       const workTagCheckbox = screen.getByRole('checkbox', { name: 'work' });
@@ -445,7 +434,7 @@ describe('Archive Component', () => {
       });
 
       // Show advanced filters first
-      const toggleButton = screen.getByRole('button', { name: '詳細フィルターを表示' });
+      const toggleButton = screen.getByRole('button', { name: 'Show advanced filters' });
       fireEvent.click(toggleButton);
 
       // Check that all tags from archive data are available as filter options

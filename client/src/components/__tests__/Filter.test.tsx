@@ -125,7 +125,7 @@ describe('Filter Component', () => {
       />
     );
 
-    expect(screen.getByText('Clear All')).toBeInTheDocument();
+    expect(screen.getByText('Clear')).toBeInTheDocument();
   });
 
   it('clears all filters when clear button is clicked', () => {
@@ -143,7 +143,7 @@ describe('Filter Component', () => {
       />
     );
 
-    const clearButton = screen.getByText('Clear All');
+    const clearButton = screen.getByText('Clear');
     fireEvent.click(clearButton);
 
     expect(mockOnFilterChange).toHaveBeenCalledWith({});

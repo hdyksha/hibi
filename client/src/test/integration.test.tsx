@@ -1,7 +1,7 @@
 /**
  * Integration Tests for Frontend-Backend Connection
  * Tests the complete CRUD flow between React frontend and Express backend
- * Requirements: 全般 (All requirements)
+ * Requirements: All requirements
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';

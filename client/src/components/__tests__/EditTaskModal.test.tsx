@@ -38,7 +38,7 @@ describe('EditTaskModal Component', () => {
       />
     );
 
-    expect(screen.getByText('タスクを編集')).toBeInTheDocument();
+    expect(screen.getByText('Edit Task')).toBeInTheDocument();
     expect(screen.getByDisplayValue('Test Task')).toBeInTheDocument();
     expect(screen.getByDisplayValue('Test memo content')).toBeInTheDocument();
   });
@@ -53,7 +53,7 @@ describe('EditTaskModal Component', () => {
       />
     );
 
-    expect(screen.queryByText('タスクを編集')).not.toBeInTheDocument();
+    expect(screen.queryByText('Edit Task')).not.toBeInTheDocument();
   });
 
   it('calls onClose when cancel button is clicked', () => {
@@ -66,7 +66,7 @@ describe('EditTaskModal Component', () => {
       />
     );
 
-    fireEvent.click(screen.getByText('キャンセル'));
+    fireEvent.click(screen.getByText('Cancel'));
     expect(mockOnClose).toHaveBeenCalled();
   });
 
@@ -80,7 +80,7 @@ describe('EditTaskModal Component', () => {
       />
     );
 
-    fireEvent.click(screen.getByLabelText('閉じる'));
+    fireEvent.click(screen.getByLabelText('Close'));
     expect(mockOnClose).toHaveBeenCalled();
   });
 
@@ -101,7 +101,7 @@ describe('EditTaskModal Component', () => {
     fireEvent.change(titleInput, { target: { value: 'Updated Task' } });
 
     // Click save
-    fireEvent.click(screen.getByText('保存'));
+    fireEvent.click(screen.getByText('Save'));
 
     await waitFor(() => {
       expect(mockOnSave).toHaveBeenCalledWith('1', {
@@ -123,8 +123,8 @@ describe('EditTaskModal Component', () => {
       />
     );
 
-    expect(screen.getByLabelText('優先度')).toBeInTheDocument();
-    const prioritySelect = screen.getByLabelText('優先度') as HTMLSelectElement;
+    expect(screen.getByLabelText('Priority')).toBeInTheDocument();
+    const prioritySelect = screen.getByLabelText('Priority') as HTMLSelectElement;
     expect(prioritySelect.value).toBe('medium');
   });
 
@@ -139,7 +139,7 @@ describe('EditTaskModal Component', () => {
       />
     );
 
-    expect(screen.queryByLabelText('優先度')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Priority')).not.toBeInTheDocument();
   });
 
   it('calls onSave with priority when showPriority is true and priority is changed', async () => {
@@ -156,11 +156,11 @@ describe('EditTaskModal Component', () => {
     );
 
     // Change the priority
-    const prioritySelect = screen.getByLabelText('優先度');
+    const prioritySelect = screen.getByLabelText('Priority');
     fireEvent.change(prioritySelect, { target: { value: 'high' } });
 
     // Click save
-    fireEvent.click(screen.getByText('保存'));
+    fireEvent.click(screen.getByText('Save'));
 
     await waitFor(() => {
       expect(mockOnSave).toHaveBeenCalledWith('1', {
@@ -187,10 +187,10 @@ describe('EditTaskModal Component', () => {
     fireEvent.change(titleInput, { target: { value: '' } });
 
     // Click save
-    fireEvent.click(screen.getByText('保存'));
+    fireEvent.click(screen.getByText('Save'));
 
     await waitFor(() => {
-      expect(screen.getByText('タイトルは必須です')).toBeInTheDocument();
+      expect(screen.getByText('Title is required')).toBeInTheDocument();
     });
 
     expect(mockOnSave).not.toHaveBeenCalled();
@@ -207,7 +207,7 @@ describe('EditTaskModal Component', () => {
     );
 
     // Click save without making changes
-    fireEvent.click(screen.getByText('保存'));
+    fireEvent.click(screen.getByText('Save'));
 
     await waitFor(() => {
       expect(mockOnClose).toHaveBeenCalled();
@@ -234,7 +234,7 @@ describe('EditTaskModal Component', () => {
     fireEvent.change(titleInput, { target: { value: 'Updated Task' } });
 
     // Click save
-    fireEvent.click(screen.getByText('保存'));
+    fireEvent.click(screen.getByText('Save'));
 
     await waitFor(() => {
       expect(screen.getByText(errorMessage)).toBeInTheDocument();

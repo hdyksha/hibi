@@ -12,6 +12,7 @@ interface ArchiveFilterProps {
   availableTags: string[];
   onFilterChange: (filter: TodoFilter) => void;
   className?: string;
+  'data-testid'?: string;
 }
 
 const PRIORITY_OPTIONS: { value: Priority; label: string }[] = [
@@ -25,6 +26,7 @@ export const ArchiveFilter: React.FC<ArchiveFilterProps> = ({
   availableTags,
   onFilterChange,
   className,
+  'data-testid': testId,
 }) => {
   const [searchText, setSearchText] = useState(filter.searchText || '');
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -83,7 +85,7 @@ export const ArchiveFilter: React.FC<ArchiveFilterProps> = ({
   const hasAdvancedFilters = filter.priority || (filter.tags && filter.tags.length > 0);
 
   return (
-    <div className={`flex flex-col border border-slate-200 rounded-lg bg-white overflow-hidden mb-6 ${className || ''}`}>
+    <div className={`flex flex-col border border-slate-200 rounded-lg bg-white overflow-hidden mb-6 ${className || ''}`} data-testid={testId}>
       <div className="p-4 flex flex-col gap-3">
         <div className="flex gap-2 items-stretch">
           <div className="flex-1">
@@ -91,7 +93,7 @@ export const ArchiveFilter: React.FC<ArchiveFilterProps> = ({
               type="text"
               value={searchText}
               onChange={handleSearchChange}
-              placeholder="タスクを検索..."
+              placeholder="Search tasks..."
               className="w-full px-3 py-3 border border-slate-300 rounded text-base transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/25 focus:border-blue-500"
             />
           </div>
@@ -104,7 +106,7 @@ export const ArchiveFilter: React.FC<ArchiveFilterProps> = ({
                 : 'bg-slate-100 border-slate-300 text-slate-600 hover:bg-slate-200 hover:border-slate-400 hover:text-slate-700'
             } focus:outline-none focus:ring-2 focus:ring-blue-500/25`}
             aria-expanded={showAdvanced}
-            aria-label={showAdvanced ? '詳細フィルターを隠す' : '詳細フィルターを表示'}
+            aria-label={showAdvanced ? 'Hide advanced filters' : 'Show advanced filters'}
           >
             {showAdvanced ? '▲' : '▼'}
           </button>
@@ -117,7 +119,7 @@ export const ArchiveFilter: React.FC<ArchiveFilterProps> = ({
               onClick={handleClearFilters}
               className="px-4 py-2 bg-transparent text-slate-600 border border-slate-300 rounded text-sm cursor-pointer transition-all duration-200 hover:bg-slate-100 hover:text-slate-700 hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/25"
             >
-              フィルターをクリア
+              Clear Filters
             </button>
           </div>
         )}
@@ -126,13 +128,13 @@ export const ArchiveFilter: React.FC<ArchiveFilterProps> = ({
       {showAdvanced && (
         <div className="border-t border-slate-200 bg-slate-50 p-4 flex flex-col gap-4 animate-fade-in">
           <div className="mb-2">
-            <h3 className="text-base font-semibold text-slate-700 m-0">詳細フィルター</h3>
+            <h3 className="text-base font-semibold text-slate-700 m-0">Advanced Filters</h3>
           </div>
 
           {/* Priority Filter */}
           <div className="flex flex-col gap-2">
             <label htmlFor="archive-priority-select" className="font-semibold text-slate-700 text-sm">
-              優先度
+              Priority
             </label>
             <select
               id="archive-priority-select"
@@ -140,7 +142,7 @@ export const ArchiveFilter: React.FC<ArchiveFilterProps> = ({
               onChange={(e) => handlePriorityChange(e.target.value as Priority | '')}
               className="px-3 py-3 border border-slate-300 rounded text-base bg-white cursor-pointer transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/25 focus:border-blue-500"
             >
-              <option value="">すべての優先度</option>
+              <option value="">All Priorities</option>
               {PRIORITY_OPTIONS.map(option => (
                 <option key={option.value} value={option.value}>
                   {option.label}
@@ -152,7 +154,7 @@ export const ArchiveFilter: React.FC<ArchiveFilterProps> = ({
           {/* Tags Filter */}
           {availableTags.length > 0 && (
             <div className="flex flex-col gap-2">
-              <label className="font-semibold text-slate-700 text-sm">タグ</label>
+              <label className="font-semibold text-slate-700 text-sm">Tags</label>
               <div className="flex flex-wrap gap-2">
                 {availableTags.map(tag => (
                   <label key={tag} className={`flex items-center gap-1 px-3 py-2 bg-white border rounded-2xl cursor-pointer text-sm transition-all duration-200 select-none ${
@@ -176,21 +178,21 @@ export const ArchiveFilter: React.FC<ArchiveFilterProps> = ({
           {/* Active Filters Summary */}
           {hasActiveFilters && (
             <div className="mt-2 p-3 bg-white border border-slate-200 rounded">
-              <div className="text-sm font-semibold text-slate-700 mb-2">適用中のフィルター:</div>
+              <div className="text-sm font-semibold text-slate-700 mb-2">Active Filters:</div>
               <div className="flex flex-wrap gap-2">
                 {filter.priority && (
                   <span className="px-2 py-1 bg-slate-200 text-slate-700 rounded-xl text-xs font-medium">
-                    優先度: {PRIORITY_OPTIONS.find(opt => opt.value === filter.priority)?.label}
+                    Priority: {PRIORITY_OPTIONS.find(opt => opt.value === filter.priority)?.label}
                   </span>
                 )}
                 {filter.tags && filter.tags.length > 0 && (
                   <span className="px-2 py-1 bg-slate-200 text-slate-700 rounded-xl text-xs font-medium">
-                    タグ: {filter.tags.join(', ')}
+                    Tags: {filter.tags.join(', ')}
                   </span>
                 )}
                 {filter.searchText && (
                   <span className="px-2 py-1 bg-slate-200 text-slate-700 rounded-xl text-xs font-medium">
-                    検索: "{filter.searchText}"
+                    Search: "{filter.searchText}"
                   </span>
                 )}
               </div>

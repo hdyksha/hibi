@@ -26,13 +26,13 @@ describe('ArchiveFilter', () => {
     it('should render search input by default', () => {
       render(<ArchiveFilter {...defaultProps} />);
       
-      expect(screen.getByPlaceholderText('タスクを検索...')).toBeInTheDocument();
+      expect(screen.getByPlaceholderText('Search tasks...')).toBeInTheDocument();
     });
 
     it('should render toggle button', () => {
       render(<ArchiveFilter {...defaultProps} />);
       
-      const toggleButton = screen.getByRole('button', { name: '詳細フィルターを表示' });
+      const toggleButton = screen.getByRole('button', { name: 'Show advanced filters' });
       expect(toggleButton).toBeInTheDocument();
       expect(toggleButton).toHaveTextContent('▼');
     });
@@ -40,9 +40,9 @@ describe('ArchiveFilter', () => {
     it('should not show advanced filters by default', () => {
       render(<ArchiveFilter {...defaultProps} />);
       
-      expect(screen.queryByText('詳細フィルター')).not.toBeInTheDocument();
-      expect(screen.queryByText('優先度')).not.toBeInTheDocument();
-      expect(screen.queryByText('タグ')).not.toBeInTheDocument();
+      expect(screen.queryByText('Advanced Filters')).not.toBeInTheDocument();
+      expect(screen.queryByText('Priority')).not.toBeInTheDocument();
+      expect(screen.queryByText('Tags')).not.toBeInTheDocument();
     });
   });
 
@@ -50,7 +50,7 @@ describe('ArchiveFilter', () => {
     it('should handle search input changes', async () => {
       render(<ArchiveFilter {...defaultProps} />);
       
-      const searchInput = screen.getByPlaceholderText('タスクを検索...');
+      const searchInput = screen.getByPlaceholderText('Search tasks...');
       fireEvent.change(searchInput, { target: { value: 'test search' } });
       
       await waitFor(() => {
@@ -77,36 +77,36 @@ describe('ArchiveFilter', () => {
     it('should show advanced filters when toggle is clicked', () => {
       render(<ArchiveFilter {...defaultProps} />);
       
-      const toggleButton = screen.getByRole('button', { name: '詳細フィルターを表示' });
+      const toggleButton = screen.getByRole('button', { name: 'Show advanced filters' });
       fireEvent.click(toggleButton);
       
-      expect(screen.getByText('詳細フィルター')).toBeInTheDocument();
-      expect(screen.getByText('優先度')).toBeInTheDocument();
-      expect(screen.getByText('タグ')).toBeInTheDocument();
+      expect(screen.getByText('Advanced Filters')).toBeInTheDocument();
+      expect(screen.getByText('Priority')).toBeInTheDocument();
+      expect(screen.getByText('Tags')).toBeInTheDocument();
       expect(toggleButton).toHaveTextContent('▲');
-      expect(toggleButton).toHaveAttribute('aria-label', '詳細フィルターを隠す');
+      expect(toggleButton).toHaveAttribute('aria-label', 'Hide advanced filters');
     });
 
     it('should hide advanced filters when toggle is clicked again', () => {
       render(<ArchiveFilter {...defaultProps} />);
       
-      const toggleButton = screen.getByRole('button', { name: '詳細フィルターを表示' });
+      const toggleButton = screen.getByRole('button', { name: 'Show advanced filters' });
       
       // Show advanced filters
       fireEvent.click(toggleButton);
-      expect(screen.getByText('詳細フィルター')).toBeInTheDocument();
+      expect(screen.getByText('Advanced Filters')).toBeInTheDocument();
       
       // Hide advanced filters
       fireEvent.click(toggleButton);
-      expect(screen.queryByText('詳細フィルター')).not.toBeInTheDocument();
+      expect(screen.queryByText('Advanced Filters')).not.toBeInTheDocument();
     });
 
     it('should highlight toggle button when advanced filters are active', () => {
       const filterWithPriority = { priority: 'high' as const };
       render(<ArchiveFilter {...defaultProps} filter={filterWithPriority} />);
       
-      const toggleButton = screen.getByRole('button', { name: '詳細フィルターを表示' });
-      expect(toggleButton).toHaveClass('archive-filter__toggle--active');
+      const toggleButton = screen.getByRole('button', { name: 'Show advanced filters' });
+      expect(toggleButton).toHaveClass('bg-blue-600', 'text-white');
     });
   });
 
@@ -115,10 +115,10 @@ describe('ArchiveFilter', () => {
       render(<ArchiveFilter {...defaultProps} />);
       
       // Show advanced filters
-      const toggleButton = screen.getByRole('button', { name: '詳細フィルターを表示' });
+      const toggleButton = screen.getByRole('button', { name: 'Show advanced filters' });
       fireEvent.click(toggleButton);
       
-      const prioritySelect = screen.getByLabelText('優先度');
+      const prioritySelect = screen.getByLabelText('Priority');
       fireEvent.change(prioritySelect, { target: { value: 'high' } });
       
       await waitFor(() => {
@@ -133,10 +133,10 @@ describe('ArchiveFilter', () => {
       render(<ArchiveFilter {...defaultProps} filter={filterWithPriority} />);
       
       // Show advanced filters
-      const toggleButton = screen.getByRole('button', { name: '詳細フィルターを表示' });
+      const toggleButton = screen.getByRole('button', { name: 'Show advanced filters' });
       fireEvent.click(toggleButton);
       
-      const prioritySelect = screen.getByLabelText('優先度');
+      const prioritySelect = screen.getByLabelText('Priority');
       fireEvent.change(prioritySelect, { target: { value: '' } });
       
       await waitFor(() => {
@@ -150,7 +150,7 @@ describe('ArchiveFilter', () => {
       render(<ArchiveFilter {...defaultProps} />);
       
       // Show advanced filters
-      const toggleButton = screen.getByRole('button', { name: '詳細フィルターを表示' });
+      const toggleButton = screen.getByRole('button', { name: 'Show advanced filters' });
       fireEvent.click(toggleButton);
       
       const workTagCheckbox = screen.getByRole('checkbox', { name: 'work' });
@@ -167,7 +167,7 @@ describe('ArchiveFilter', () => {
       const { rerender } = render(<ArchiveFilter {...defaultProps} />);
       
       // Show advanced filters
-      const toggleButton = screen.getByRole('button', { name: '詳細フィルターを表示' });
+      const toggleButton = screen.getByRole('button', { name: 'Show advanced filters' });
       fireEvent.click(toggleButton);
       
       const workTagCheckbox = screen.getByRole('checkbox', { name: 'work' });
@@ -198,7 +198,7 @@ describe('ArchiveFilter', () => {
       render(<ArchiveFilter {...defaultProps} filter={filterWithTags} />);
       
       // Show advanced filters
-      const toggleButton = screen.getByRole('button', { name: '詳細フィルターを表示' });
+      const toggleButton = screen.getByRole('button', { name: 'Show advanced filters' });
       fireEvent.click(toggleButton);
       
       const workTagCheckbox = screen.getByRole('checkbox', { name: 'work' });
@@ -215,10 +215,10 @@ describe('ArchiveFilter', () => {
       render(<ArchiveFilter {...defaultProps} availableTags={[]} />);
       
       // Show advanced filters
-      const toggleButton = screen.getByRole('button', { name: '詳細フィルターを表示' });
+      const toggleButton = screen.getByRole('button', { name: 'Show advanced filters' });
       fireEvent.click(toggleButton);
       
-      expect(screen.queryByText('タグ')).not.toBeInTheDocument();
+      expect(screen.queryByText('Tags')).not.toBeInTheDocument();
     });
   });
 
@@ -227,13 +227,13 @@ describe('ArchiveFilter', () => {
       const filterWithSearch = { searchText: 'test' };
       render(<ArchiveFilter {...defaultProps} filter={filterWithSearch} />);
       
-      expect(screen.getByText('フィルターをクリア')).toBeInTheDocument();
+      expect(screen.getByText('Clear Filters')).toBeInTheDocument();
     });
 
     it('should not show clear button when no filters are active', () => {
       render(<ArchiveFilter {...defaultProps} />);
       
-      expect(screen.queryByText('フィルターをクリア')).not.toBeInTheDocument();
+      expect(screen.queryByText('Clear Filters')).not.toBeInTheDocument();
     });
 
     it('should clear all filters when clear button is clicked', async () => {
@@ -244,7 +244,7 @@ describe('ArchiveFilter', () => {
       };
       render(<ArchiveFilter {...defaultProps} filter={filterWithMultiple} />);
       
-      const clearButton = screen.getByText('フィルターをクリア');
+      const clearButton = screen.getByText('Clear Filters');
       fireEvent.click(clearButton);
       
       await waitFor(() => {
@@ -263,23 +263,23 @@ describe('ArchiveFilter', () => {
       render(<ArchiveFilter {...defaultProps} filter={filterWithMultiple} />);
       
       // Show advanced filters
-      const toggleButton = screen.getByRole('button', { name: '詳細フィルターを表示' });
+      const toggleButton = screen.getByRole('button', { name: 'Show advanced filters' });
       fireEvent.click(toggleButton);
       
-      expect(screen.getByText('適用中のフィルター:')).toBeInTheDocument();
-      expect(screen.getByText('優先度: High')).toBeInTheDocument();
-      expect(screen.getByText('タグ: work, urgent')).toBeInTheDocument();
-      expect(screen.getByText('検索: "test search"')).toBeInTheDocument();
+      expect(screen.getByText('Active Filters:')).toBeInTheDocument();
+      expect(screen.getByText('Priority: High')).toBeInTheDocument();
+      expect(screen.getByText('Tags: work, urgent')).toBeInTheDocument();
+      expect(screen.getByText('Search: "test search"')).toBeInTheDocument();
     });
 
     it('should not show filter summary when no filters are active', () => {
       render(<ArchiveFilter {...defaultProps} />);
       
       // Show advanced filters
-      const toggleButton = screen.getByRole('button', { name: '詳細フィルターを表示' });
+      const toggleButton = screen.getByRole('button', { name: 'Show advanced filters' });
       fireEvent.click(toggleButton);
       
-      expect(screen.queryByText('適用中のフィルター:')).not.toBeInTheDocument();
+      expect(screen.queryByText('Active Filters:')).not.toBeInTheDocument();
     });
   });
 
@@ -287,7 +287,7 @@ describe('ArchiveFilter', () => {
     it('should have proper ARIA attributes for toggle button', () => {
       render(<ArchiveFilter {...defaultProps} />);
       
-      const toggleButton = screen.getByRole('button', { name: '詳細フィルターを表示' });
+      const toggleButton = screen.getByRole('button', { name: 'Show advanced filters' });
       expect(toggleButton).toHaveAttribute('aria-expanded', 'false');
       
       fireEvent.click(toggleButton);
@@ -298,11 +298,11 @@ describe('ArchiveFilter', () => {
       render(<ArchiveFilter {...defaultProps} />);
       
       // Show advanced filters
-      const toggleButton = screen.getByRole('button', { name: '詳細フィルターを表示' });
+      const toggleButton = screen.getByRole('button', { name: 'Show advanced filters' });
       fireEvent.click(toggleButton);
       
-      expect(screen.getByLabelText('優先度')).toBeInTheDocument();
-      expect(screen.getByText('タグ')).toBeInTheDocument();
+      expect(screen.getByLabelText('Priority')).toBeInTheDocument();
+      expect(screen.getByText('Tags')).toBeInTheDocument();
     });
   });
 });

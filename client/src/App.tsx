@@ -35,7 +35,7 @@ function AppContent() {
                 }`}
                 onClick={() => setCurrentView('todos')}
               >
-                タスク一覧
+                Tasks
               </button>
               <button
                 className={`px-5 py-2 rounded-md font-medium text-sm transition-all duration-200 ${
@@ -45,7 +45,7 @@ function AppContent() {
                 }`}
                 onClick={() => setCurrentView('archive')}
               >
-                アーカイブ
+                Archive
               </button>
             </nav>
           </div>
