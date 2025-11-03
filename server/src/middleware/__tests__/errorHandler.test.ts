@@ -50,6 +50,22 @@ describe('Error Handler Middleware', () => {
         vi.clearAllMocks();
     });
 
+    // Helper function to temporarily enable logging for tests
+    const withLoggingEnabled = (testFn: () => void) => {
+        const originalNodeEnv = process.env.NODE_ENV;
+        const originalVitest = process.env.VITEST;
+        
+        process.env.NODE_ENV = 'development';
+        delete process.env.VITEST;
+        
+        try {
+            testFn();
+        } finally {
+            process.env.NODE_ENV = originalNodeEnv;
+            if (originalVitest) process.env.VITEST = originalVitest;
+        }
+    };
+
     describe('AppError', () => {
         it('should create AppError with default values', () => {
             const error = new AppError('Test error');
@@ -247,27 +263,31 @@ describe('Error Handler Middleware', () => {
         });
 
         it('should log client errors as warnings', () => {
-            const req = createMockRequest();
-            const res = createMockResponse();
-            const next = createMockNext();
-            const error = new AppError('Client error', 400);
+            withLoggingEnabled(() => {
+                const req = createMockRequest();
+                const res = createMockResponse();
+                const next = createMockNext();
+                const error = new AppError('Client error', 400);
 
-            errorHandler(error, req, res, next);
+                errorHandler(error, req, res, next);
 
-            expect(mockConsoleWarn).toHaveBeenCalled();
-            expect(mockConsoleError).not.toHaveBeenCalled();
+                expect(mockConsoleWarn).toHaveBeenCalled();
+                expect(mockConsoleError).not.toHaveBeenCalled();
+            });
         });
 
         it('should log server errors as errors', () => {
-            const req = createMockRequest();
-            const res = createMockResponse();
-            const next = createMockNext();
-            const error = new AppError('Server error', 500);
+            withLoggingEnabled(() => {
+                const req = createMockRequest();
+                const res = createMockResponse();
+                const next = createMockNext();
+                const error = new AppError('Server error', 500);
 
-            errorHandler(error, req, res, next);
+                errorHandler(error, req, res, next);
 
-            expect(mockConsoleError).toHaveBeenCalled();
-            expect(mockConsoleWarn).not.toHaveBeenCalled();
+                expect(mockConsoleError).toHaveBeenCalled();
+                expect(mockConsoleWarn).not.toHaveBeenCalled();
+            });
         });
     });
 

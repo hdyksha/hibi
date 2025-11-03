@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { App } from '../App';
 
@@ -20,10 +20,13 @@ describe('Frontend-Backend Integration Tests', () => {
   beforeEach(() => {
     mockFetch.mockClear();
     mockFetch.mockReset();
+    // Mock console.warn to suppress API error messages in tests
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
   });
 
   afterEach(() => {
     vi.resetAllMocks();
+    vi.restoreAllMocks();
   });
 
   describe('Complete CRUD Flow Integration', () => {
@@ -49,7 +52,9 @@ describe('Frontend-Backend Integration Tests', () => {
         json: async () => [],
       });
 
-      render(<App />);
+      await act(async () => {
+        render(<App />);
+      });
 
       // Wait for initial load
       await waitFor(() => {
@@ -220,7 +225,12 @@ describe('Frontend-Backend Integration Tests', () => {
       // Initial load fails - tags (but this might not be called due to todos error)
       mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
-      render(<App />);
+      await act(async () => {
+        render(<App />);
+        // Wait for all promises to resolve/reject
+        await Promise.resolve();
+        await new Promise(resolve => setTimeout(resolve, 0));
+      });
 
       await waitFor(() => {
         expect(screen.getByText(/Error: Network error/)).toBeInTheDocument();
@@ -263,7 +273,9 @@ describe('Frontend-Backend Integration Tests', () => {
         json: async () => [],
       });
 
-      render(<App />);
+      await act(async () => {
+        render(<App />);
+      });
 
       await waitFor(() => {
         expect(screen.getByText('No todos yet. Create your first todo!')).toBeInTheDocument();
@@ -311,7 +323,9 @@ describe('Frontend-Backend Integration Tests', () => {
         json: async () => [],
       });
 
-      render(<App />);
+      await act(async () => {
+        render(<App />);
+      });
 
       await waitFor(() => {
         expect(screen.getByText('Test Todo')).toBeInTheDocument();
@@ -359,7 +373,9 @@ describe('Frontend-Backend Integration Tests', () => {
         json: async () => [],
       });
 
-      render(<App />);
+      await act(async () => {
+        render(<App />);
+      });
 
       await waitFor(() => {
         expect(screen.getByText('Test Todo')).toBeInTheDocument();
@@ -468,7 +484,9 @@ describe('Frontend-Backend Integration Tests', () => {
         json: async () => [],
       });
 
-      render(<App />);
+      await act(async () => {
+        render(<App />);
+      });
 
       // Should show loading state
       expect(screen.getByText('Loading todos...')).toBeInTheDocument();
@@ -502,7 +520,9 @@ describe('Frontend-Backend Integration Tests', () => {
         json: async () => [],
       });
 
-      render(<App />);
+      await act(async () => {
+        render(<App />);
+      });
 
       await waitFor(() => {
         expect(screen.getByText('No todos yet. Create your first todo!')).toBeInTheDocument();

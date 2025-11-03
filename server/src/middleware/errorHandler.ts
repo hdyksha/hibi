@@ -79,6 +79,11 @@ interface DevErrorResponse extends ErrorResponse {
  * Log error details for monitoring and debugging
  */
 function logError(error: Error, req: Request): void {
+    // Skip logging during tests to reduce output noise
+    if (process.env.NODE_ENV === 'test' || process.env.VITEST === 'true') {
+        return;
+    }
+    
     const logData = {
         timestamp: new Date().toISOString(),
         method: req.method,

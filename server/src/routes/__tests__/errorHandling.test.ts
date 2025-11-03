@@ -26,14 +26,14 @@ describe('Todo API Error Handling', () => {
         } catch {
             // File doesn't exist, which is fine
         }
-        
+
         // Ensure data directory exists
         try {
             await fs.mkdir(join(process.cwd(), 'data'), { recursive: true });
         } catch {
             // Directory already exists, which is fine
         }
-        
+
         // Initialize empty storage
         await fs.writeFile(testDataPath, JSON.stringify([]), 'utf-8');
     });
@@ -118,7 +118,7 @@ describe('Todo API Error Handling', () => {
         it('should handle too many tag filters', async () => {
             const manyTags = Array.from({ length: 51 }, (_, i) => `tag${i}`);
             const queryString = manyTags.map(tag => `tags=${tag}`).join('&');
-            
+
             const response = await request(app)
                 .get(`/api/todos?${queryString}`)
                 .expect(400);
@@ -492,7 +492,7 @@ describe('Todo API Error Handling', () => {
 
             for (const endpoint of endpoints) {
                 const response = await request(app)
-                    [endpoint.method](endpoint.path)
+                [endpoint.method](endpoint.path)
                     .send(endpoint.body || {})
                     .expect(endpoint.expectedStatus);
 
@@ -502,7 +502,7 @@ describe('Todo API Error Handling', () => {
                 expect(response.body).toHaveProperty('statusCode');
                 expect(response.body).toHaveProperty('timestamp');
                 expect(response.body).toHaveProperty('path');
-                
+
                 expect(typeof response.body.error).toBe('string');
                 expect(typeof response.body.message).toBe('string');
                 expect(typeof response.body.statusCode).toBe('number');

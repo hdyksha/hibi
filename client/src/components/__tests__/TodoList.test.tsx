@@ -3,7 +3,7 @@
  * Requirements: 2.1, 2.2, 2.3, 3.1, 3.2, 4.1, 4.3
  */
 
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import '@testing-library/jest-dom';
 import { TodoList } from '../';
@@ -44,8 +44,15 @@ const mockTodos: TodoItem[] = [
   },
 ];
 
-const renderTodoList = () => {
-  return render(<TodoList />);
+const renderTodoList = async () => {
+  let result;
+  await act(async () => {
+    result = render(<TodoList />);
+    // Wait for all promises to resolve
+    await Promise.resolve();
+    await new Promise(resolve => setTimeout(resolve, 0));
+  });
+  return result;
 };
 
 describe('TodoList', () => {
@@ -53,7 +60,7 @@ describe('TodoList', () => {
     vi.clearAllMocks();
   });
 
-  it('displays loading state initially', () => {
+  it('displays loading state initially', async () => {
     mockUseTodoContext.mockReturnValue({
       todos: [],
       loading: true,
@@ -63,7 +70,7 @@ describe('TodoList', () => {
       deleteTodo: vi.fn(),
     });
     
-    renderTodoList();
+    await renderTodoList();
     
     expect(screen.getByText('Loading todos...')).toBeInTheDocument();
   });
@@ -78,7 +85,7 @@ describe('TodoList', () => {
       deleteTodo: vi.fn(),
     });
     
-    renderTodoList();
+    await renderTodoList();
     
     await waitFor(() => {
       expect(screen.getByText('Test Todo 1')).toBeInTheDocument();
@@ -96,7 +103,7 @@ describe('TodoList', () => {
       deleteTodo: vi.fn(),
     });
     
-    renderTodoList();
+    await renderTodoList();
     
     await waitFor(() => {
       expect(screen.getByText('No todos yet. Create your first todo!')).toBeInTheDocument();
@@ -114,7 +121,7 @@ describe('TodoList', () => {
       deleteTodo: vi.fn(),
     });
     
-    renderTodoList();
+    await renderTodoList();
     
     await waitFor(() => {
       expect(screen.getByText(/Error: Network error/)).toBeInTheDocument();
@@ -133,7 +140,7 @@ describe('TodoList', () => {
       deleteTodo: vi.fn(),
     });
     
-    renderTodoList();
+    await renderTodoList();
     
     await waitFor(() => {
       expect(screen.getByText('Retry')).toBeInTheDocument();
@@ -155,7 +162,7 @@ describe('TodoList', () => {
       deleteTodo: vi.fn(),
     });
     
-    renderTodoList();
+    await renderTodoList();
     
     await waitFor(() => {
       expect(screen.getByText('Test Todo 1')).toBeInTheDocument();
@@ -180,7 +187,7 @@ describe('TodoList', () => {
       deleteTodo: mockDeleteTodo,
     });
     
-    renderTodoList();
+    await renderTodoList();
     
     await waitFor(() => {
       expect(screen.getByText('Test Todo 1')).toBeInTheDocument();

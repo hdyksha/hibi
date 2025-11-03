@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { App } from '../App';
 
@@ -36,10 +36,13 @@ describe('Default Filter Behavior Tests', () => {
     mockLocalStorage.setItem.mockClear();
     mockLocalStorage.removeItem.mockClear();
     mockLocalStorage.clear.mockClear();
+    // Mock console.warn to suppress localStorage error messages in tests
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
   });
 
   afterEach(() => {
     vi.resetAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('should default to showing only pending tasks on first load', async () => {
@@ -97,7 +100,9 @@ describe('Default Filter Behavior Tests', () => {
       json: async () => [],
     });
 
-    render(<App />);
+    await act(async () => {
+      render(<App />);
+    });
 
     // Wait for todos to load
     await waitFor(() => {
@@ -138,7 +143,9 @@ describe('Default Filter Behavior Tests', () => {
       json: async () => [],
     });
 
-    render(<App />);
+    await act(async () => {
+      render(<App />);
+    });
 
     await waitFor(() => {
       expect(screen.getByText('No todos yet. Create your first todo!')).toBeInTheDocument();
@@ -177,7 +184,9 @@ describe('Default Filter Behavior Tests', () => {
     });
 
     // Should not throw error and should use default filter
-    render(<App />);
+    await act(async () => {
+      render(<App />);
+    });
 
     await waitFor(() => {
       expect(screen.getByText('No todos yet. Create your first todo!')).toBeInTheDocument();

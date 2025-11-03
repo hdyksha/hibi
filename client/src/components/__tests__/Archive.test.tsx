@@ -4,7 +4,7 @@
  */
 
 
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
 import { vi } from 'vitest';
 import { Archive } from '../Archive';
 import { todoApiClient } from '../../services';
@@ -27,12 +27,19 @@ vi.mock('../../services', () => ({
 const mockApiClient = todoApiClient as any;
 
 // Helper function to render Archive with TodoProvider
-const renderArchive = (props = {}) => {
-  return render(
-    <TodoProvider>
-      <Archive {...props} />
-    </TodoProvider>
-  );
+const renderArchive = async (props = {}) => {
+  let result;
+  await act(async () => {
+    result = render(
+      <TodoProvider>
+        <Archive {...props} />
+      </TodoProvider>
+    );
+    // Wait for all promises to resolve
+    await Promise.resolve();
+    await new Promise(resolve => setTimeout(resolve, 0));
+  });
+  return result;
 };
 
 describe('Archive Component', () => {
@@ -91,10 +98,10 @@ describe('Archive Component', () => {
     },
   ];
 
-  it('displays loading state initially', () => {
+  it('displays loading state initially', async () => {
     mockApiClient.getArchive.mockImplementation(() => new Promise(() => {}));
     
-    renderArchive();
+    await renderArchive();
     
     expect(screen.getByText('Loading archive...')).toBeInTheDocument();
   });
@@ -102,7 +109,7 @@ describe('Archive Component', () => {
   it('displays archive groups with completed tasks', async () => {
     mockApiClient.getArchive.mockResolvedValue(mockArchiveData);
     
-    renderArchive();
+    await renderArchive();
     
     await waitFor(() => {
       expect(screen.getByText('Complete project')).toBeInTheDocument();
@@ -137,7 +144,7 @@ describe('Archive Component', () => {
   it('displays empty state when no completed tasks exist', async () => {
     mockApiClient.getArchive.mockResolvedValue([]);
     
-    renderArchive();
+    await renderArchive();
     
     await waitFor(() => {
       expect(screen.getByText('No completed tasks.')).toBeInTheDocument();
@@ -148,7 +155,7 @@ describe('Archive Component', () => {
     const errorMessage = 'Network error';
     mockApiClient.getArchive.mockRejectedValue(new Error(errorMessage));
     
-    renderArchive();
+    await renderArchive();
     
     await waitFor(() => {
       expect(screen.getByText(`Error: ${errorMessage}`)).toBeInTheDocument();
@@ -160,7 +167,7 @@ describe('Archive Component', () => {
   it('groups tasks by completion date correctly', async () => {
     mockApiClient.getArchive.mockResolvedValue(mockArchiveData);
     
-    renderArchive();
+    await renderArchive();
     
     await waitFor(() => {
       expect(screen.getByText('Complete project')).toBeInTheDocument();
@@ -180,7 +187,7 @@ describe('Archive Component', () => {
   it('displays tasks with proper archive styling without line-through', async () => {
     mockApiClient.getArchive.mockResolvedValue(mockArchiveData);
     
-    renderArchive();
+    await renderArchive();
     
     await waitFor(() => {
       expect(screen.getByText('Complete project')).toBeInTheDocument();
@@ -198,7 +205,7 @@ describe('Archive Component', () => {
   it('displays archive-specific visual elements', async () => {
     mockApiClient.getArchive.mockResolvedValue(mockArchiveData);
     
-    renderArchive();
+    await renderArchive();
     
     await waitFor(() => {
       expect(screen.getByText('Complete project')).toBeInTheDocument();
@@ -220,7 +227,7 @@ describe('Archive Component', () => {
   it('displays edit buttons for archived tasks', async () => {
     mockApiClient.getArchive.mockResolvedValue(mockArchiveData);
     
-    renderArchive();
+    await renderArchive();
     
     await waitFor(() => {
       expect(screen.getByText('Complete project')).toBeInTheDocument();
@@ -245,7 +252,7 @@ describe('Archive Component', () => {
     });
 
     it('displays filter component in archive view', async () => {
-      renderArchive();
+      await renderArchive();
       
       await waitFor(() => {
         expect(screen.getByText('Complete project')).toBeInTheDocument();
@@ -264,7 +271,7 @@ describe('Archive Component', () => {
     });
 
     it('filters tasks by search text', async () => {
-      renderArchive();
+      await renderArchive();
       
       await waitFor(() => {
         expect(screen.getByText('Complete project')).toBeInTheDocument();
@@ -286,7 +293,7 @@ describe('Archive Component', () => {
     });
 
     it('filters tasks by priority', async () => {
-      renderArchive();
+      await renderArchive();
       
       await waitFor(() => {
         expect(screen.getByText('Complete project')).toBeInTheDocument();
@@ -307,7 +314,7 @@ describe('Archive Component', () => {
     });
 
     it('filters tasks by tags', async () => {
-      renderArchive();
+      await renderArchive();
       
       await waitFor(() => {
         expect(screen.getByText('Complete project')).toBeInTheDocument();
@@ -328,7 +335,7 @@ describe('Archive Component', () => {
     });
 
     it('shows filtered task count', async () => {
-      renderArchive();
+      await renderArchive();
       
       await waitFor(() => {
         expect(screen.getByText('Complete project')).toBeInTheDocument();
@@ -351,7 +358,7 @@ describe('Archive Component', () => {
     });
 
     it('shows empty state when no tasks match filter', async () => {
-      renderArchive();
+      await renderArchive();
       
       await waitFor(() => {
         expect(screen.getByText('Complete project')).toBeInTheDocument();
@@ -366,7 +373,7 @@ describe('Archive Component', () => {
     });
 
     it('clears all filters when clear button is clicked', async () => {
-      renderArchive();
+      await renderArchive();
       
       await waitFor(() => {
         expect(screen.getByText('Complete project')).toBeInTheDocument();
@@ -401,7 +408,7 @@ describe('Archive Component', () => {
     });
 
     it('combines multiple filters correctly', async () => {
-      renderArchive();
+      await renderArchive();
       
       await waitFor(() => {
         expect(screen.getByText('Complete project')).toBeInTheDocument();
@@ -427,7 +434,7 @@ describe('Archive Component', () => {
     });
 
     it('extracts available tags from archive data', async () => {
-      renderArchive();
+      await renderArchive();
       
       await waitFor(() => {
         expect(screen.getByText('Complete project')).toBeInTheDocument();

@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { vi } from 'vitest';
 import { SuccessMessage, InlineSuccessMessage } from '../SuccessMessage';
 
@@ -38,8 +38,10 @@ describe('SuccessMessage', () => {
     
     expect(screen.getByText('Test Success')).toBeInTheDocument();
     
-    // Fast-forward time
-    vi.advanceTimersByTime(1000);
+    // Fast-forward time with act
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
     
     expect(mockOnHide).toHaveBeenCalledTimes(1);
   });
