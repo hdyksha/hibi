@@ -7,7 +7,9 @@ import { App } from './App';
 vi.mock('./components', () => ({
   TodoList: () => <div data-testid="todo-list">TodoList Component</div>,
   TodoForm: () => <div data-testid="todo-form">TodoForm Component</div>,
-  Filter: () => <div data-testid="filter">Filter Component</div>
+  Filter: () => <div data-testid="filter">Filter Component</div>,
+  NetworkStatusIndicator: () => <div data-testid="network-status">Network Status</div>,
+  ErrorBoundary: ({ children }: { children: React.ReactNode }) => <div>{children}</div>
 }));
 
 // Mock the API client to prevent network calls during tests
@@ -19,6 +21,12 @@ vi.mock('./services', () => ({
     updateTodo: vi.fn(),
     toggleTodoCompletion: vi.fn(),
     deleteTodo: vi.fn(),
+  },
+  ApiClientError: class ApiClientError extends Error {
+    constructor(message: string, public status: number) {
+      super(message);
+      this.name = 'ApiClientError';
+    }
   },
 }));
 

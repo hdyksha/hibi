@@ -5,18 +5,18 @@
  */
 
 import React, { useState } from 'react';
-import { TodoItem, Priority } from '../types';
+import { TodoItem as TodoItemType, Priority } from '../types';
 import { EditTaskModal } from './EditTaskModal';
 import { MarkdownPreview } from './MarkdownPreview';
 
 interface TodoItemProps {
-  todo: TodoItem;
+  todo: TodoItemType;
   onToggleComplete: (id: string) => void;
   onDelete: (id: string) => void;
   onUpdate: (id: string, updates: { title?: string; priority?: Priority; tags?: string[]; memo?: string }) => void;
 }
 
-export const TodoItemComponent: React.FC<TodoItemProps> = ({
+export const TodoItem: React.FC<TodoItemProps> = ({
   todo,
   onToggleComplete,
   onDelete,

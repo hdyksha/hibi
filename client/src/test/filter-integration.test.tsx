@@ -35,7 +35,13 @@ vi.mock('../services/apiClient', () => ({
     updateTodo: vi.fn(),
     toggleTodoCompletion: vi.fn(),
     deleteTodo: vi.fn()
-  }
+  },
+  ApiClientError: class ApiClientError extends Error {
+    constructor(message: string, public status: number) {
+      super(message);
+      this.name = 'ApiClientError';
+    }
+  },
 }));
 
 describe('Filter Integration', () => {

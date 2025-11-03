@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TodoList, TodoForm, Filter, Archive } from './components';
+import { TodoList, TodoForm, Filter, Archive, ErrorBoundary, NetworkStatusIndicator } from './components';
 import { TodoProvider } from './contexts';
 import { useTodoContext } from './contexts';
 
@@ -52,6 +52,9 @@ function AppContent() {
         </div>
       </header>
 
+      {/* Network Status Indicator */}
+      <NetworkStatusIndicator className="mx-3 sm:mx-4 md:mx-6 lg:mx-8 mb-3 sm:mb-4" />
+
       {/* Main Content - Mobile-first responsive */}
       <main className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-3 sm:py-4">
         {currentView === 'todos' ? (
@@ -88,8 +91,10 @@ function AppContent() {
 
 export const App: React.FC = () => {
   return (
-    <TodoProvider>
-      <AppContent />
-    </TodoProvider>
+    <ErrorBoundary>
+      <TodoProvider>
+        <AppContent />
+      </TodoProvider>
+    </ErrorBoundary>
   );
 };

@@ -7,6 +7,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { TodoItem, CreateTodoItemInput, UpdateTodoItemInput, TodoFilter } from '../types';
 import { todoApiClient } from '../services';
 import { useFilter } from './useFilter';
+import { useErrorHandler } from './useErrorHandler';
 
 export interface UseTodosReturn {
     todos: TodoItem[];
@@ -22,13 +23,23 @@ export interface UseTodosReturn {
     updateTodo: (id: string, input: UpdateTodoItemInput) => Promise<TodoItem>;
     toggleTodoCompletion: (id: string) => Promise<TodoItem>;
     deleteTodo: (id: string) => Promise<void>;
+    retryLastAction: () => Promise<void>;
+    isRetrying: boolean;
 }
 
 export const useTodos = (): UseTodosReturn => {
     const [todos, setTodos] = useState<TodoItem[]>([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
     const [availableTags, setAvailableTags] = useState<string[]>([]);
+    
+    // Use enhanced error handler
+    const { 
+        error: errorState, 
+        setError, 
+        clearError, 
+        retryLastAction, 
+        isRetrying 
+    } = useErrorHandler();
 
     // Use common filter hook with default to show only pending tasks
     const { 
@@ -44,15 +55,15 @@ export const useTodos = (): UseTodosReturn => {
     const refreshTodos = useCallback(async () => {
         try {
             setLoading(true);
-            setError(null);
+            clearError();
             const todoItems = await todoApiClient.getTodos(filter);
             setTodos(todoItems);
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to load todos');
+            setError(err instanceof Error ? err : new Error('Failed to load todos'));
         } finally {
             setLoading(false);
         }
-    }, [filter]);
+    }, [filter, clearError, setError]);
 
     const refreshTags = useCallback(async () => {
         try {
@@ -66,52 +77,56 @@ export const useTodos = (): UseTodosReturn => {
 
     const createTodo = useCallback(async (input: CreateTodoItemInput): Promise<TodoItem> => {
         try {
-            setError(null);
+            clearError();
             const newTodo = await todoApiClient.createTodo(input);
             await refreshTodos(); // Refresh to get the latest state from server
             await refreshTags(); // Refresh tags in case new tags were added
             return newTodo;
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to create todo');
-            throw err;
+            const error = err instanceof Error ? err : new Error('Failed to create todo');
+            setError(error);
+            throw error;
         }
-    }, [refreshTodos, refreshTags]);
+    }, [refreshTodos, refreshTags, clearError, setError]);
 
     const updateTodo = useCallback(async (id: string, input: UpdateTodoItemInput): Promise<TodoItem> => {
         try {
-            setError(null);
+            clearError();
             const updatedTodo = await todoApiClient.updateTodo(id, input);
             await refreshTodos(); // Refresh to get the latest state from server
             await refreshTags(); // Refresh tags in case tags were modified
             return updatedTodo;
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to update todo');
-            throw err;
+            const error = err instanceof Error ? err : new Error('Failed to update todo');
+            setError(error);
+            throw error;
         }
-    }, [refreshTodos, refreshTags]);
+    }, [refreshTodos, refreshTags, clearError, setError]);
 
     const toggleTodoCompletion = useCallback(async (id: string): Promise<TodoItem> => {
         try {
-            setError(null);
+            clearError();
             const updatedTodo = await todoApiClient.toggleTodoCompletion(id);
             await refreshTodos(); // Refresh to get the latest state from server
             return updatedTodo;
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to toggle todo completion');
-            throw err;
+            const error = err instanceof Error ? err : new Error('Failed to toggle todo completion');
+            setError(error);
+            throw error;
         }
-    }, [refreshTodos]);
+    }, [refreshTodos, clearError, setError]);
 
     const deleteTodo = useCallback(async (id: string): Promise<void> => {
         try {
-            setError(null);
+            clearError();
             await todoApiClient.deleteTodo(id);
             await refreshTodos(); // Refresh to get the latest state from server
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to delete todo');
-            throw err;
+            const error = err instanceof Error ? err : new Error('Failed to delete todo');
+            setError(error);
+            throw error;
         }
-    }, [refreshTodos]);
+    }, [refreshTodos, clearError, setError]);
 
     // Load todos and tags on mount
     useEffect(() => {
@@ -122,7 +137,7 @@ export const useTodos = (): UseTodosReturn => {
     return {
         todos,
         loading,
-        error,
+        error: errorState?.message || null,
         filter,
         availableTags,
         hasActiveFilter,
@@ -133,5 +148,7 @@ export const useTodos = (): UseTodosReturn => {
         updateTodo,
         toggleTodoCompletion,
         deleteTodo,
+        retryLastAction,
+        isRetrying,
     };
 };

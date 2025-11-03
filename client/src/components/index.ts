@@ -3,7 +3,7 @@
  */
 
 export { TodoList } from './TodoList';
-export { TodoItemComponent as TodoItem } from './TodoItem';
+export { TodoItem } from './TodoItem';
 export { TodoForm } from './TodoForm';
 export { Filter } from './Filter';
 export { ArchiveFilter } from './ArchiveFilter';
@@ -15,3 +15,5 @@ export { EditTaskModal } from './EditTaskModal';
 export { LoadingSpinner, InlineLoadingSpinner } from './LoadingSpinner';
 export { ErrorMessage, InlineErrorMessage } from './ErrorMessage';
 export { SuccessMessage, InlineSuccessMessage } from './SuccessMessage';
+export { ErrorBoundary } from './ErrorBoundary';
+export { NetworkStatusIndicator } from './NetworkStatusIndicator';

@@ -7,6 +7,7 @@ import { useState, useCallback, useEffect, useMemo } from 'react';
 import { ArchiveGroup, TodoFilter } from '../types';
 import { todoApiClient } from '../services';
 import { useFilter } from './useFilter';
+import { useErrorHandler } from './useErrorHandler';
 
 export interface UseArchiveReturn {
   archiveGroups: ArchiveGroup[];
@@ -21,12 +22,22 @@ export interface UseArchiveReturn {
   setFilter: (filter: TodoFilter) => void;
   refreshArchive: () => Promise<void>;
   clearFilter: () => void;
+  retryLastAction: () => Promise<void>;
+  isRetrying: boolean;
 }
 
 export const useArchive = (): UseArchiveReturn => {
   const [archiveGroups, setArchiveGroups] = useState<ArchiveGroup[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  
+  // Use enhanced error handler
+  const { 
+    error: errorState, 
+    setError, 
+    clearError, 
+    retryLastAction, 
+    isRetrying 
+  } = useErrorHandler();
 
   // Use common filter hook for archive
   const { 
@@ -43,15 +54,15 @@ export const useArchive = (): UseArchiveReturn => {
   const refreshArchive = useCallback(async () => {
     try {
       setLoading(true);
-      setError(null);
+      clearError();
       const data = await todoApiClient.getArchive();
       setArchiveGroups(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load archive data');
+      setError(err instanceof Error ? err : new Error('Failed to load archive data'));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [clearError, setError]);
 
   // Extract available tags from archive data
   const availableTags = useMemo(() => {
@@ -102,7 +113,7 @@ export const useArchive = (): UseArchiveReturn => {
   return {
     archiveGroups,
     loading,
-    error,
+    error: errorState?.message || null,
     filter,
     availableTags,
     filteredGroups,
@@ -112,5 +123,7 @@ export const useArchive = (): UseArchiveReturn => {
     setFilter,
     refreshArchive,
     clearFilter,
+    retryLastAction,
+    isRetrying,
   };
 };

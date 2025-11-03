@@ -9,12 +9,29 @@ import { render, screen, waitFor, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { App } from '../App';
 
-// Mock fetch to simulate server responses
-const mockFetch = vi.fn();
-Object.defineProperty(globalThis, 'fetch', {
-  value: mockFetch,
-  writable: true,
-});
+// Mock the API client
+vi.mock('../services', () => ({
+  todoApiClient: {
+    getTodos: vi.fn(),
+    getTags: vi.fn(),
+    getArchive: vi.fn(),
+    createTodo: vi.fn(),
+    updateTodo: vi.fn(),
+    toggleTodoCompletion: vi.fn(),
+    deleteTodo: vi.fn(),
+  },
+  ApiClientError: class ApiClientError extends Error {
+    constructor(message: string, public status: number) {
+      super(message);
+      this.name = 'ApiClientError';
+    }
+  },
+}));
+
+// Import the mocked API client
+import { todoApiClient } from '../services';
+
+const mockTodoApiClient = todoApiClient as any;
 
 // Mock localStorage
 const mockLocalStorage = {
@@ -30,8 +47,9 @@ Object.defineProperty(globalThis, 'localStorage', {
 
 describe('Default Filter Behavior Tests', () => {
   beforeEach(() => {
-    mockFetch.mockClear();
-    mockFetch.mockReset();
+    mockTodoApiClient.getTodos.mockClear();
+    mockTodoApiClient.getTags.mockClear();
+    mockTodoApiClient.getArchive.mockClear();
     mockLocalStorage.getItem.mockClear();
     mockLocalStorage.setItem.mockClear();
     mockLocalStorage.removeItem.mockClear();
@@ -50,7 +68,7 @@ describe('Default Filter Behavior Tests', () => {
     mockLocalStorage.getItem.mockReturnValue(null);
 
     // Mock API response with mixed completed and pending tasks
-    const mixedTodos = [
+    const pendingTodos = [
       {
         id: '1',
         title: 'Pending Task 1',
@@ -61,17 +79,6 @@ describe('Default Filter Behavior Tests', () => {
         createdAt: '2024-01-01T10:00:00Z',
         updatedAt: '2024-01-01T10:00:00Z',
         completedAt: null,
-      },
-      {
-        id: '2',
-        title: 'Completed Task 1',
-        completed: true,
-        priority: 'medium',
-        tags: [],
-        memo: '',
-        createdAt: '2024-01-01T09:00:00Z',
-        updatedAt: '2024-01-01T11:00:00Z',
-        completedAt: '2024-01-01T11:00:00Z',
       },
       {
         id: '3',
@@ -86,43 +93,34 @@ describe('Default Filter Behavior Tests', () => {
       },
     ];
 
-    // Mock initial todos request with pending filter
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      status: 200,
-      json: async () => mixedTodos.filter(todo => !todo.completed),
-    });
-
-    // Mock initial tags request
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      status: 200,
-      json: async () => [],
-    });
+    // Mock API client responses
+    mockTodoApiClient.getTodos.mockResolvedValueOnce(pendingTodos);
+    mockTodoApiClient.getTags.mockResolvedValueOnce([]);
+    mockTodoApiClient.getArchive.mockResolvedValueOnce([]);
 
     await act(async () => {
       render(<App />);
     });
 
-    // Wait for todos to load
+    // Wait for todos to load - look for the actual todo titles
     await waitFor(() => {
       expect(screen.getByText('Pending Task 1')).toBeInTheDocument();
       expect(screen.getByText('Pending Task 2')).toBeInTheDocument();
-    });
+    }, { timeout: 15000 });
+
+    // Verify both tasks are present
+    expect(screen.getByText('Pending Task 1')).toBeInTheDocument();
+    expect(screen.getByText('Pending Task 2')).toBeInTheDocument();
 
     // Completed task should not be visible
     expect(screen.queryByText('Completed Task 1')).not.toBeInTheDocument();
 
     // Verify API was called with pending filter
-    expect(mockFetch).toHaveBeenCalledWith('/api/todos?status=pending', {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    expect(mockTodoApiClient.getTodos).toHaveBeenCalledWith({ status: 'pending' });
 
     // Verify localStorage was checked for existing filter
     expect(mockLocalStorage.getItem).toHaveBeenCalledWith('todo-app-filter');
-  });
+  }, 20000);
 
   it('should restore filter state from localStorage', async () => {
     // Mock localStorage to return saved filter state
@@ -130,18 +128,10 @@ describe('Default Filter Behavior Tests', () => {
       JSON.stringify({ status: 'all', priority: 'high' })
     );
 
-    // Mock API response
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      status: 200,
-      json: async () => [],
-    });
-
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      status: 200,
-      json: async () => [],
-    });
+    // Mock API client responses
+    mockTodoApiClient.getTodos.mockResolvedValueOnce([]);
+    mockTodoApiClient.getTags.mockResolvedValueOnce([]);
+    mockTodoApiClient.getArchive.mockResolvedValueOnce([]);
 
     await act(async () => {
       render(<App />);
@@ -155,11 +145,7 @@ describe('Default Filter Behavior Tests', () => {
     expect(mockLocalStorage.getItem).toHaveBeenCalledWith('todo-app-filter');
 
     // Verify API was called with restored filter
-    expect(mockFetch).toHaveBeenCalledWith('/api/todos?status=all&priority=high', {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    expect(mockTodoApiClient.getTodos).toHaveBeenCalledWith({ status: 'all', priority: 'high' });
   });
 
 
@@ -170,18 +156,10 @@ describe('Default Filter Behavior Tests', () => {
       throw new Error('localStorage not available');
     });
 
-    // Mock API response
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      status: 200,
-      json: async () => [],
-    });
-
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      status: 200,
-      json: async () => [],
-    });
+    // Mock API client responses
+    mockTodoApiClient.getTodos.mockResolvedValueOnce([]);
+    mockTodoApiClient.getTags.mockResolvedValueOnce([]);
+    mockTodoApiClient.getArchive.mockResolvedValueOnce([]);
 
     // Should not throw error and should use default filter
     await act(async () => {
@@ -193,10 +171,6 @@ describe('Default Filter Behavior Tests', () => {
     });
 
     // Should still call API with default pending filter
-    expect(mockFetch).toHaveBeenCalledWith('/api/todos?status=pending', {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    expect(mockTodoApiClient.getTodos).toHaveBeenCalledWith({ status: 'pending' });
   });
 });

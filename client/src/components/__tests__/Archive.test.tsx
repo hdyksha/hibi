@@ -22,6 +22,12 @@ vi.mock('../../services', () => ({
     toggleTodoCompletion: vi.fn(),
     deleteTodo: vi.fn(),
   },
+  ApiClientError: class ApiClientError extends Error {
+    constructor(message: string, public status: number) {
+      super(message);
+      this.name = 'ApiClientError';
+    }
+  },
 }));
 
 const mockApiClient = todoApiClient as any;

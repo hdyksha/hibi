@@ -8,7 +8,8 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "vitest --run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:save": "vitest --run > ../test-results-client-$(date +%Y%m%d-%H%M%S).log 2>&1"
   },
   "dependencies": {
     "react": "^18.2.0",

@@ -8,7 +8,8 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "test": "NODE_ENV=test vitest --run",
-    "test:watch": "NODE_ENV=test vitest"
+    "test:watch": "NODE_ENV=test vitest",
+    "test:save": "NODE_ENV=test vitest --run > ../test-results-server-$(date +%Y%m%d-%H%M%S).log 2>&1"
   },
   "keywords": [
     "todo",
