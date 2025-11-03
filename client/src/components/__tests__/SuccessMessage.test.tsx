@@ -8,12 +8,14 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { vi } from 'vitest';
 import { SuccessMessage, InlineSuccessMessage } from '../SuccessMessage';
 
-// Mock timers for auto-hide functionality
-vi.useFakeTimers();
-
 describe('SuccessMessage', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
   afterEach(() => {
-    vi.clearAllTimers();
+    vi.runOnlyPendingTimers();
+    vi.useRealTimers();
   });
 
   it('renders success message', () => {
@@ -39,9 +41,7 @@ describe('SuccessMessage', () => {
     // Fast-forward time
     vi.advanceTimersByTime(1000);
     
-    await waitFor(() => {
-      expect(mockOnHide).toHaveBeenCalledTimes(1);
-    });
+    expect(mockOnHide).toHaveBeenCalledTimes(1);
   });
 
   it('shows close button when autoHide is false', () => {
@@ -51,16 +51,14 @@ describe('SuccessMessage', () => {
     expect(closeButton).toBeInTheDocument();
   });
 
-  it('hides when close button is clicked', async () => {
+  it('hides when close button is clicked', () => {
     const mockOnHide = vi.fn();
     render(<SuccessMessage message="Test Success" autoHide={false} onHide={mockOnHide} />);
     
     const closeButton = screen.getByRole('button', { name: /close success message/i });
     fireEvent.click(closeButton);
     
-    await waitFor(() => {
-      expect(mockOnHide).toHaveBeenCalledTimes(1);
-    });
+    expect(mockOnHide).toHaveBeenCalledTimes(1);
   });
 
   it('applies compact variant styling', () => {

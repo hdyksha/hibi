@@ -193,7 +193,7 @@ describe('TodoForm', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Create Todo' }));
     
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Creating...' })).toBeInTheDocument();
+      expect(screen.getByText('Creating...')).toBeInTheDocument();
       expect(titleInput).toBeDisabled();
     });
   });

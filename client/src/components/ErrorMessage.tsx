@@ -47,11 +47,8 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
           
           {/* Error Content */}
           <div className="flex-1 min-w-0">
-            <h3 className={`font-semibold text-red-800 ${isCompact ? 'text-sm' : 'text-base'} mb-1`}>
-              Error
-            </h3>
-            <p className={`text-red-700 ${isCompact ? 'text-sm' : 'text-sm sm:text-base'} break-words`}>
-              {message}
+            <p className={`text-red-700 ${isCompact ? 'text-sm' : 'text-sm sm:text-base'} break-words font-semibold`}>
+              Error: {message}
             </p>
             
             {onRetry && (

@@ -12,8 +12,7 @@ describe('ErrorMessage', () => {
   it('renders error message', () => {
     render(<ErrorMessage message="Something went wrong" />);
     
-    expect(screen.getByText('Error')).toBeInTheDocument();
-    expect(screen.getByText('Something went wrong')).toBeInTheDocument();
+    expect(screen.getByText('Error: Something went wrong')).toBeInTheDocument();
   });
 
   it('renders retry button when onRetry is provided', () => {
@@ -44,7 +43,7 @@ describe('ErrorMessage', () => {
     render(<ErrorMessage message="Test Error Message" variant="compact" />);
     
     // Check that compact styling is applied by looking for the specific error message
-    const errorText = screen.getByText('Test Error Message');
+    const errorText = screen.getByText('Error: Test Error Message');
     const container = errorText.closest('.bg-red-50');
     expect(container).toHaveClass('p-3');
   });

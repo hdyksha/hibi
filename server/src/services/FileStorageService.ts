@@ -231,4 +231,11 @@ export class FileStorageService {
 /**
  * Default storage service instance
  */
-export const defaultStorageService = new FileStorageService();
+export let defaultStorageService = new FileStorageService();
+
+/**
+ * Set a new default storage service (mainly for testing)
+ */
+export function setDefaultStorageService(service: FileStorageService) {
+    defaultStorageService = service;
+}

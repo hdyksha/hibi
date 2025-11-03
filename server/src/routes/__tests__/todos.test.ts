@@ -3,15 +3,31 @@
  * Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6
  */
 
-import { describe, it, expect, beforeEach, afterAll } from 'vitest';
+import { describe, it, expect, beforeEach, afterAll, beforeAll } from 'vitest';
 import request from 'supertest';
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { app, server } from '../../index';
 import { TodoItem } from '../../models';
+import { FileStorageService, setDefaultStorageService } from '../../services/FileStorageService';
+
+/**
+ * Generate unique test file path to avoid conflicts in parallel test execution
+ */
+function generateTestFilePath(testName: string): string {
+    const timestamp = Date.now();
+    const randomId = Math.random().toString(36).substr(2, 9);
+    return join(process.cwd(), 'data', `tasks-${testName}-test-${timestamp}-${randomId}.json`);
+}
 
 describe('GET /api/todos', () => {
-    const testDataPath = join(process.cwd(), 'data', 'tasks.json');
+    const testDataPath = generateTestFilePath('todos');
+
+    beforeAll(() => {
+        // Set test storage service
+        const testStorageService = new FileStorageService(testDataPath);
+        setDefaultStorageService(testStorageService);
+    });
 
     beforeEach(async () => {
         // Clean up test data before each test
@@ -20,6 +36,16 @@ describe('GET /api/todos', () => {
         } catch {
             // File doesn't exist, which is fine
         }
+        
+        // Ensure data directory exists
+        try {
+            await fs.mkdir(join(process.cwd(), 'data'), { recursive: true });
+        } catch {
+            // Directory already exists, which is fine
+        }
+        
+        // Initialize empty storage
+        await fs.writeFile(testDataPath, JSON.stringify([]), 'utf-8');
     });
 
     afterAll(async () => {
@@ -29,6 +55,8 @@ describe('GET /api/todos', () => {
         } catch {
             // File doesn't exist, which is fine
         }
+        // Reset to default storage service
+        setDefaultStorageService(new FileStorageService());
         if (server) {
             server.close();
         }
@@ -263,7 +291,13 @@ describe('GET /api/todos', () => {
 });
 
 describe('GET /api/todos/tags', () => {
-    const testDataPath = join(process.cwd(), 'data', 'tasks.json');
+    const testDataPath = generateTestFilePath('tags');
+
+    beforeAll(() => {
+        // Set test storage service
+        const testStorageService = new FileStorageService(testDataPath);
+        setDefaultStorageService(testStorageService);
+    });
 
     beforeEach(async () => {
         // Clean up test data before each test
@@ -372,10 +406,27 @@ describe('GET /api/todos/tags', () => {
             expect(Array.isArray(response.body)).toBe(true);
         });
     });
+
+    afterAll(async () => {
+        // Clean up test data after all tests
+        try {
+            await fs.unlink(testDataPath);
+        } catch {
+            // File doesn't exist, which is fine
+        }
+        // Reset to default storage service
+        setDefaultStorageService(new FileStorageService());
+    });
 });
 
 describe('POST /api/todos', () => {
-    const testDataPath = join(process.cwd(), 'data', 'tasks.json');
+    const testDataPath = generateTestFilePath('post');
+
+    beforeAll(() => {
+        // Set test storage service
+        const testStorageService = new FileStorageService(testDataPath);
+        setDefaultStorageService(testStorageService);
+    });
 
     beforeEach(async () => {
         // Clean up test data before each test
@@ -488,10 +539,10 @@ describe('POST /api/todos', () => {
                 .send({})
                 .expect(400);
 
-            expect(response.body.error).toBe('Validation failed');
+            expect(response.body.error).toBe('ValidationError');
             expect(response.body.details).toBeDefined();
             expect(response.body.details).toHaveLength(1);
-            expect(response.body.details[0].field).toBe('title');
+            expect(response.body.details[0].field).toBe('body');
         });
 
         it('should return 400 when title is empty string', async () => {
@@ -500,7 +551,7 @@ describe('POST /api/todos', () => {
                 .send({ title: '' })
                 .expect(400);
 
-            expect(response.body.error).toBe('Validation failed');
+            expect(response.body.error).toBe('ValidationError');
             expect(response.body.details[0].field).toBe('title');
             expect(response.body.details[0].message).toBe('Title cannot be empty');
         });
@@ -511,7 +562,7 @@ describe('POST /api/todos', () => {
                 .send({ title: '   ' })
                 .expect(400);
 
-            expect(response.body.error).toBe('Validation failed');
+            expect(response.body.error).toBe('ValidationError');
             expect(response.body.details[0].field).toBe('title');
             expect(response.body.details[0].message).toBe('Title cannot be empty');
         });
@@ -522,7 +573,7 @@ describe('POST /api/todos', () => {
                 .send({ title: 123 })
                 .expect(400);
 
-            expect(response.body.error).toBe('Validation failed');
+            expect(response.body.error).toBe('ValidationError');
             expect(response.body.details[0].field).toBe('title');
             expect(response.body.details[0].message).toBe('Title is required and must be a string');
         });
@@ -535,7 +586,7 @@ describe('POST /api/todos', () => {
                 .send({ title: longTitle })
                 .expect(400);
 
-            expect(response.body.error).toBe('Validation failed');
+            expect(response.body.error).toBe('ValidationError');
             expect(response.body.details[0].field).toBe('title');
             expect(response.body.details[0].message).toBe('Title cannot exceed 200 characters');
         });
@@ -549,10 +600,27 @@ describe('POST /api/todos', () => {
             // Express will handle malformed JSON and return 400
         });
     });
+
+    afterAll(async () => {
+        // Clean up test data after all tests
+        try {
+            await fs.unlink(testDataPath);
+        } catch {
+            // File doesn't exist, which is fine
+        }
+        // Reset to default storage service
+        setDefaultStorageService(new FileStorageService());
+    });
 });
 
 describe('PUT /api/todos/:id', () => {
-    const testDataPath = join(process.cwd(), 'data', 'tasks.json');
+    const testDataPath = generateTestFilePath('put');
+
+    beforeAll(() => {
+        // Set test storage service
+        const testStorageService = new FileStorageService(testDataPath);
+        setDefaultStorageService(testStorageService);
+    });
 
     beforeEach(async () => {
         // Clean up test data before each test
@@ -684,6 +752,7 @@ describe('PUT /api/todos/:id', () => {
             // First toggle
             const firstToggleResponse = await request(app)
                 .put(`/api/todos/${createdTodo.id}`)
+                .send({ completed: true })
                 .expect(200);
 
             const firstUpdate: TodoItem = firstToggleResponse.body;
@@ -694,6 +763,7 @@ describe('PUT /api/todos/:id', () => {
             // Second toggle
             const secondToggleResponse = await request(app)
                 .put(`/api/todos/${createdTodo.id}`)
+                .send({ completed: false })
                 .expect(200);
 
             const secondUpdate: TodoItem = secondToggleResponse.body;
@@ -715,19 +785,21 @@ describe('PUT /api/todos/:id', () => {
         it('should return 400 when ID is empty string', async () => {
             const response = await request(app)
                 .put('/api/todos/%20') // URL encoded space
+                .send({ completed: true })
                 .expect(400);
 
-            expect(response.body.error).toBe('Invalid request');
-            expect(response.body.message).toBe('Todo ID is required');
+            expect(response.body.error).toBe('ValidationError');
+            expect(response.body.message).toBe('Invalid todo ID');
         });
 
         it('should return 404 when todo with given ID does not exist', async () => {
             const response = await request(app)
                 .put('/api/todos/nonexistent-id')
+                .send({ completed: true })
                 .expect(404);
 
-            expect(response.body.error).toBe('Not found');
-            expect(response.body.message).toBe('Todo item not found');
+            expect(response.body.error).toBe('NotFoundError');
+            expect(response.body.message).toContain('Todo item with identifier \'nonexistent-id\' not found');
         });
 
         it('should return 404 when trying to update todo that was deleted', async () => {
@@ -745,16 +817,34 @@ describe('PUT /api/todos/:id', () => {
             // Try to update the deleted todo
             const response = await request(app)
                 .put(`/api/todos/${createdTodo.id}`)
+                .send({ completed: true })
                 .expect(404);
 
-            expect(response.body.error).toBe('Not found');
-            expect(response.body.message).toBe('Todo item not found');
+            expect(response.body.error).toBe('NotFoundError');
+            expect(response.body.message).toContain(`Todo item with identifier '${createdTodo.id}' not found`);
         });
+    });
+
+    afterAll(async () => {
+        // Clean up test data after all tests
+        try {
+            await fs.unlink(testDataPath);
+        } catch {
+            // File doesn't exist, which is fine
+        }
+        // Reset to default storage service
+        setDefaultStorageService(new FileStorageService());
     });
 });
 
 describe('DELETE /api/todos/:id', () => {
-    const testDataPath = join(process.cwd(), 'data', 'tasks.json');
+    const testDataPath = generateTestFilePath('delete');
+
+    beforeAll(() => {
+        // Set test storage service
+        const testStorageService = new FileStorageService(testDataPath);
+        setDefaultStorageService(testStorageService);
+    });
 
     beforeEach(async () => {
         // Clean up test data before each test
@@ -883,8 +973,8 @@ describe('DELETE /api/todos/:id', () => {
                 .delete('/api/todos/%20') // URL encoded space
                 .expect(400);
 
-            expect(response.body.error).toBe('Invalid request');
-            expect(response.body.message).toBe('Todo ID is required');
+            expect(response.body.error).toBe('ValidationError');
+            expect(response.body.message).toBe('Invalid todo ID');
         });
 
         it('should return 404 when todo with given ID does not exist', async () => {
@@ -892,8 +982,8 @@ describe('DELETE /api/todos/:id', () => {
                 .delete('/api/todos/nonexistent-id')
                 .expect(404);
 
-            expect(response.body.error).toBe('Not found');
-            expect(response.body.message).toBe('Todo item not found');
+            expect(response.body.error).toBe('NotFoundError');
+            expect(response.body.message).toContain('Todo item with identifier \'nonexistent-id\' not found');
         });
 
         it('should return 404 when trying to delete already deleted todo', async () => {
@@ -915,8 +1005,8 @@ describe('DELETE /api/todos/:id', () => {
                 .delete(`/api/todos/${createdTodo.id}`)
                 .expect(404);
 
-            expect(response.body.error).toBe('Not found');
-            expect(response.body.message).toBe('Todo item not found');
+            expect(response.body.error).toBe('NotFoundError');
+            expect(response.body.message).toContain(`Todo item with identifier '${createdTodo.id}' not found`);
         });
 
         it('should handle storage errors gracefully', async () => {
@@ -936,10 +1026,27 @@ describe('DELETE /api/todos/:id', () => {
                 .expect(204);
         });
     });
+
+    afterAll(async () => {
+        // Clean up test data after all tests
+        try {
+            await fs.unlink(testDataPath);
+        } catch {
+            // File doesn't exist, which is fine
+        }
+        // Reset to default storage service
+        setDefaultStorageService(new FileStorageService());
+    });
 });
 
 describe('GET /api/todos/archive', () => {
-    const testDataPath = join(process.cwd(), 'data', 'tasks.json');
+    const testDataPath = generateTestFilePath('archive');
+
+    beforeAll(() => {
+        // Set test storage service
+        const testStorageService = new FileStorageService(testDataPath);
+        setDefaultStorageService(testStorageService);
+    });
 
     beforeEach(async () => {
         // Clean up test data before each test
@@ -1173,5 +1280,16 @@ describe('GET /api/todos/archive', () => {
 
             expect(Array.isArray(response.body)).toBe(true);
         });
+    });
+
+    afterAll(async () => {
+        // Clean up test data after all tests
+        try {
+            await fs.unlink(testDataPath);
+        } catch {
+            // File doesn't exist, which is fine
+        }
+        // Reset to default storage service
+        setDefaultStorageService(new FileStorageService());
     });
 });

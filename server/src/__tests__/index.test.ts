@@ -14,9 +14,11 @@ describe('Express Server Basic Setup', () => {
       .get('/health')
       .expect(200);
 
-    expect(response.body).toEqual({
+    expect(response.body).toMatchObject({
       status: 'OK',
-      message: 'Todo App Server is running'
+      message: 'Todo App Server is running',
+      timestamp: expect.any(String),
+      uptime: expect.any(Number)
     });
   });
 
