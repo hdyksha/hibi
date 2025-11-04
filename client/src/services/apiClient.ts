@@ -19,9 +19,64 @@ export class ApiClientError extends Error {
 
 export class TodoApiClient {
   private baseUrl: string;
+  private networkReporter?: {
+    reportConnectionError: () => void;
+    reportConnectionSuccess: () => void;
+  };
 
   constructor(baseUrl: string = '/api') {
     this.baseUrl = baseUrl;
+  }
+
+  // Allow setting network reporter for status updates
+  setNetworkReporter(reporter: { reportConnectionError: () => void; reportConnectionSuccess: () => void }) {
+    this.networkReporter = reporter;
+  }
+
+  /**
+   * Check if status code indicates a network/connection error
+   */
+  private isNetworkError(status: number): boolean {
+    return status >= 500; // 500, 502, 503, 504, etc.
+  }
+
+  /**
+   * Check if error is a network-related error
+   */
+  private isNetworkException(error: unknown): boolean {
+    if (error instanceof TypeError) {
+      return error.message.includes('fetch') || error.message.includes('Failed to fetch');
+    }
+
+    if (error instanceof Error) {
+      const message = error.message.toLowerCase();
+      return message.includes('network') ||
+        message.includes('connection') ||
+        message.includes('err_network') ||
+        message.includes('err_internet_disconnected');
+    }
+
+    return false;
+  }
+
+  /**
+   * Parse response body safely
+   */
+  private async parseResponse<T>(response: Response): Promise<T> {
+    if (response.status === 204) {
+      return undefined as T;
+    }
+
+    try {
+      return await response.json();
+    } catch {
+      // If JSON parsing fails, it might be a proxy error or plain text
+      const text = await response.text();
+      throw new ApiClientError(
+        text || `Server returned ${response.status} ${response.statusText}`,
+        response.status
+      );
+    }
   }
 
   /**
@@ -33,51 +88,54 @@ export class TodoApiClient {
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
 
-    const defaultOptions: RequestInit = {
+    const requestOptions: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
         ...options.headers,
       },
+      ...options,
     };
-
-    const requestOptions = { ...defaultOptions, ...options };
 
     try {
       const response = await fetch(url, requestOptions);
 
-      if (!response) {
-        throw new ApiClientError('Network error: No response received');
+      // Check for network errors first
+      if (this.isNetworkError(response.status)) {
+        this.networkReporter?.reportConnectionError();
+        throw new ApiClientError('Network error: Unable to connect to server', response.status);
       }
 
-      // Handle different response statuses
-      if (response.status === 204) {
-        // No content response (successful deletion)
-        return undefined as T;
-      }
+      // Parse response
+      const data = await this.parseResponse<T>(response);
 
-      const responseData = await response.json();
-
+      // Handle API errors (4xx)
       if (!response.ok) {
-        // API returned an error response
-        const apiError: ApiError = responseData;
+        const apiError = data as ApiError;
         throw new ApiClientError(
-          apiError.message || 'API request failed',
+          apiError?.message || `Request failed: ${response.status} ${response.statusText}`,
           response.status,
           apiError
         );
       }
 
-      return responseData as T;
+      // Success
+      this.networkReporter?.reportConnectionSuccess();
+      return data;
+
     } catch (error) {
+      // Re-throw ApiClientError as-is
       if (error instanceof ApiClientError) {
         throw error;
       }
 
-      // Network or other errors
-      if (error instanceof TypeError && error.message.includes('fetch')) {
+      // Handle network exceptions
+      if (this.isNetworkException(error)) {
+        this.networkReporter?.reportConnectionError();
         throw new ApiClientError('Network error: Unable to connect to server');
       }
 
+      // Unknown error
+      this.networkReporter?.reportConnectionError();
       throw new ApiClientError(
         error instanceof Error ? error.message : 'Unknown error occurred'
       );
@@ -91,29 +149,29 @@ export class TodoApiClient {
    */
   async getTodos(filter?: TodoFilter): Promise<TodoItem[]> {
     let endpoint = '/todos';
-    
+
     if (filter && Object.keys(filter).length > 0) {
       const params = new URLSearchParams();
-      
+
       if (filter.status) {
         params.append('status', filter.status);
       }
-      
+
       if (filter.priority) {
         params.append('priority', filter.priority);
       }
-      
+
       if (filter.tags && filter.tags.length > 0) {
         filter.tags.forEach(tag => params.append('tags', tag));
       }
-      
+
       if (filter.searchText && filter.searchText.trim()) {
         params.append('search', filter.searchText.trim());
       }
-      
+
       endpoint += `?${params.toString()}`;
     }
-    
+
     return this.request<TodoItem[]>(endpoint);
   }
 
@@ -150,12 +208,12 @@ export class TodoApiClient {
     try {
       // First get the current todo to know its current completion status
       const todos = await this.getTodos();
-      
+
       // Ensure todos is an array
       if (!Array.isArray(todos)) {
         throw new ApiClientError('Invalid response format from server');
       }
-      
+
       const currentTodo = todos.find(todo => todo.id === id);
 
       if (!currentTodo) {

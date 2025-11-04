@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { useNetworkStatus } from '../hooks/useNetworkStatus';
+import { useNetworkContext } from '../contexts/NetworkContext';
 
 interface NetworkStatusIndicatorProps {
   className?: string;
@@ -16,7 +16,7 @@ export const NetworkStatusIndicator: React.FC<NetworkStatusIndicatorProps> = ({
   className = '',
   showWhenOnline = false,
 }) => {
-  const { isOnline, isSlowConnection, lastOnlineAt } = useNetworkStatus();
+  const { isOnline, isSlowConnection, lastOnlineAt } = useNetworkContext();
 
   // Don't show anything if online and showWhenOnline is false
   if (isOnline && !showWhenOnline && !isSlowConnection) {

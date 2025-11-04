@@ -34,7 +34,8 @@ vi.mock('../services/apiClient', () => ({
     createTodo: vi.fn(),
     updateTodo: vi.fn(),
     toggleTodoCompletion: vi.fn(),
-    deleteTodo: vi.fn()
+    deleteTodo: vi.fn(),
+    setNetworkReporter: vi.fn(),
   },
   ApiClientError: class ApiClientError extends Error {
     constructor(message: string, public status: number) {
@@ -42,6 +43,19 @@ vi.mock('../services/apiClient', () => ({
       this.name = 'ApiClientError';
     }
   },
+}));
+
+// Mock the useNetworkStatus hook
+vi.mock('../hooks/useNetworkStatus', () => ({
+  useNetworkStatus: () => ({
+    isOnline: true,
+    isSlowConnection: false,
+    lastOnlineAt: Date.now(),
+    connectionType: null,
+    checkConnection: vi.fn().mockResolvedValue(true),
+    reportConnectionError: vi.fn(),
+    reportConnectionSuccess: vi.fn(),
+  }),
 }));
 
 describe('Filter Integration', () => {

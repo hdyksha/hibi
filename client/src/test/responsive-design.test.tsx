@@ -17,6 +17,7 @@ vi.mock('../services/index', () => ({
     createTodo: vi.fn(),
     updateTodo: vi.fn(),
     deleteTodo: vi.fn(),
+    setNetworkReporter: vi.fn(),
   },
   ApiClientError: class ApiClientError extends Error {
     constructor(message: string, public status: number) {
@@ -24,6 +25,19 @@ vi.mock('../services/index', () => ({
       this.name = 'ApiClientError';
     }
   },
+}));
+
+// Mock the useNetworkStatus hook
+vi.mock('../hooks/useNetworkStatus', () => ({
+  useNetworkStatus: () => ({
+    isOnline: true,
+    isSlowConnection: false,
+    lastOnlineAt: Date.now(),
+    connectionType: null,
+    checkConnection: vi.fn().mockResolvedValue(true),
+    reportConnectionError: vi.fn(),
+    reportConnectionSuccess: vi.fn(),
+  }),
 }));
 
 describe('Responsive Design Tests', () => {

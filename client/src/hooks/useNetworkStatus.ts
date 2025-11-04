@@ -15,28 +15,35 @@ export interface NetworkStatus {
 
 export interface UseNetworkStatusReturn extends NetworkStatus {
   checkConnection: () => Promise<boolean>;
+  reportConnectionError: () => void;
+  reportConnectionSuccess: () => void;
 }
 
 export const useNetworkStatus = (): UseNetworkStatusReturn => {
   const [networkStatus, setNetworkStatus] = useState<NetworkStatus>({
-    isOnline: navigator.onLine,
+    isOnline: navigator.onLine, // Start with browser's online status
     isSlowConnection: false,
-    lastOnlineAt: navigator.onLine ? Date.now() : null,
+    lastOnlineAt: null, // Will be set after first successful check
     connectionType: null,
   });
 
   // Check connection quality by measuring response time
   const checkConnection = useCallback(async (): Promise<boolean> => {
     if (!navigator.onLine) {
+      setNetworkStatus(prev => ({
+        ...prev,
+        isOnline: false,
+        isSlowConnection: false,
+      }));
       return false;
     }
 
     try {
       const startTime = Date.now();
       
-      // Use a small request to check connection speed
-      // We'll ping our health endpoint with a HEAD request
-      const response = await fetch('/health', {
+      // Try to ping our API endpoint to check if backend is accessible
+      // Use a lightweight endpoint that should always be available
+      const response = await fetch('/api/todos/tags', {
         method: 'HEAD',
         cache: 'no-cache',
       });
@@ -44,15 +51,20 @@ export const useNetworkStatus = (): UseNetworkStatusReturn => {
       const responseTime = Date.now() - startTime;
       const isSlowConnection = responseTime > 3000; // Consider slow if > 3 seconds
       
+      // Consider connection good only if we get a successful response or a proper API error
+      // 500 errors from proxy indicate server is unreachable
+      const isConnected = response.ok || (response.status >= 400 && response.status < 500);
+      
       setNetworkStatus(prev => ({
         ...prev,
-        isOnline: response.ok,
-        isSlowConnection,
-        lastOnlineAt: response.ok ? Date.now() : prev.lastOnlineAt,
+        isOnline: isConnected,
+        isSlowConnection: isConnected ? isSlowConnection : false,
+        lastOnlineAt: isConnected ? Date.now() : prev.lastOnlineAt,
       }));
 
-      return response.ok;
+      return isConnected;
     } catch (error) {
+      // Network error - can't reach server
       setNetworkStatus(prev => ({
         ...prev,
         isOnline: false,
@@ -65,13 +77,7 @@ export const useNetworkStatus = (): UseNetworkStatusReturn => {
   // Handle online/offline events
   useEffect(() => {
     const handleOnline = () => {
-      setNetworkStatus(prev => ({
-        ...prev,
-        isOnline: true,
-        lastOnlineAt: Date.now(),
-      }));
-      
-      // Check connection quality when coming back online
+      // Don't immediately set to online, let checkConnection determine the actual status
       checkConnection();
     };
 
@@ -116,16 +122,34 @@ export const useNetworkStatus = (): UseNetworkStatusReturn => {
     };
   }, [checkConnection]);
 
-  // Initial connection check
+  // Initial connection check - no periodic polling
   useEffect(() => {
-    // Only check connection if online
-    if (navigator.onLine) {
-      checkConnection();
-    }
+    // Initial check
+    checkConnection();
   }, [checkConnection]);
+
+  // Allow external components to report connection status
+  const reportConnectionError = useCallback(() => {
+    setNetworkStatus(prev => ({
+      ...prev,
+      isOnline: false,
+      isSlowConnection: false,
+    }));
+  }, []);
+
+  const reportConnectionSuccess = useCallback(() => {
+    setNetworkStatus(prev => ({
+      ...prev,
+      isOnline: true,
+      isSlowConnection: false,
+      lastOnlineAt: Date.now(),
+    }));
+  }, []);
 
   return {
     ...networkStatus,
     checkConnection,
+    reportConnectionError,
+    reportConnectionSuccess,
   };
 };

@@ -10,6 +10,7 @@ import { Archive } from '../Archive';
 import { todoApiClient } from '../../services';
 import { ArchiveGroup } from '../../types';
 import { TodoProvider } from '../../contexts/TodoContext';
+import { NetworkProvider } from '../../contexts/NetworkContext';
 
 // Mock the API client
 vi.mock('../../services', () => ({
@@ -21,6 +22,7 @@ vi.mock('../../services', () => ({
     updateTodo: vi.fn(),
     toggleTodoCompletion: vi.fn(),
     deleteTodo: vi.fn(),
+    setNetworkReporter: vi.fn(),
   },
   ApiClientError: class ApiClientError extends Error {
     constructor(message: string, public status: number) {
@@ -30,16 +32,31 @@ vi.mock('../../services', () => ({
   },
 }));
 
+// Mock the useNetworkStatus hook
+vi.mock('../../hooks/useNetworkStatus', () => ({
+  useNetworkStatus: () => ({
+    isOnline: true,
+    isSlowConnection: false,
+    lastOnlineAt: Date.now(),
+    connectionType: null,
+    checkConnection: vi.fn().mockResolvedValue(true),
+    reportConnectionError: vi.fn(),
+    reportConnectionSuccess: vi.fn(),
+  }),
+}));
+
 const mockApiClient = todoApiClient as any;
 
-// Helper function to render Archive with TodoProvider
+// Helper function to render Archive with NetworkProvider and TodoProvider
 const renderArchive = async (props = {}) => {
   let result;
   await act(async () => {
     result = render(
-      <TodoProvider>
-        <Archive {...props} />
-      </TodoProvider>
+      <NetworkProvider>
+        <TodoProvider>
+          <Archive {...props} />
+        </TodoProvider>
+      </NetworkProvider>
     );
     // Wait for all promises to resolve
     await Promise.resolve();

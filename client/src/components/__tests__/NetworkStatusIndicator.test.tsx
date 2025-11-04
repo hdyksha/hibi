@@ -7,6 +7,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NetworkStatusIndicator } from '../NetworkStatusIndicator';
+import { NetworkProvider } from '../../contexts/NetworkContext';
 import * as useNetworkStatusModule from '../../hooks/useNetworkStatus';
 
 // Mock the useNetworkStatus hook
@@ -14,6 +15,15 @@ const mockUseNetworkStatus = vi.fn();
 vi.mock('../../hooks/useNetworkStatus', () => ({
   useNetworkStatus: () => mockUseNetworkStatus(),
 }));
+
+// Helper function to render with NetworkProvider
+const renderWithProvider = (component: React.ReactElement) => {
+  return render(
+    <NetworkProvider>
+      {component}
+    </NetworkProvider>
+  );
+};
 
 describe('NetworkStatusIndicator', () => {
   beforeEach(() => {
@@ -27,7 +37,7 @@ describe('NetworkStatusIndicator', () => {
       lastOnlineAt: Date.now(),
     });
 
-    const { container } = render(<NetworkStatusIndicator />);
+    const { container } = renderWithProvider(<NetworkStatusIndicator />);
     expect(container.firstChild).toBeNull();
   });
 
@@ -38,7 +48,7 @@ describe('NetworkStatusIndicator', () => {
       lastOnlineAt: Date.now(),
     });
 
-    render(<NetworkStatusIndicator showWhenOnline={true} />);
+    renderWithProvider(<NetworkStatusIndicator showWhenOnline={true} />);
     expect(screen.getByText('Connected')).toBeInTheDocument();
   });
 
@@ -49,7 +59,7 @@ describe('NetworkStatusIndicator', () => {
       lastOnlineAt: Date.now() - 30000, // 30 seconds ago
     });
 
-    render(<NetworkStatusIndicator />);
+    renderWithProvider(<NetworkStatusIndicator />);
     expect(screen.getByText('Connection lost - trying to reconnect...')).toBeInTheDocument();
   });
 
@@ -60,7 +70,7 @@ describe('NetworkStatusIndicator', () => {
       lastOnlineAt: Date.now() - 30000, // 30 seconds ago
     });
 
-    render(<NetworkStatusIndicator />);
+    renderWithProvider(<NetworkStatusIndicator />);
     expect(screen.getByText('Connection lost - trying to reconnect...')).toBeInTheDocument();
   });
 
@@ -71,7 +81,7 @@ describe('NetworkStatusIndicator', () => {
       lastOnlineAt: Date.now() - 120000, // 2 minutes ago
     });
 
-    render(<NetworkStatusIndicator />);
+    renderWithProvider(<NetworkStatusIndicator />);
     expect(screen.getByText('Offline for 2m - check your connection')).toBeInTheDocument();
   });
 
@@ -82,7 +92,7 @@ describe('NetworkStatusIndicator', () => {
       lastOnlineAt: Date.now() - 600000, // 10 minutes ago
     });
 
-    render(<NetworkStatusIndicator />);
+    renderWithProvider(<NetworkStatusIndicator />);
     expect(screen.getByText('No internet connection')).toBeInTheDocument();
   });
 
@@ -93,7 +103,7 @@ describe('NetworkStatusIndicator', () => {
       lastOnlineAt: Date.now(),
     });
 
-    render(<NetworkStatusIndicator />);
+    renderWithProvider(<NetworkStatusIndicator />);
     expect(screen.getByText('Slow connection detected')).toBeInTheDocument();
   });
 
@@ -104,7 +114,7 @@ describe('NetworkStatusIndicator', () => {
       lastOnlineAt: null,
     });
 
-    render(<NetworkStatusIndicator />);
+    renderWithProvider(<NetworkStatusIndicator />);
     expect(screen.getByText('No internet connection')).toBeInTheDocument();
   });
 
@@ -115,7 +125,7 @@ describe('NetworkStatusIndicator', () => {
       lastOnlineAt: Date.now(),
     });
 
-    render(<NetworkStatusIndicator className="custom-class" />);
+    renderWithProvider(<NetworkStatusIndicator className="custom-class" />);
     const indicator = screen.getByText('No internet connection').closest('div');
     expect(indicator).toHaveClass('custom-class');
   });
@@ -127,7 +137,7 @@ describe('NetworkStatusIndicator', () => {
       lastOnlineAt: Date.now(),
     });
 
-    render(<NetworkStatusIndicator />);
+    renderWithProvider(<NetworkStatusIndicator />);
     // Find the SVG by its class instead of role
     const spinner = document.querySelector('.animate-spin');
     expect(spinner).toBeInTheDocument();
@@ -142,7 +152,7 @@ describe('NetworkStatusIndicator', () => {
       lastOnlineAt: Date.now(),
     });
 
-    const { rerender } = render(<NetworkStatusIndicator />);
+    const { rerender } = renderWithProvider(<NetworkStatusIndicator />);
     let container = screen.getByText('No internet connection').closest('div');
     expect(container).toHaveClass('bg-red-50', 'border-red-200');
 
@@ -153,7 +163,11 @@ describe('NetworkStatusIndicator', () => {
       lastOnlineAt: Date.now(),
     });
 
-    rerender(<NetworkStatusIndicator />);
+    rerender(
+      <NetworkProvider>
+        <NetworkStatusIndicator />
+      </NetworkProvider>
+    );
     container = screen.getByText('Slow connection detected').closest('div');
     expect(container).toHaveClass('bg-yellow-50', 'border-yellow-200');
 
@@ -164,7 +178,11 @@ describe('NetworkStatusIndicator', () => {
       lastOnlineAt: Date.now(),
     });
 
-    rerender(<NetworkStatusIndicator showWhenOnline={true} />);
+    rerender(
+      <NetworkProvider>
+        <NetworkStatusIndicator showWhenOnline={true} />
+      </NetworkProvider>
+    );
     container = screen.getByText('Connected').closest('div');
     expect(container).toHaveClass('bg-green-50', 'border-green-200');
   });

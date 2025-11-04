@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { TodoList, TodoForm, Filter, Archive, ErrorBoundary, NetworkStatusIndicator } from './components';
-import { TodoProvider } from './contexts';
+import { TodoProvider, NetworkProvider } from './contexts';
 import { useTodoContext } from './contexts';
 
 type ViewMode = 'todos' | 'archive';
@@ -92,9 +92,11 @@ function AppContent() {
 export const App: React.FC = () => {
   return (
     <ErrorBoundary>
-      <TodoProvider>
-        <AppContent />
-      </TodoProvider>
+      <NetworkProvider>
+        <TodoProvider>
+          <AppContent />
+        </TodoProvider>
+      </NetworkProvider>
     </ErrorBoundary>
   );
 };

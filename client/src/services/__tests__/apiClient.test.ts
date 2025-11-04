@@ -77,12 +77,12 @@ describe('TodoApiClient', () => {
         expect.fail('Expected error to be thrown');
       } catch (error) {
         expect(error).toBeInstanceOf(ApiClientError);
-        expect((error as ApiClientError).message).toBe('Failed to retrieve todo items');
+        expect((error as ApiClientError).message).toBe('Network error: Unable to connect to server');
       }
     });
 
     it('should handle network error', async () => {
-      mockFetch.mockRejectedValueOnce(new TypeError('fetch failed'));
+      mockFetch.mockRejectedValueOnce(new TypeError('Failed to fetch'));
 
       try {
         await apiClient.getTodos();

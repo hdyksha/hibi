@@ -41,16 +41,25 @@ describe('useNetworkStatus', () => {
     vi.restoreAllMocks();
   });
 
-  it('should initialize with online status', () => {
+  it('should initialize with online status', async () => {
     const { result } = renderHook(() => useNetworkStatus());
 
     expect(result.current.isOnline).toBe(true);
     expect(result.current.isSlowConnection).toBe(false);
-    expect(result.current.lastOnlineAt).toBeTypeOf('number');
+    // Initially lastOnlineAt is null, will be set after first successful check
+    expect(result.current.lastOnlineAt).toBeNull();
     expect(result.current.connectionType).toBeNull();
+
+    // Wait for initial connection check to complete
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0));
+    });
+
+    // After successful connection check, lastOnlineAt should be set
+    expect(result.current.lastOnlineAt).toBeTypeOf('number');
   });
 
-  it('should detect offline status', () => {
+  it('should detect offline status', async () => {
     // Set navigator.onLine to false
     Object.defineProperty(navigator, 'onLine', {
       writable: true,
@@ -58,6 +67,11 @@ describe('useNetworkStatus', () => {
     });
 
     const { result } = renderHook(() => useNetworkStatus());
+
+    // Wait for initial effect to complete
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0));
+    });
 
     expect(result.current.isOnline).toBe(false);
     expect(result.current.lastOnlineAt).toBeNull();
@@ -94,6 +108,11 @@ describe('useNetworkStatus', () => {
     );
 
     const { result } = renderHook(() => useNetworkStatus());
+
+    // Wait for initial effect to complete
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0));
+    });
 
     await act(async () => {
       await result.current.checkConnection();
@@ -166,6 +185,11 @@ describe('useNetworkStatus', () => {
     });
 
     const { result } = renderHook(() => useNetworkStatus());
+
+    // Wait for initial effect to complete
+    await act(async () => {
+      await new Promise(resolve => setTimeout(resolve, 0));
+    });
 
     let connectionResult: boolean;
     await act(async () => {
