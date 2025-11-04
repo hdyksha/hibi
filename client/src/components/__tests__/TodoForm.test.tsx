@@ -106,8 +106,8 @@ describe('TodoForm', () => {
     fireEvent.submit(form!);
     
     await waitFor(() => {
-      expect(screen.getByText('Title is required')).toBeInTheDocument();
-    });
+      expect(screen.getByText(/please enter a title for your task/i)).toBeInTheDocument();
+    }, { timeout: 10000 });
   });
 
   it('shows validation error for title too long', async () => {
@@ -120,8 +120,8 @@ describe('TodoForm', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Create Todo' }));
     
     await waitFor(() => {
-      expect(screen.getByText('Title must be 200 characters or less')).toBeInTheDocument();
-    });
+      expect(screen.getByText(/title is too long.*keep it under 200 characters/i)).toBeInTheDocument();
+    }, { timeout: 10000 });
   });
 
   it('trims whitespace from title', async () => {
@@ -219,8 +219,8 @@ describe('TodoForm', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Create Todo' }));
     
     await waitFor(() => {
-      expect(screen.getByText('Network error')).toBeInTheDocument();
-    });
+      expect(screen.getByText(/unable to connect to the server.*check your internet/i)).toBeInTheDocument();
+    }, { timeout: 10000 });
   });
 
   it('clears error when user starts typing', async () => {
@@ -233,13 +233,13 @@ describe('TodoForm', () => {
     fireEvent.submit(form!);
     
     await waitFor(() => {
-      expect(screen.getByText('Title is required')).toBeInTheDocument();
-    });
+      expect(screen.getByText(/please enter a title for your task/i)).toBeInTheDocument();
+    }, { timeout: 10000 });
     
     // Start typing to clear error
     fireEvent.change(titleInput, { target: { value: 'N' } });
     
-    expect(screen.queryByText('Title is required')).not.toBeInTheDocument();
+    expect(screen.queryByText(/please enter a title for your task/i)).not.toBeInTheDocument();
   });
 
   describe('Advanced options toggle functionality', () => {

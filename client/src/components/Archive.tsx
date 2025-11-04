@@ -9,7 +9,7 @@ import { TodoItem } from '../types';
 import { EditTaskModal } from './EditTaskModal';
 import { ArchiveFilter } from './ArchiveFilter';
 import { MarkdownPreview } from './MarkdownPreview';
-import { LoadingSpinner, ErrorMessage } from './';
+import { LoadingSpinner, UserFriendlyError } from './';
 import { useTodoContext } from '../contexts/TodoContext';
 
 interface ArchiveProps {
@@ -91,10 +91,13 @@ export const Archive: React.FC<ArchiveProps> = ({ className }) => {
   if (error) {
     return (
       <div className={`p-3 sm:p-4 max-w-4xl mx-auto ${className || ''}`}>
-        <ErrorMessage 
-          message={error} 
+        <UserFriendlyError 
+          error={error}
+          context="fetch"
+          errorType="network"
           onRetry={refreshArchive}
-          retryLabel="Retry"
+          variant="card"
+          autoRetry={false}
         />
       </div>
     );

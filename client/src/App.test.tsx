@@ -17,6 +17,7 @@ vi.mock('./services', () => ({
   todoApiClient: {
     getTodos: vi.fn().mockResolvedValue([]),
     getTags: vi.fn().mockResolvedValue([]),
+    getArchive: vi.fn().mockResolvedValue([]),
     createTodo: vi.fn(),
     updateTodo: vi.fn(),
     toggleTodoCompletion: vi.fn(),

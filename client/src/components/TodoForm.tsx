@@ -9,7 +9,7 @@ import { CreateTodoItemInput, Priority } from '../types';
 import { useTodoContext } from '../contexts';
 import { TagInput } from './TagInput';
 import { MemoEditor } from './MemoEditor';
-import { InlineErrorMessage, InlineLoadingSpinner } from './';
+import { InlineErrorMessage, InlineLoadingSpinner, UserFriendlyError } from './';
 
 interface ValidationResult {
   isValid: boolean;
@@ -137,7 +137,11 @@ export const TodoForm: React.FC<TodoFormProps> = ({ className }) => {
             </button>
           </div>
           {error && (
-            <InlineErrorMessage message={error} className="mt-1" />
+            <InlineErrorMessage 
+              message={error} 
+              errorType="validation"
+              className="mt-1" 
+            />
           )}
         </div>
 

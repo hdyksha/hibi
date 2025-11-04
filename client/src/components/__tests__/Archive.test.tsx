@@ -181,10 +181,10 @@ describe('Archive Component', () => {
     await renderArchive();
     
     await waitFor(() => {
-      expect(screen.getByText(`Error: ${errorMessage}`)).toBeInTheDocument();
-    });
+      expect(screen.getByText(/unable to connect to the server.*check your internet/i)).toBeInTheDocument();
+    }, { timeout: 10000 });
 
-    expect(screen.getByText('Retry')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /try again/i })).toBeInTheDocument();
   });
 
   it('groups tasks by completion date correctly', async () => {

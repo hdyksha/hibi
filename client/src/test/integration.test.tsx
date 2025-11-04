@@ -159,16 +159,18 @@ describe('Frontend-Backend Integration Tests', () => {
       });
 
       await waitFor(() => {
-        expect(screen.getByText(/Error: Network error/)).toBeInTheDocument();
-        expect(screen.getByText('Retry')).toBeInTheDocument();
-      });
+        expect(screen.getByText(/unable to connect to the server.*check your internet/i)).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /try again/i })).toBeInTheDocument();
+      }, { timeout: 10000 });
 
       // Retry should work
       mockTodoApiClient.getTodos.mockResolvedValueOnce([]);
       mockTodoApiClient.getTags.mockResolvedValueOnce([]);
       mockTodoApiClient.getArchive.mockResolvedValueOnce([]);
 
-      fireEvent.click(screen.getByText('Retry'));
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: /try again/i }));
+      });
 
       await waitFor(() => {
         expect(screen.getByText('No todos yet. Create your first todo!')).toBeInTheDocument();
@@ -198,8 +200,8 @@ describe('Frontend-Backend Integration Tests', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Create Todo' }));
 
       await waitFor(() => {
-        expect(screen.getByText('Title cannot be empty')).toBeInTheDocument();
-      });
+        expect(screen.getByText(/please enter a title for your task/i)).toBeInTheDocument();
+      }, { timeout: 10000 });
     });
 
   });

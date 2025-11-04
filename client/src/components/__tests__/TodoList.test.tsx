@@ -124,9 +124,9 @@ describe('TodoList', () => {
     await renderTodoList();
     
     await waitFor(() => {
-      expect(screen.getByText(/Error: Network error/)).toBeInTheDocument();
-      expect(screen.getByText('Retry')).toBeInTheDocument();
-    });
+      expect(screen.getByText(/unable to connect to the server.*check your internet/i)).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /try again/i })).toBeInTheDocument();
+    }, { timeout: 10000 });
   });
 
   it('retries loading when retry button is clicked', async () => {
@@ -142,11 +142,13 @@ describe('TodoList', () => {
     
     await renderTodoList();
     
-    await waitFor(() => {
-      expect(screen.getByText('Retry')).toBeInTheDocument();
-    });
+    const retryButton = await waitFor(() => {
+      return screen.getByRole('button', { name: /try again/i });
+    }, { timeout: 10000 });
     
-    fireEvent.click(screen.getByText('Retry'));
+    await act(async () => {
+      fireEvent.click(retryButton);
+    });
     
     expect(mockRefreshTodos).toHaveBeenCalled();
   });

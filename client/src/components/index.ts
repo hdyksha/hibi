@@ -14,6 +14,7 @@ export { TagInput } from './TagInput';
 export { EditTaskModal } from './EditTaskModal';
 export { LoadingSpinner, InlineLoadingSpinner } from './LoadingSpinner';
 export { ErrorMessage, InlineErrorMessage } from './ErrorMessage';
+export { UserFriendlyError } from './UserFriendlyError';
 export { SuccessMessage, InlineSuccessMessage } from './SuccessMessage';
 export { ErrorBoundary } from './ErrorBoundary';
 export { NetworkStatusIndicator } from './NetworkStatusIndicator';

@@ -6,7 +6,7 @@
 
 import React from 'react';
 import { useTodoContext } from '../contexts';
-import { TodoItem, LoadingSpinner, ErrorMessage } from './';
+import { TodoItem, LoadingSpinner, UserFriendlyError } from './';
 import { Priority } from '../types';
 
 interface TodoListProps {
@@ -59,10 +59,14 @@ export const TodoList: React.FC<TodoListProps> = ({ className }) => {
   if (error) {
     return (
       <div className={`w-full p-3 sm:p-4 ${className || ''}`}>
-        <ErrorMessage 
-          message={error} 
+        <UserFriendlyError 
+          error={error}
+          context="fetch"
+          errorType="network"
           onRetry={refreshTodos}
-          retryLabel="Retry"
+          variant="card"
+          autoRetry={false}
+          showTechnicalDetails={process.env.NODE_ENV === 'development'}
         />
       </div>
     );

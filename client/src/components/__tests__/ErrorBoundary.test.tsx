@@ -40,8 +40,8 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     );
 
-    expect(screen.getByText(/Error: Test error message/)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /reload page/i })).toBeInTheDocument();
+    expect(screen.getByText(/An unexpected error occurred/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /try again/i })).toBeInTheDocument();
   });
 
   it('should render custom fallback when provided', () => {
@@ -54,7 +54,7 @@ describe('ErrorBoundary', () => {
     );
 
     expect(screen.getByText('Custom error fallback')).toBeInTheDocument();
-    expect(screen.queryByText(/Error: Test error message/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/An unexpected error occurred/)).not.toBeInTheDocument();
   });
 
   it('should call onError callback when error occurs', () => {
@@ -83,10 +83,10 @@ describe('ErrorBoundary', () => {
     );
 
     // Error should be displayed
-    expect(screen.getByText(/Error: Test error message/)).toBeInTheDocument();
+    expect(screen.getByText(/An unexpected error occurred/)).toBeInTheDocument();
 
     // Retry button should be present
-    const retryButton = screen.getByRole('button', { name: /reload page/i });
+    const retryButton = screen.getByRole('button', { name: /try again/i });
     expect(retryButton).toBeInTheDocument();
 
     // Click retry button - this should not throw an error
@@ -104,7 +104,7 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     );
 
-    expect(screen.getByText('Error Details (Development Only)')).toBeInTheDocument();
+    expect(screen.getByText(/show technical details/i)).toBeInTheDocument();
 
     // Restore original NODE_ENV
     process.env.NODE_ENV = originalEnv;
@@ -121,7 +121,7 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     );
 
-    expect(screen.queryByText('Error Details (Development Only)')).not.toBeInTheDocument();
+    expect(screen.queryByText(/show technical details/i)).not.toBeInTheDocument();
 
     // Restore original NODE_ENV
     process.env.NODE_ENV = originalEnv;
@@ -140,6 +140,6 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     );
 
-    expect(screen.getByText(/Error: An unexpected error occurred/)).toBeInTheDocument();
+    expect(screen.getByText(/An unexpected error occurred/)).toBeInTheDocument();
   });
 });

@@ -5,7 +5,7 @@
  */
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { ErrorMessage } from './ErrorMessage';
+import { UserFriendlyError } from './UserFriendlyError';
 
 interface Props {
   children: ReactNode;
@@ -73,27 +73,13 @@ export class ErrorBoundary extends Component<Props, State> {
       return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
           <div className="max-w-md w-full">
-            <ErrorMessage
-              message={errorMessage}
+            <UserFriendlyError
+              error={this.state.error || errorMessage}
+              errorType="unknown"
               onRetry={this.handleRetry}
-              retryLabel="Reload Page"
+              variant="card"
+              showTechnicalDetails={process.env.NODE_ENV === 'development'}
             />
-            
-            {process.env.NODE_ENV === 'development' && this.state.error && (
-              <details className="mt-4 p-4 bg-gray-100 rounded-lg text-sm">
-                <summary className="cursor-pointer font-medium text-gray-700 mb-2">
-                  Error Details (Development Only)
-                </summary>
-                <pre className="whitespace-pre-wrap text-xs text-gray-600 overflow-auto">
-                  {this.state.error.stack}
-                </pre>
-                {this.state.errorInfo && (
-                  <pre className="mt-2 whitespace-pre-wrap text-xs text-gray-600 overflow-auto">
-                    Component Stack: {this.state.errorInfo.componentStack}
-                  </pre>
-                )}
-              </details>
-            )}
           </div>
         </div>
       );

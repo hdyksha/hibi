@@ -31,6 +31,7 @@ vi.mock('../services/apiClient', () => ({
       }
     ]),
     getTags: vi.fn().mockResolvedValue(['work', 'personal', 'urgent']),
+    getArchive: vi.fn().mockResolvedValue([]),
     createTodo: vi.fn(),
     updateTodo: vi.fn(),
     toggleTodoCompletion: vi.fn(),
