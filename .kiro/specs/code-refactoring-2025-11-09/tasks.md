@@ -7,7 +7,12 @@
   - バリデーションロジックを簡素化し、重複を削除する
   - _要件: 1.1, 1.2, 2.1, 2.2, 7.1_
 
-- [ ] 1.1 共通バリデーターユーティリティの作成
+- [x] 1.1 共通バリデーターユーティリティの作成
+
+
+
+
+
   - `server/src/utils/validator.ts` を作成
   - `Validator` クラスと `ValidationRule` インターフェースを実装
   - 基本的なバリデーションルール（required、maxLength、minLength など）を実装
