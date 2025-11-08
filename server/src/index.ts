@@ -1,6 +1,15 @@
+// Load environment variables from .env file in project root
+import dotenv from 'dotenv';
+import { join } from 'path';
+
+// Load .env from project root (parent directory of server/)
+// This assumes the server is always run from the project root via npm scripts
+dotenv.config({ path: join(__dirname, '../../.env') });
+
 import express from 'express';
 import cors from 'cors';
 import todoRoutes from './routes/todos';
+import fileRoutes from './routes/files';
 import { errorHandler, notFoundHandler, timeoutHandler } from './middleware/errorHandler';
 
 const app = express();
@@ -27,6 +36,7 @@ app.use(express.json({
 
 // API routes
 app.use('/api/todos', todoRoutes);
+app.use('/api/files', fileRoutes);
 
 // 基本的なヘルスチェックエンドポイント
 app.get('/health', (_req, res) => {
@@ -57,6 +67,7 @@ let server: any = null;
 if (process.env.NODE_ENV !== 'test') {
   server = app.listen(PORT, () => {
     console.log(`Todo App Server is running on port ${PORT}`);
+    console.log(`Data directory: ${process.env.TODO_DATA_DIR || 'server/data (default)'}`);
   });
 
   // Graceful shutdown

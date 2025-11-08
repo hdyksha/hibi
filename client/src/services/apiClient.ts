@@ -4,7 +4,7 @@
  * Requirements: 全般
  */
 
-import { TodoItem, CreateTodoItemInput, UpdateTodoItemInput, ApiError, TodoFilter, ArchiveGroup } from '../types';
+import { TodoItem, CreateTodoItemInput, UpdateTodoItemInput, ApiError, TodoFilter, ArchiveGroup, FileInfo, CurrentFileInfo, SwitchFileResponse } from '../types';
 
 export class ApiClientError extends Error {
   constructor(
@@ -259,6 +259,36 @@ export class TodoApiClient {
    */
   async getArchive(): Promise<ArchiveGroup[]> {
     return this.request<ArchiveGroup[]>('/todos/archive');
+  }
+
+  /**
+   * Get list of available JSON files
+   * GET /api/files
+   * Requirements: 指定ディレクトリ内のJSONファイル一覧表示
+   */
+  async getFiles(): Promise<FileInfo> {
+    return this.request<FileInfo>('/files');
+  }
+
+  /**
+   * Switch to a different data file
+   * POST /api/files/switch
+   * Requirements: 選択されたファイルからのデータ読み込み機能、複数ファイル間でのデータ切り替え機能
+   */
+  async switchFile(fileName: string): Promise<SwitchFileResponse> {
+    return this.request<SwitchFileResponse>('/files/switch', {
+      method: 'POST',
+      body: JSON.stringify({ fileName }),
+    });
+  }
+
+  /**
+   * Get information about the current data file
+   * GET /api/files/current
+   * Requirements: ファイル読み込みディレクトリのパス設定機能
+   */
+  async getCurrentFile(): Promise<CurrentFileInfo> {
+    return this.request<CurrentFileInfo>('/files/current');
   }
 }
 

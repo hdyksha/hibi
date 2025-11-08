@@ -9,7 +9,8 @@ vi.mock('./components', () => ({
   TodoForm: () => <div data-testid="todo-form">TodoForm Component</div>,
   Filter: () => <div data-testid="filter">Filter Component</div>,
   NetworkStatusIndicator: () => <div data-testid="network-status">Network Status</div>,
-  ErrorBoundary: ({ children }: { children: React.ReactNode }) => <div>{children}</div>
+  ErrorBoundary: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  FileSelector: () => <div data-testid="file-selector">File Selector</div>
 }));
 
 // Mock the API client to prevent network calls during tests

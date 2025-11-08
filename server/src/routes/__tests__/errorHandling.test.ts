@@ -8,7 +8,8 @@ import request from 'supertest';
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { app, server } from '../../index';
-import { defaultStorageService, FileStorageService, setDefaultStorageService } from '../../services/FileStorageService';
+import { FileStorageService, setDefaultStorageService, getDefaultStorageService } from '../../services/FileStorageService';
+import * as FileStorageServiceModule from '../../services/FileStorageService';
 
 describe('Todo API Error Handling', () => {
     const testDataPath = join(process.cwd(), 'data', 'tasks-error-test.json');
@@ -138,8 +139,11 @@ describe('Todo API Error Handling', () => {
 
         it('should handle storage errors gracefully', async () => {
             // Mock storage service to throw error
-            const originalReadTodos = defaultStorageService.readTodos;
-            vi.spyOn(defaultStorageService, 'readTodos').mockRejectedValue(new Error('Storage failure'));
+            const mockStorageService = {
+                readTodos: vi.fn().mockRejectedValue(new Error('Storage failure'))
+            } as any;
+            
+            const spy = vi.spyOn(FileStorageServiceModule, 'getDefaultStorageService').mockReturnValue(mockStorageService);
 
             const response = await request(app)
                 .get('/api/todos')
@@ -152,7 +156,7 @@ describe('Todo API Error Handling', () => {
             });
 
             // Restore original method
-            defaultStorageService.readTodos = originalReadTodos;
+            spy.mockRestore();
         });
     });
 
@@ -208,8 +212,11 @@ describe('Todo API Error Handling', () => {
 
         it('should handle storage errors during creation', async () => {
             // Mock storage service to throw error
-            const originalAddTodo = defaultStorageService.addTodo;
-            vi.spyOn(defaultStorageService, 'addTodo').mockRejectedValue(new Error('Storage failure'));
+            const mockStorageService = {
+                addTodo: vi.fn().mockRejectedValue(new Error('Storage failure'))
+            } as any;
+            
+            const spy = vi.spyOn(FileStorageServiceModule, 'getDefaultStorageService').mockReturnValue(mockStorageService);
 
             const response = await request(app)
                 .post('/api/todos')
@@ -222,7 +229,7 @@ describe('Todo API Error Handling', () => {
             });
 
             // Restore original method
-            defaultStorageService.addTodo = originalAddTodo;
+            spy.mockRestore();
         });
     });
 
@@ -330,8 +337,12 @@ describe('Todo API Error Handling', () => {
             const todoId = createResponse.body.id;
 
             // Mock storage service to fail update
-            const originalUpdateTodo = defaultStorageService.updateTodo;
-            vi.spyOn(defaultStorageService, 'updateTodo').mockResolvedValue(false);
+            const mockStorageService = {
+                readTodos: vi.fn().mockResolvedValue([createResponse.body]),
+                updateTodo: vi.fn().mockResolvedValue(false)
+            } as any;
+            
+            const spy = vi.spyOn(FileStorageServiceModule, 'getDefaultStorageService').mockReturnValue(mockStorageService);
 
             const response = await request(app)
                 .put(`/api/todos/${todoId}`)
@@ -346,7 +357,7 @@ describe('Todo API Error Handling', () => {
             });
 
             // Restore original method
-            defaultStorageService.updateTodo = originalUpdateTodo;
+            spy.mockRestore();
         });
     });
 
@@ -390,8 +401,11 @@ describe('Todo API Error Handling', () => {
 
         it('should handle storage deletion failures', async () => {
             // Mock storage service to fail deletion
-            const originalRemoveTodo = defaultStorageService.removeTodo;
-            vi.spyOn(defaultStorageService, 'removeTodo').mockRejectedValue(new Error('Storage failure'));
+            const mockStorageService = {
+                removeTodo: vi.fn().mockRejectedValue(new Error('Storage failure'))
+            } as any;
+            
+            const spy = vi.spyOn(FileStorageServiceModule, 'getDefaultStorageService').mockReturnValue(mockStorageService);
 
             const response = await request(app)
                 .delete('/api/todos/test-id')
@@ -403,15 +417,18 @@ describe('Todo API Error Handling', () => {
             });
 
             // Restore original method
-            defaultStorageService.removeTodo = originalRemoveTodo;
+            spy.mockRestore();
         });
     });
 
     describe('GET /api/todos/archive Error Handling', () => {
         it('should handle storage errors gracefully', async () => {
             // Mock storage service to throw error
-            const originalReadTodos = defaultStorageService.readTodos;
-            vi.spyOn(defaultStorageService, 'readTodos').mockRejectedValue(new Error('Storage failure'));
+            const mockStorageService = {
+                readTodos: vi.fn().mockRejectedValue(new Error('Storage failure'))
+            } as any;
+            
+            const spy = vi.spyOn(FileStorageServiceModule, 'getDefaultStorageService').mockReturnValue(mockStorageService);
 
             const response = await request(app)
                 .get('/api/todos/archive')
@@ -423,15 +440,18 @@ describe('Todo API Error Handling', () => {
             });
 
             // Restore original method
-            defaultStorageService.readTodos = originalReadTodos;
+            spy.mockRestore();
         });
     });
 
     describe('GET /api/todos/tags Error Handling', () => {
         it('should handle storage errors gracefully', async () => {
             // Mock storage service to throw error
-            const originalReadTodos = defaultStorageService.readTodos;
-            vi.spyOn(defaultStorageService, 'readTodos').mockRejectedValue(new Error('Storage failure'));
+            const mockStorageService = {
+                readTodos: vi.fn().mockRejectedValue(new Error('Storage failure'))
+            } as any;
+            
+            const spy = vi.spyOn(FileStorageServiceModule, 'getDefaultStorageService').mockReturnValue(mockStorageService);
 
             const response = await request(app)
                 .get('/api/todos/tags')
@@ -443,7 +463,7 @@ describe('Todo API Error Handling', () => {
             });
 
             // Restore original method
-            defaultStorageService.readTodos = originalReadTodos;
+            spy.mockRestore();
         });
     });
 
@@ -467,8 +487,11 @@ describe('Todo API Error Handling', () => {
 
         it('should return 500 for internal server errors', async () => {
             // Mock storage service to throw error
-            const originalReadTodos = defaultStorageService.readTodos;
-            vi.spyOn(defaultStorageService, 'readTodos').mockRejectedValue(new Error('Storage failure'));
+            const mockStorageService = {
+                readTodos: vi.fn().mockRejectedValue(new Error('Storage failure'))
+            } as any;
+            
+            const spy = vi.spyOn(FileStorageServiceModule, 'getDefaultStorageService').mockReturnValue(mockStorageService);
 
             const response = await request(app)
                 .get('/api/todos')
@@ -477,7 +500,7 @@ describe('Todo API Error Handling', () => {
             expect(response.body.statusCode).toBe(500);
 
             // Restore original method
-            defaultStorageService.readTodos = originalReadTodos;
+            spy.mockRestore();
         });
     });
 

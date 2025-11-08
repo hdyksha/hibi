@@ -1,0 +1,24 @@
+[
+  {
+    "id": "personal-1",
+    "title": "Buy groceries",
+    "completed": false,
+    "priority": "medium",
+    "tags": ["personal", "shopping"],
+    "memo": "Milk, eggs, bread",
+    "createdAt": "2024-01-15T08:00:00.000Z",
+    "updatedAt": "2024-01-15T08:00:00.000Z",
+    "completedAt": null
+  },
+  {
+    "id": "personal-2",
+    "title": "Call dentist",
+    "completed": true,
+    "priority": "high",
+    "tags": ["personal", "health"],
+    "memo": "Schedule annual checkup",
+    "createdAt": "2024-01-14T09:00:00.000Z",
+    "updatedAt": "2024-01-15T11:00:00.000Z",
+    "completedAt": "2024-01-15T11:00:00.000Z"
+  }
+]

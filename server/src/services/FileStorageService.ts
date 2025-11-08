@@ -9,6 +9,7 @@
 import { promises as fs } from 'fs';
 import { join, dirname } from 'path';
 import { TodoItem } from '../models';
+import { getProjectRoot } from '../utils/path';
 
 /**
  * Storage error types
@@ -27,8 +28,17 @@ export class FileStorageService {
     private readonly filePath: string;
     private writeQueue: Promise<void> = Promise.resolve();
 
-    constructor(filePath: string = join(process.cwd(), 'data', 'tasks.json')) {
-        this.filePath = filePath;
+    constructor(filePath?: string) {
+        // Use provided path, or default to tasks.json in the configured data directory
+        if (filePath) {
+            this.filePath = filePath;
+        } else {
+            const projectRoot = getProjectRoot();
+            const dataDir = process.env.TODO_DATA_DIR 
+                ? join(projectRoot, process.env.TODO_DATA_DIR)
+                : join(projectRoot, 'server', 'data');
+            this.filePath = join(dataDir, 'tasks.json');
+        }
     }
 
     /**
@@ -229,13 +239,60 @@ export class FileStorageService {
 }
 
 /**
- * Default storage service instance
+ * Get list of JSON files in a directory
+ * Requirements: データ管理の柔軟性向上
  */
-export let defaultStorageService = new FileStorageService();
+export async function listJsonFiles(directoryPath: string): Promise<string[]> {
+    try {
+        const files = await fs.readdir(directoryPath);
+        return files.filter(file => file.endsWith('.json')).sort();
+    } catch (error) {
+        throw new StorageError(`Failed to list files in directory: ${error instanceof Error ? error.message : 'Unknown error'}`, error instanceof Error ? error : undefined);
+    }
+}
+
+/**
+ * Get the default data directory from environment variable or use default
+ */
+function getDefaultDataDirectory(): string {
+    const projectRoot = getProjectRoot();
+    if (process.env.TODO_DATA_DIR) {
+        return join(projectRoot, process.env.TODO_DATA_DIR);
+    }
+    return join(projectRoot, 'server', 'data');
+}
+
+/**
+ * Default storage service instance (lazy initialization)
+ */
+let _defaultStorageService: FileStorageService | null = null;
+
+/**
+ * Get the current default storage service
+ * Lazy initialization ensures environment variables are loaded before creating the instance
+ */
+export function getDefaultStorageService(): FileStorageService {
+    if (!_defaultStorageService) {
+        const defaultFilePath = join(getDefaultDataDirectory(), 'tasks.json');
+        _defaultStorageService = new FileStorageService(defaultFilePath);
+    }
+    return _defaultStorageService;
+}
 
 /**
  * Set a new default storage service (mainly for testing)
  */
 export function setDefaultStorageService(service: FileStorageService) {
-    defaultStorageService = service;
+    _defaultStorageService = service;
 }
+
+/**
+ * Switch to a different storage file
+ * Requirements: 複数ファイル間でのデータ切り替え機能
+ */
+export function switchStorageFile(filePath: string) {
+    _defaultStorageService = new FileStorageService(filePath);
+}
+
+// Export for backward compatibility (deprecated - use getDefaultStorageService instead)
+export const defaultStorageService = _defaultStorageService;

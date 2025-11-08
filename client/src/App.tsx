@@ -1,13 +1,18 @@
 import React, { useState } from 'react';
-import { TodoList, TodoForm, Filter, Archive, ErrorBoundary, NetworkStatusIndicator } from './components';
+import { TodoList, TodoForm, Filter, Archive, ErrorBoundary, NetworkStatusIndicator, FileSelector } from './components';
 import { TodoProvider, NetworkProvider } from './contexts';
 import { useTodoContext } from './contexts';
 
 type ViewMode = 'todos' | 'archive';
 
 function AppContent() {
-  const { filter, availableTags, setFilter } = useTodoContext();
+  const { filter, availableTags, setFilter, refreshTodos } = useTodoContext();
   const [currentView, setCurrentView] = useState<ViewMode>('todos');
+
+  const handleFileSwitch = () => {
+    // Refresh todos after switching files
+    refreshTodos();
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-slate-50 to-gray-100">
@@ -25,29 +30,35 @@ function AppContent() {
               </h1>
             </div>
             
-            {/* Navigation - Mobile optimized */}
-            <nav className="flex space-x-0.5 sm:space-x-1 bg-slate-100 rounded-lg p-0.5 sm:p-1">
-              <button
-                className={`px-3 sm:px-5 py-2 rounded-md font-medium text-xs sm:text-sm transition-all duration-200 min-h-[44px] ${
-                  currentView === 'todos'
-                    ? 'bg-white text-slate-800 shadow-sm'
-                    : 'text-slate-600 hover:text-slate-800 hover:bg-white/60 active:bg-white/80'
-                }`}
-                onClick={() => setCurrentView('todos')}
-              >
-                Tasks
-              </button>
-              <button
-                className={`px-3 sm:px-5 py-2 rounded-md font-medium text-xs sm:text-sm transition-all duration-200 min-h-[44px] ${
-                  currentView === 'archive'
-                    ? 'bg-white text-slate-800 shadow-sm'
-                    : 'text-slate-600 hover:text-slate-800 hover:bg-white/60 active:bg-white/80'
-                }`}
-                onClick={() => setCurrentView('archive')}
-              >
-                Archive
-              </button>
-            </nav>
+            {/* Center Navigation and Right Controls */}
+            <div className="flex items-center gap-3 sm:gap-4">
+              {/* Navigation - Mobile optimized */}
+              <nav className="flex space-x-0.5 sm:space-x-1 bg-slate-100 rounded-lg p-0.5 sm:p-1">
+                <button
+                  className={`px-3 sm:px-5 py-2 rounded-md font-medium text-xs sm:text-sm transition-all duration-200 min-h-[44px] ${
+                    currentView === 'todos'
+                      ? 'bg-white text-slate-800 shadow-sm'
+                      : 'text-slate-600 hover:text-slate-800 hover:bg-white/60 active:bg-white/80'
+                  }`}
+                  onClick={() => setCurrentView('todos')}
+                >
+                  Tasks
+                </button>
+                <button
+                  className={`px-3 sm:px-5 py-2 rounded-md font-medium text-xs sm:text-sm transition-all duration-200 min-h-[44px] ${
+                    currentView === 'archive'
+                      ? 'bg-white text-slate-800 shadow-sm'
+                      : 'text-slate-600 hover:text-slate-800 hover:bg-white/60 active:bg-white/80'
+                  }`}
+                  onClick={() => setCurrentView('archive')}
+                >
+                  Archive
+                </button>
+              </nav>
+
+              {/* File Selector */}
+              <FileSelector onFileSwitch={handleFileSwitch} />
+            </div>
           </div>
         </div>
       </header>

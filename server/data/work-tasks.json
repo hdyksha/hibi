@@ -1,0 +1,24 @@
+[
+  {
+    "id": "work-1",
+    "title": "Complete project proposal",
+    "completed": false,
+    "priority": "high",
+    "tags": ["work", "urgent"],
+    "memo": "Need to finish by end of week",
+    "createdAt": "2024-01-15T09:00:00.000Z",
+    "updatedAt": "2024-01-15T09:00:00.000Z",
+    "completedAt": null
+  },
+  {
+    "id": "work-2",
+    "title": "Review team code",
+    "completed": false,
+    "priority": "medium",
+    "tags": ["work", "code-review"],
+    "memo": "",
+    "createdAt": "2024-01-15T10:00:00.000Z",
+    "updatedAt": "2024-01-15T10:00:00.000Z",
+    "completedAt": null
+  }
+]

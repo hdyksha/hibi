@@ -61,3 +61,22 @@ export interface ArchiveGroup {
   tasks: TodoItem[];   // 完了済みtodoアイテム
   count: number;       // 完了タスク数
 }
+
+export interface FileInfo {
+  files: string[];
+  currentFile: string;
+  directory: string;
+}
+
+export interface CurrentFileInfo {
+  fileName: string;
+  filePath: string;
+  directory: string;
+  todoCount: number;
+}
+
+export interface SwitchFileResponse {
+  message: string;
+  currentFile: string;
+  filePath: string;
+}

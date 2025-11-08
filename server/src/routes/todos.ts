@@ -5,7 +5,7 @@
 
 import { Router, Request, Response } from 'express';
 import { TodoItem, CreateTodoItemInput, validateCreateTodoItemInput, validateUpdateTodoItemInput, TodoFilter, FilterStatus, Priority, FILTER_STATUS_VALUES, PRIORITY_VALUES, ArchiveGroup } from '../models';
-import { defaultStorageService } from '../services/FileStorageService';
+import { getDefaultStorageService } from '../services/FileStorageService';
 import { generateTodoId } from '../utils';
 import { asyncHandler, ValidationError, NotFoundError, AppError } from '../middleware/errorHandler';
 
@@ -97,7 +97,7 @@ function buildFilterFromQuery(query: any): TodoFilter {
  */
 router.get('/', asyncHandler(async (req: Request, res: Response) => {
     // Retrieve all todos from storage
-    const todos = await defaultStorageService.readTodos();
+    const todos = await getDefaultStorageService().readTodos();
 
     // Build filter from query parameters
     const filter = buildFilterFromQuery(req.query);
@@ -160,7 +160,7 @@ router.post('/', asyncHandler(async (req: Request, res: Response) => {
     };
 
     // Save to storage
-    await defaultStorageService.addTodo(newTodo);
+    await getDefaultStorageService().addTodo(newTodo);
 
     // Return created todo
     res.status(201).json(newTodo);
@@ -199,7 +199,7 @@ router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
     }
 
     // Get all todos from storage
-    const todos = await defaultStorageService.readTodos();
+    const todos = await getDefaultStorageService().readTodos();
 
     // Find the todo item to update
     const todoIndex = todos.findIndex(todo => todo.id === id);
@@ -254,7 +254,7 @@ router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
     }
 
     // Update in storage
-    const updateSuccess = await defaultStorageService.updateTodo(id, updatedTodo);
+    const updateSuccess = await getDefaultStorageService().updateTodo(id, updatedTodo);
     
     if (!updateSuccess) {
         throw new AppError('Failed to update todo item in storage', 500, true, 'STORAGE_UPDATE_FAILED');
@@ -279,7 +279,7 @@ router.delete('/:id', asyncHandler(async (req: Request, res: Response) => {
     }
 
     // Remove todo from storage
-    const deleteSuccess = await defaultStorageService.removeTodo(id);
+    const deleteSuccess = await getDefaultStorageService().removeTodo(id);
     
     if (!deleteSuccess) {
         throw new NotFoundError('Todo item', id);
@@ -296,7 +296,7 @@ router.delete('/:id', asyncHandler(async (req: Request, res: Response) => {
  */
 router.get('/archive', asyncHandler(async (_req: Request, res: Response) => {
     // Retrieve all todos from storage
-    const todos = await defaultStorageService.readTodos();
+    const todos = await getDefaultStorageService().readTodos();
 
     // Filter only completed todos that have a completedAt date
     // 要件 9.1: 完了済みのtodoアイテムをアーカイブビューで表示する
@@ -344,7 +344,7 @@ router.get('/archive', asyncHandler(async (_req: Request, res: Response) => {
  */
 router.get('/tags', asyncHandler(async (_req: Request, res: Response) => {
     // Retrieve all todos from storage
-    const todos = await defaultStorageService.readTodos();
+    const todos = await getDefaultStorageService().readTodos();
 
     // Extract all unique tags
     const allTags = todos.reduce((tags: string[], todo) => {
