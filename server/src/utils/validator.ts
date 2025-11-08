@@ -230,7 +230,7 @@ export class ArrayValidator<T> extends Validator<T[]> {
                 if (!Array.isArray(value)) {
                     return true; // Skip if not an array
                 }
-                const stringValues = value.map(v => 
+                const stringValues = value.map(v =>
                     typeof v === 'string' ? v.trim().toLowerCase() : String(v)
                 );
                 const uniqueValues = new Set(stringValues);
@@ -254,15 +254,22 @@ export class ArrayValidator<T> extends Validator<T[]> {
         // Then validate each element if an element validator is provided
         if (this.elementValidator && Array.isArray(value)) {
             const errors: ValidationError[] = [];
-            
+
             for (let i = 0; i < value.length; i++) {
                 const elementResult = this.elementValidator(value[i], i);
                 if (!elementResult.isValid) {
-                    // Adjust error messages to include array index
-                    errors.push(...elementResult.errors.map(err => ({
-                        field: err.field,
-                        message: err.message.replace(err.field, `${err.field} at index ${i}`)
-                    })));
+                    // Adjust error messages to include array index and use the array field name
+                    errors.push(...elementResult.errors.map(err => {
+                        // Replace the element field name with indexed version in the message
+                        const indexedMessage = err.message.replace(
+                            new RegExp(`\\b${err.field}\\b`, 'g'),
+                            `${err.field} at index ${i}`
+                        );
+                        return {
+                            field: this.fieldName,
+                            message: indexedMessage
+                        };
+                    }));
                 }
             }
 
@@ -286,7 +293,7 @@ export class ArrayValidator<T> extends Validator<T[]> {
  */
 export function combineValidationResults(...results: ValidationResult[]): ValidationResult {
     const allErrors: ValidationError[] = [];
-    
+
     for (const result of results) {
         allErrors.push(...result.errors);
     }

@@ -20,6 +20,7 @@ import {
   validateUpdateTodoItemInput,
   validateTodoItem
 } from '../TodoItem';
+import type { ValidationResult, ValidationError } from '../../utils/validator';
 
 describe('TodoItem Validation Functions', () => {
   describe('validateTitle', () => {

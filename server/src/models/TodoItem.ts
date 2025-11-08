@@ -3,6 +3,9 @@
  * Requirements: 1.3, 1.4, 1.5, 1.6
  */
 
+import type { ValidationResult, ValidationError } from '../utils/validator.js';
+import { Validator } from '../utils/validator.js';
+
 /**
  * 優先度の定数配列と型定義
  * 要件 6.1: 各todoアイテムに優先度（high、medium、low）を設定できる
@@ -72,50 +75,19 @@ export interface UpdateTodoItemInput {
     memo?: string;        // メモの更新 (要件 8.1)
 }
 
-/**
- * バリデーションエラー型
- */
-export interface ValidationError {
-    field: string;
-    message: string;
-}
 
-/**
- * バリデーション結果型
- */
-export interface ValidationResult {
-    isValid: boolean;
-    errors: ValidationError[];
-}
 
 /**
  * タイトルのバリデーション
  * 要件 1.3: タイトルは必須
  */
+const titleValidator = new Validator<string>('title')
+    .isType('string', 'Title is required and must be a string')
+    .required('Title cannot be empty')
+    .maxLength(200, 'Title cannot exceed 200 characters');
+
 export function validateTitle(title: string): ValidationResult {
-    const errors: ValidationError[] = [];
-
-    if (typeof title !== 'string') {
-        errors.push({
-            field: 'title',
-            message: 'Title is required and must be a string'
-        });
-    } else if (title.trim().length === 0) {
-        errors.push({
-            field: 'title',
-            message: 'Title cannot be empty'
-        });
-    } else if (title.length > 200) {
-        errors.push({
-            field: 'title',
-            message: 'Title cannot exceed 200 characters'
-        });
-    }
-
-    return {
-        isValid: errors.length === 0,
-        errors
-    };
+    return titleValidator.validate(title);
 }
 
 /**
@@ -256,12 +228,20 @@ export function validateCompletedAt(completedAt: string | null): ValidationResul
 export function validatePriority(priority: Priority): ValidationResult {
     const errors: ValidationError[] = [];
 
+    // First check if it's a string
     if (typeof priority !== 'string') {
         errors.push({
             field: 'priority',
             message: 'Priority is required and must be a string'
         });
-    } else if (!PRIORITY_VALUES.includes(priority as Priority)) {
+        return {
+            isValid: false,
+            errors
+        };
+    }
+
+    // Then check if it's a valid priority value
+    if (!PRIORITY_VALUES.includes(priority as Priority)) {
         errors.push({
             field: 'priority',
             message: `Priority must be one of: ${PRIORITY_VALUES.join(', ')}`
@@ -292,7 +272,7 @@ export function validateTags(tags: string[]): ValidationResult {
         };
     }
 
-    // 各タグの検証
+    // Validate each tag
     for (let i = 0; i < tags.length; i++) {
         const tag = tags[i];
 
@@ -314,7 +294,7 @@ export function validateTags(tags: string[]): ValidationResult {
         }
     }
 
-    // 重複タグのチェック（文字列要素のみ対象）
+    // Check for duplicate tags (case-insensitive)
     const stringTags = tags.filter((tag): tag is string => typeof tag === 'string');
     const uniqueTags = new Set(stringTags.map(tag => tag.trim().toLowerCase()));
     if (uniqueTags.size !== stringTags.length) {
@@ -334,20 +314,11 @@ export function validateTags(tags: string[]): ValidationResult {
  * メモのバリデーション
  * 要件 8.1: 各todoアイテムにメモフィールドを提供する
  */
+const memoValidator = new Validator<string>('memo')
+    .isType('string', 'Memo must be a string');
+
 export function validateMemo(memo: string): ValidationResult {
-    const errors: ValidationError[] = [];
-
-    if (typeof memo !== 'string') {
-        errors.push({
-            field: 'memo',
-            message: 'Memo must be a string'
-        });
-    }
-
-    return {
-        isValid: errors.length === 0,
-        errors
-    };
+    return memoValidator.validate(memo);
 }
 
 /**

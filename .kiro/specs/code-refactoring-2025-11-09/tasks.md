@@ -18,13 +18,31 @@
   - 基本的なバリデーションルール（required、maxLength、minLength など）を実装
   - _要件: 1.1, 1.2, 7.1_
 
-- [ ] 1.2 TodoItem バリデーションの統合
+- [x] 1.2 TodoItem バリデーションの統合
+
+
+
+
+
   - `models/TodoItem.ts` の個別バリデーション関数を共通バリデーターを使用するように書き換え
   - `validateTitle`、`validatePriority`、`validateTags`、`validateMemo` を統合
   - 既存のバリデーションロジックを維持しながら、コードを簡素化
   - _要件: 1.1, 1.2, 2.1, 2.2_
 
-- [ ] 1.3 バリデーションのテスト更新
+- [ ] 1.3 残りのバリデーション関数の統合
+  - `validateCompleted`、`validateId`、`validateCreatedAt`、`validateUpdatedAt`、`validateCompletedAt` を共通バリデーターを使用するように書き換え
+  - 日付バリデーションの重複コードを削除
+  - 既存のバリデーションロジックを維持しながら、コードを簡素化
+  - _要件: 1.1, 1.2, 2.1, 2.2_
+
+- [ ] 1.4 複合バリデーション関数の簡素化
+  - `validator.ts` に `validateIfDefined` ヘルパー関数を追加
+  - `validateCreateTodoItemInput`、`validateUpdateTodoItemInput`、`validateTodoItem` を `combineValidationResults` と `validateIfDefined` を使用して書き換え
+  - 繰り返しのコードパターンを削除し、可読性を向上
+  - 既存のバリデーションロジックを維持しながら、コード量を約60%削減
+  - _要件: 1.1, 2.1, 2.2_
+
+- [ ] 1.5 バリデーションのテスト更新
   - 既存のバリデーションテストが引き続き合格することを確認
   - 必要に応じてテストを更新（シンプルなテストに留める）
   - _要件: 9.1, 9.2_
