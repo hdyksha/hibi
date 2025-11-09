@@ -279,6 +279,27 @@ export class TodoService {
     }
 
     /**
+     * Get all unique tags from todos
+     * Requirements: 2.1, 2.2, 7.3, 7.4
+     * 
+     * Returns a sorted array of all unique tags used across all todo items.
+     */
+    async getTags(): Promise<string[]> {
+        // Retrieve all todos from storage
+        const todos = await this.storage.readTodos();
+
+        // Extract all unique tags
+        const allTags = todos.reduce((tags: string[], todo) => {
+            return tags.concat(todo.tags);
+        }, []);
+
+        // Remove duplicates and sort alphabetically
+        const uniqueTags = Array.from(new Set(allTags)).sort();
+
+        return uniqueTags;
+    }
+
+    /**
      * Validate filter parameters
      * Requirements: 2.1
      * 

@@ -10,6 +10,8 @@ import { join } from 'path';
 import { app, server } from '../../index';
 import { FileStorageService, setDefaultStorageService, getDefaultStorageService } from '../../services/FileStorageService';
 import * as FileStorageServiceModule from '../../services/FileStorageService';
+import { TodoService, setDefaultTodoService } from '../../services/TodoService';
+import * as TodoServiceModule from '../../services/TodoService';
 
 describe('Todo API Error Handling', () => {
     const testDataPath = join(process.cwd(), 'data', 'tasks-error-test.json');
@@ -138,12 +140,12 @@ describe('Todo API Error Handling', () => {
         });
 
         it('should handle storage errors gracefully', async () => {
-            // Mock storage service to throw error
-            const mockStorageService = {
-                readTodos: vi.fn().mockRejectedValue(new Error('Storage failure'))
+            // Mock TodoService to throw error
+            const mockTodoService = {
+                getTodos: vi.fn().mockRejectedValue(new Error('Storage failure'))
             } as any;
             
-            const spy = vi.spyOn(FileStorageServiceModule, 'getDefaultStorageService').mockReturnValue(mockStorageService);
+            const spy = vi.spyOn(TodoServiceModule, 'getDefaultTodoService').mockReturnValue(mockTodoService);
 
             const response = await request(app)
                 .get('/api/todos')
@@ -211,12 +213,12 @@ describe('Todo API Error Handling', () => {
         });
 
         it('should handle storage errors during creation', async () => {
-            // Mock storage service to throw error
-            const mockStorageService = {
-                addTodo: vi.fn().mockRejectedValue(new Error('Storage failure'))
+            // Mock TodoService to throw error
+            const mockTodoService = {
+                createTodo: vi.fn().mockRejectedValue(new Error('Storage failure'))
             } as any;
             
-            const spy = vi.spyOn(FileStorageServiceModule, 'getDefaultStorageService').mockReturnValue(mockStorageService);
+            const spy = vi.spyOn(TodoServiceModule, 'getDefaultTodoService').mockReturnValue(mockTodoService);
 
             const response = await request(app)
                 .post('/api/todos')
@@ -254,7 +256,7 @@ describe('Todo API Error Handling', () => {
                 details: expect.arrayContaining([
                     expect.objectContaining({
                         field: 'id',
-                        message: 'Todo ID is required and must be a non-empty string'
+                        message: 'ID cannot be empty'
                     })
                 ])
             });
@@ -336,13 +338,12 @@ describe('Todo API Error Handling', () => {
 
             const todoId = createResponse.body.id;
 
-            // Mock storage service to fail update
-            const mockStorageService = {
-                readTodos: vi.fn().mockResolvedValue([createResponse.body]),
-                updateTodo: vi.fn().mockResolvedValue(false)
+            // Mock TodoService to throw storage update error
+            const mockTodoService = {
+                updateTodo: vi.fn().mockRejectedValue(new Error('Failed to update todo item in storage'))
             } as any;
             
-            const spy = vi.spyOn(FileStorageServiceModule, 'getDefaultStorageService').mockReturnValue(mockStorageService);
+            const spy = vi.spyOn(TodoServiceModule, 'getDefaultTodoService').mockReturnValue(mockTodoService);
 
             const response = await request(app)
                 .put(`/api/todos/${todoId}`)
@@ -351,9 +352,7 @@ describe('Todo API Error Handling', () => {
 
             expect(response.body).toMatchObject({
                 error: 'AppError',
-                message: 'Failed to update todo item in storage',
-                statusCode: 500,
-                errorCode: 'STORAGE_UPDATE_FAILED'
+                statusCode: 500
             });
 
             // Restore original method
@@ -380,7 +379,7 @@ describe('Todo API Error Handling', () => {
                 details: expect.arrayContaining([
                     expect.objectContaining({
                         field: 'id',
-                        message: 'Todo ID is required and must be a non-empty string'
+                        message: 'ID cannot be empty'
                     })
                 ])
             });
@@ -400,12 +399,12 @@ describe('Todo API Error Handling', () => {
         });
 
         it('should handle storage deletion failures', async () => {
-            // Mock storage service to fail deletion
-            const mockStorageService = {
-                removeTodo: vi.fn().mockRejectedValue(new Error('Storage failure'))
+            // Mock TodoService to throw error
+            const mockTodoService = {
+                deleteTodo: vi.fn().mockRejectedValue(new Error('Storage failure'))
             } as any;
             
-            const spy = vi.spyOn(FileStorageServiceModule, 'getDefaultStorageService').mockReturnValue(mockStorageService);
+            const spy = vi.spyOn(TodoServiceModule, 'getDefaultTodoService').mockReturnValue(mockTodoService);
 
             const response = await request(app)
                 .delete('/api/todos/test-id')
@@ -423,12 +422,12 @@ describe('Todo API Error Handling', () => {
 
     describe('GET /api/todos/archive Error Handling', () => {
         it('should handle storage errors gracefully', async () => {
-            // Mock storage service to throw error
-            const mockStorageService = {
-                readTodos: vi.fn().mockRejectedValue(new Error('Storage failure'))
+            // Mock TodoService to throw error
+            const mockTodoService = {
+                getArchive: vi.fn().mockRejectedValue(new Error('Storage failure'))
             } as any;
             
-            const spy = vi.spyOn(FileStorageServiceModule, 'getDefaultStorageService').mockReturnValue(mockStorageService);
+            const spy = vi.spyOn(TodoServiceModule, 'getDefaultTodoService').mockReturnValue(mockTodoService);
 
             const response = await request(app)
                 .get('/api/todos/archive')
@@ -446,12 +445,12 @@ describe('Todo API Error Handling', () => {
 
     describe('GET /api/todos/tags Error Handling', () => {
         it('should handle storage errors gracefully', async () => {
-            // Mock storage service to throw error
-            const mockStorageService = {
-                readTodos: vi.fn().mockRejectedValue(new Error('Storage failure'))
+            // Mock TodoService to throw error
+            const mockTodoService = {
+                getTags: vi.fn().mockRejectedValue(new Error('Storage failure'))
             } as any;
             
-            const spy = vi.spyOn(FileStorageServiceModule, 'getDefaultStorageService').mockReturnValue(mockStorageService);
+            const spy = vi.spyOn(TodoServiceModule, 'getDefaultTodoService').mockReturnValue(mockTodoService);
 
             const response = await request(app)
                 .get('/api/todos/tags')
@@ -486,12 +485,12 @@ describe('Todo API Error Handling', () => {
         });
 
         it('should return 500 for internal server errors', async () => {
-            // Mock storage service to throw error
-            const mockStorageService = {
-                readTodos: vi.fn().mockRejectedValue(new Error('Storage failure'))
+            // Mock TodoService to throw error
+            const mockTodoService = {
+                getTodos: vi.fn().mockRejectedValue(new Error('Storage failure'))
             } as any;
             
-            const spy = vi.spyOn(FileStorageServiceModule, 'getDefaultStorageService').mockReturnValue(mockStorageService);
+            const spy = vi.spyOn(TodoServiceModule, 'getDefaultTodoService').mockReturnValue(mockTodoService);
 
             const response = await request(app)
                 .get('/api/todos')

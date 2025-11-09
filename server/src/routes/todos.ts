@@ -4,11 +4,9 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { TodoItem, CreateTodoItemInput, validateCreateTodoItemInput, validateUpdateTodoItemInput } from '../models';
-import { getDefaultStorageService } from '../services/FileStorageService';
 import { getDefaultTodoService } from '../services/TodoService';
-import { generateTodoId, buildFilterFromQuery } from '../utils';
-import { asyncHandler, ValidationError, NotFoundError, AppError } from '../middleware/errorHandler';
+import { buildFilterFromQuery } from '../utils';
+import { asyncHandler, ValidationError } from '../middleware/errorHandler';
 
 const router = Router();
 
@@ -47,31 +45,9 @@ router.post('/', asyncHandler(async (req: Request, res: Response) => {
         ]);
     }
 
-    // Extract input data
-    const input: CreateTodoItemInput = req.body;
-
-    // Validate input
-    const validation = validateCreateTodoItemInput(input);
-    if (!validation.isValid) {
-        throw new ValidationError('Todo validation failed', validation.errors);
-    }
-
-    // Create new TodoItem with auto-generated fields
-    const now = new Date().toISOString();
-    const newTodo: TodoItem = {
-        id: generateTodoId(),                    // 要件 1.5: 一意のIDを自動生成
-        title: input.title.trim(),               // 要件 1.3: タイトルは必須
-        completed: false,                        // 要件 1.4: デフォルトで未完了ステータス
-        priority: input.priority || 'medium',   // 要件 6.2: デフォルトでmedium優先度を割り当てる
-        tags: input.tags || [],                  // 要件 7.1: デフォルトで空のタグ配列
-        memo: input.memo || '',                  // 要件 8.1: デフォルトで空のメモ
-        createdAt: now,                          // 要件 1.6: 作成日時を自動記録
-        updatedAt: now,                          // 要件 3.5: 更新日時を自動設定
-        completedAt: null                        // 要件 3.4: 初期状態では未完了なのでnull
-    };
-
-    // Save to storage
-    await getDefaultStorageService().addTodo(newTodo);
+    // Delegate to TodoService
+    const todoService = getDefaultTodoService();
+    const newTodo = await todoService.createTodo(req.body);
 
     // Return created todo
     res.status(201).json(newTodo);
@@ -85,13 +61,6 @@ router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
     const updateData = req.body;
 
-    // Validate ID parameter
-    if (!id || typeof id !== 'string' || id.trim().length === 0) {
-        throw new ValidationError('Invalid todo ID', [
-            { field: 'id', message: 'Todo ID is required and must be a non-empty string', value: id }
-        ]);
-    }
-
     // Validate request body (Express sets req.body to {} for empty JSON)
     if (!updateData || typeof updateData !== 'object' || Array.isArray(updateData)) {
         throw new ValidationError('Invalid request body', [
@@ -99,77 +68,9 @@ router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
         ]);
     }
 
-    // Check if at least one field is being updated
-    const updatableFields = ['completed', 'title', 'priority', 'tags', 'memo'];
-    const hasUpdatableField = updatableFields.some(field => updateData.hasOwnProperty(field));
-    
-    if (!hasUpdatableField) {
-        throw new ValidationError('No valid fields to update', [
-            { field: 'body', message: `At least one of the following fields must be provided: ${updatableFields.join(', ')}` }
-        ]);
-    }
-
-    // Get all todos from storage
-    const todos = await getDefaultStorageService().readTodos();
-
-    // Find the todo item to update
-    const todoIndex = todos.findIndex(todo => todo.id === id);
-    if (todoIndex === -1) {
-        throw new NotFoundError('Todo item', id);
-    }
-
-    // Get the existing todo
-    const existingTodo = todos[todoIndex];
-
-    // Validate update input
-    const validation = validateUpdateTodoItemInput(updateData);
-    if (!validation.isValid) {
-        throw new ValidationError('Todo update validation failed', validation.errors);
-    }
-
-    // Prepare updated todo with selective updates
-    const updatedTodo: TodoItem = {
-        ...existingTodo,
-        updatedAt: new Date().toISOString()      // 要件 3.2: 更新日時の自動設定
-    };
-
-    // Handle different types of updates
-    if (updateData.hasOwnProperty('completed')) {
-        const newCompletedStatus = Boolean(updateData.completed);
-        updatedTodo.completed = newCompletedStatus;  // 要件 3.1: completedフィールドの更新
-        
-        // 要件 3.4: todoアイテムが完了済みになった時、完了日時を記録する
-        if (newCompletedStatus && !existingTodo.completed) {
-            // 未完了から完了に変更された場合、完了日時を設定
-            updatedTodo.completedAt = new Date().toISOString();
-        } else if (!newCompletedStatus && existingTodo.completed) {
-            // 完了から未完了に変更された場合、完了日時をクリア
-            updatedTodo.completedAt = null;
-        }
-    }
-
-    if (updateData.hasOwnProperty('title')) {
-        updatedTodo.title = updateData.title.trim();  // タイトルの更新
-    }
-
-    if (updateData.hasOwnProperty('priority')) {
-        updatedTodo.priority = updateData.priority;  // 要件 6.1, 6.2: 優先度の更新
-    }
-
-    if (updateData.hasOwnProperty('tags')) {
-        updatedTodo.tags = updateData.tags;  // 要件 7.1: タグの更新
-    }
-
-    if (updateData.hasOwnProperty('memo')) {
-        updatedTodo.memo = updateData.memo;  // 要件 8.1: メモの更新
-    }
-
-    // Update in storage
-    const updateSuccess = await getDefaultStorageService().updateTodo(id, updatedTodo);
-    
-    if (!updateSuccess) {
-        throw new AppError('Failed to update todo item in storage', 500, true, 'STORAGE_UPDATE_FAILED');
-    }
+    // Delegate to TodoService
+    const todoService = getDefaultTodoService();
+    const updatedTodo = await todoService.updateTodo(id, updateData);
 
     // Return updated todo
     res.status(200).json(updatedTodo);
@@ -182,19 +83,9 @@ router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
 router.delete('/:id', asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
 
-    // Validate ID parameter
-    if (!id || typeof id !== 'string' || id.trim().length === 0) {
-        throw new ValidationError('Invalid todo ID', [
-            { field: 'id', message: 'Todo ID is required and must be a non-empty string', value: id }
-        ]);
-    }
-
-    // Remove todo from storage
-    const deleteSuccess = await getDefaultStorageService().removeTodo(id);
-    
-    if (!deleteSuccess) {
-        throw new NotFoundError('Todo item', id);
-    }
+    // Delegate to TodoService
+    const todoService = getDefaultTodoService();
+    await todoService.deleteTodo(id);
 
     // 要件 4.1, 4.2: todoアイテムをリストから削除し、ストレージから永続的に削除
     // 要件 4.3: 削除時に表示を即座に更新（クライアント側で処理）
@@ -218,16 +109,9 @@ router.get('/archive', asyncHandler(async (_req: Request, res: Response) => {
  * Requirements: 7.3, 7.4
  */
 router.get('/tags', asyncHandler(async (_req: Request, res: Response) => {
-    // Retrieve all todos from storage
-    const todos = await getDefaultStorageService().readTodos();
-
-    // Extract all unique tags
-    const allTags = todos.reduce((tags: string[], todo) => {
-        return tags.concat(todo.tags);
-    }, []);
-
-    // Remove duplicates and sort alphabetically
-    const uniqueTags = Array.from(new Set(allTags)).sort();
+    // Delegate to TodoService
+    const todoService = getDefaultTodoService();
+    const uniqueTags = await todoService.getTags();
 
     res.status(200).json(uniqueTags);
 }));
