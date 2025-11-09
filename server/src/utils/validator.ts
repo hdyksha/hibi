@@ -303,3 +303,24 @@ export function combineValidationResults(...results: ValidationResult[]): Valida
         errors: allErrors
     };
 }
+
+/**
+ * Conditionally validate a value if it is defined
+ * Returns a valid result if the value is undefined, otherwise runs the validator
+ * 
+ * @param value - The value to validate
+ * @param validator - The validation function to run if value is defined
+ * @returns ValidationResult
+ * 
+ * @example
+ * validateIfDefined(input.priority, validatePriority)
+ */
+export function validateIfDefined<T>(
+    value: T | undefined,
+    validator: (value: T) => ValidationResult
+): ValidationResult {
+    if (value === undefined) {
+        return { isValid: true, errors: [] };
+    }
+    return validator(value);
+}

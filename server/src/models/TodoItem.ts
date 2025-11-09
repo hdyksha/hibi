@@ -4,7 +4,7 @@
  */
 
 import type { ValidationResult, ValidationError } from '../utils/validator.js';
-import { Validator } from '../utils/validator.js';
+import { Validator, combineValidationResults, validateIfDefined } from '../utils/validator.js';
 
 /**
  * 優先度の定数配列と型定義
@@ -287,100 +287,40 @@ export function validateMemo(memo: string): ValidationResult {
  * TodoItem作成入力データのバリデーション
  */
 export function validateCreateTodoItemInput(input: CreateTodoItemInput): ValidationResult {
-    const errors: ValidationError[] = [];
-
-    const titleValidation = validateTitle(input.title);
-    errors.push(...titleValidation.errors);
-
-    // 優先度が指定されている場合のみバリデーション (要件 6.2: デフォルトは'medium')
-    if (input.priority !== undefined) {
-        const priorityValidation = validatePriority(input.priority);
-        errors.push(...priorityValidation.errors);
-    }
-
-    // タグが指定されている場合のみバリデーション (要件 7.1: デフォルトは[])
-    if (input.tags !== undefined) {
-        const tagsValidation = validateTags(input.tags);
-        errors.push(...tagsValidation.errors);
-    }
-
-    // メモが指定されている場合のみバリデーション (要件 8.1: デフォルトは'')
-    if (input.memo !== undefined) {
-        const memoValidation = validateMemo(input.memo);
-        errors.push(...memoValidation.errors);
-    }
-
-    return {
-        isValid: errors.length === 0,
-        errors
-    };
+    return combineValidationResults(
+        validateTitle(input.title),
+        validateIfDefined(input.priority, validatePriority),
+        validateIfDefined(input.tags, validateTags),
+        validateIfDefined(input.memo, validateMemo)
+    );
 }
 
 /**
  * TodoItem更新入力データのバリデーション
  */
 export function validateUpdateTodoItemInput(input: UpdateTodoItemInput): ValidationResult {
-    const errors: ValidationError[] = [];
-
-    if (input.title !== undefined) {
-        const titleValidation = validateTitle(input.title);
-        errors.push(...titleValidation.errors);
-    }
-
-    if (input.completed !== undefined) {
-        const completedValidation = validateCompleted(input.completed);
-        errors.push(...completedValidation.errors);
-    }
-
-    if (input.priority !== undefined) {
-        const priorityValidation = validatePriority(input.priority);
-        errors.push(...priorityValidation.errors);
-    }
-
-    if (input.tags !== undefined) {
-        const tagsValidation = validateTags(input.tags);
-        errors.push(...tagsValidation.errors);
-    }
-
-    if (input.memo !== undefined) {
-        const memoValidation = validateMemo(input.memo);
-        errors.push(...memoValidation.errors);
-    }
-
-    return {
-        isValid: errors.length === 0,
-        errors
-    };
+    return combineValidationResults(
+        validateIfDefined(input.title, validateTitle),
+        validateIfDefined(input.completed, validateCompleted),
+        validateIfDefined(input.priority, validatePriority),
+        validateIfDefined(input.tags, validateTags),
+        validateIfDefined(input.memo, validateMemo)
+    );
 }
 
 /**
  * 完全なTodoItemのバリデーション
  */
 export function validateTodoItem(todoItem: TodoItem): ValidationResult {
-    const errors: ValidationError[] = [];
-
-    const idValidation = validateId(todoItem.id);
-    const titleValidation = validateTitle(todoItem.title);
-    const completedValidation = validateCompleted(todoItem.completed);
-    const priorityValidation = validatePriority(todoItem.priority);
-    const tagsValidation = validateTags(todoItem.tags);
-    const memoValidation = validateMemo(todoItem.memo);
-    const createdAtValidation = validateCreatedAt(todoItem.createdAt);
-    const updatedAtValidation = validateUpdatedAt(todoItem.updatedAt);
-    const completedAtValidation = validateCompletedAt(todoItem.completedAt);
-
-    errors.push(...idValidation.errors);
-    errors.push(...titleValidation.errors);
-    errors.push(...completedValidation.errors);
-    errors.push(...priorityValidation.errors);
-    errors.push(...tagsValidation.errors);
-    errors.push(...memoValidation.errors);
-    errors.push(...createdAtValidation.errors);
-    errors.push(...updatedAtValidation.errors);
-    errors.push(...completedAtValidation.errors);
-
-    return {
-        isValid: errors.length === 0,
-        errors
-    };
+    return combineValidationResults(
+        validateId(todoItem.id),
+        validateTitle(todoItem.title),
+        validateCompleted(todoItem.completed),
+        validatePriority(todoItem.priority),
+        validateTags(todoItem.tags),
+        validateMemo(todoItem.memo),
+        validateCreatedAt(todoItem.createdAt),
+        validateUpdatedAt(todoItem.updatedAt),
+        validateCompletedAt(todoItem.completedAt)
+    );
 }
