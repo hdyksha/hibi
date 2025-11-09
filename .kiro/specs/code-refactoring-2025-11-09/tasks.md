@@ -162,7 +162,12 @@
   - エラーハンドリングを統一
   - _要件: 1.1, 6.1, 6.2, 6.3_
 
-- [ ] 4.2 TodoApi クラスの作成
+- [x] 4.2 TodoApi クラスの作成
+
+
+
+
+
   - `client/src/services/api/TodoApi.ts` を作成
   - Todo関連のAPI呼び出しを `TodoApi` クラスに移動
   - `HttpClient` を使用してリクエストを実行
