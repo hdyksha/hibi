@@ -173,7 +173,12 @@
   - `HttpClient` を使用してリクエストを実行
   - _要件: 1.1, 2.1, 2.2, 5.2_
 
-- [ ] 4.3 FileApi クラスの作成
+- [x] 4.3 FileApi クラスの作成
+
+
+
+
+
   - `client/src/services/api/FileApi.ts` を作成
   - File関連のAPI呼び出しを `FileApi` クラスに移動
   - `HttpClient` を使用してリクエストを実行
