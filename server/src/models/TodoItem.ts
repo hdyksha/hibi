@@ -132,7 +132,7 @@ export function validateCreatedAt(createdAt: string): ValidationResult {
     // Then validate as ISO date using the validator
     const dateValidator = new Validator<string>('createdAt')
         .isISODate('CreatedAt must be a valid ISO 8601 date string');
-    
+
     return dateValidator.validate(createdAt);
 }
 
@@ -155,7 +155,7 @@ export function validateUpdatedAt(updatedAt: string): ValidationResult {
     // Then validate as ISO date using the validator
     const dateValidator = new Validator<string>('updatedAt')
         .isISODate('UpdatedAt must be a valid ISO 8601 date string');
-    
+
     return dateValidator.validate(updatedAt);
 }
 

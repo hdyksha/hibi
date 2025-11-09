@@ -67,7 +67,12 @@
   - フィルタリングロジックをサービス層に移動する
   - _要件: 1.1, 2.1, 2.2, 5.2_
 
-- [ ] 2.1 TodoService クラスの作成
+- [x] 2.1 TodoService クラスの作成
+
+
+
+
+
   - `server/src/services/TodoService.ts` を作成
   - `getTodos`、`createTodo`、`updateTodo`、`deleteTodo` メソッドを実装
   - `FileStorageService` への依存を注入
