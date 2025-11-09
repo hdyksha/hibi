@@ -7,7 +7,7 @@
  * for Todo operations.
  */
 
-import { TodoItem, CreateTodoItemInput, UpdateTodoItemInput, validateCreateTodoItemInput, validateUpdateTodoItemInput, validateId, TodoFilter } from '../models';
+import { TodoItem, CreateTodoItemInput, UpdateTodoItemInput, validateCreateTodoItemInput, validateUpdateTodoItemInput, validateId, TodoFilter, ArchiveGroup } from '../models';
 import { FileStorageService, getDefaultStorageService } from './FileStorageService';
 import { generateTodoId } from '../utils';
 import { ValidationError, NotFoundError, AppError } from '../middleware/errorHandler';
@@ -224,6 +224,58 @@ export class TodoService {
 
             return true;
         });
+    }
+
+    /**
+     * Get archived (completed) todos grouped by completion date
+     * Requirements: 2.1, 2.2, 5.2, 9.1, 9.2, 9.3, 9.5
+     * 
+     * Returns completed todos grouped by completion date (YYYY-MM-DD format).
+     * Groups are sorted by date (newest first), and tasks within each group
+     * are sorted by completion time (newest first).
+     */
+    async getArchive(): Promise<ArchiveGroup[]> {
+        // Retrieve all todos from storage
+        const todos = await this.storage.readTodos();
+
+        // Filter only completed todos that have a completedAt date
+        // 要件 9.1: 完了済みのtodoアイテムをアーカイブビューで表示する
+        const completedTodos = todos.filter(todo => todo.completed && todo.completedAt);
+
+        // Group todos by completion date (YYYY-MM-DD format)
+        // 要件 9.2: アーカイブビューで完了日によるグルーピング機能を提供する
+        const groupedTodos = new Map<string, TodoItem[]>();
+        
+        completedTodos.forEach(todo => {
+            if (todo.completedAt) {
+                // Extract date part from ISO string (YYYY-MM-DD)
+                const completionDate = todo.completedAt.split('T')[0];
+                
+                if (!groupedTodos.has(completionDate)) {
+                    groupedTodos.set(completionDate, []);
+                }
+                groupedTodos.get(completionDate)!.push(todo);
+            }
+        });
+
+        // Convert to ArchiveGroup array and sort by date (newest first)
+        // 要件 9.3: 完了日が新しいものから順に表示する
+        // 要件 9.5: アーカイブビューで各グループの完了タスク数を表示する
+        const archiveGroups = Array.from(groupedTodos.entries())
+            .map(([date, tasks]) => ({
+                date,
+                tasks: tasks.sort((a, b) => {
+                    // Sort tasks within each group by completion time (newest first)
+                    return new Date(b.completedAt!).getTime() - new Date(a.completedAt!).getTime();
+                }),
+                count: tasks.length
+            }))
+            .sort((a, b) => {
+                // Sort groups by date (newest first)
+                return new Date(b.date).getTime() - new Date(a.date).getTime();
+            });
+
+        return archiveGroups;
     }
 
     /**

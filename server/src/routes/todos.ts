@@ -4,7 +4,7 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { TodoItem, CreateTodoItemInput, validateCreateTodoItemInput, validateUpdateTodoItemInput, ArchiveGroup } from '../models';
+import { TodoItem, CreateTodoItemInput, validateCreateTodoItemInput, validateUpdateTodoItemInput } from '../models';
 import { getDefaultStorageService } from '../services/FileStorageService';
 import { getDefaultTodoService } from '../services/TodoService';
 import { generateTodoId, buildFilterFromQuery } from '../utils';
@@ -206,45 +206,9 @@ router.delete('/:id', asyncHandler(async (req: Request, res: Response) => {
  * Requirements: 9.1, 9.2, 9.3, 9.5
  */
 router.get('/archive', asyncHandler(async (_req: Request, res: Response) => {
-    // Retrieve all todos from storage
-    const todos = await getDefaultStorageService().readTodos();
-
-    // Filter only completed todos that have a completedAt date
-    // 要件 9.1: 完了済みのtodoアイテムをアーカイブビューで表示する
-    const completedTodos = todos.filter(todo => todo.completed && todo.completedAt);
-
-    // Group todos by completion date (YYYY-MM-DD format)
-    // 要件 9.2: アーカイブビューで完了日によるグルーピング機能を提供する
-    const groupedTodos = new Map<string, TodoItem[]>();
-    
-    completedTodos.forEach(todo => {
-        if (todo.completedAt) {
-            // Extract date part from ISO string (YYYY-MM-DD)
-            const completionDate = todo.completedAt.split('T')[0];
-            
-            if (!groupedTodos.has(completionDate)) {
-                groupedTodos.set(completionDate, []);
-            }
-            groupedTodos.get(completionDate)!.push(todo);
-        }
-    });
-
-    // Convert to ArchiveGroup array and sort by date (newest first)
-    // 要件 9.3: 完了日が新しいものから順に表示する
-    // 要件 9.5: アーカイブビューで各グループの完了タスク数を表示する
-    const archiveGroups: ArchiveGroup[] = Array.from(groupedTodos.entries())
-        .map(([date, tasks]) => ({
-            date,
-            tasks: tasks.sort((a, b) => {
-                // Sort tasks within each group by completion time (newest first)
-                return new Date(b.completedAt!).getTime() - new Date(a.completedAt!).getTime();
-            }),
-            count: tasks.length
-        }))
-        .sort((a, b) => {
-            // Sort groups by date (newest first)
-            return new Date(b.date).getTime() - new Date(a.date).getTime();
-        });
+    // Get archive from TodoService
+    const todoService = getDefaultTodoService();
+    const archiveGroups = await todoService.getArchive();
 
     res.status(200).json(archiveGroups);
 }));
