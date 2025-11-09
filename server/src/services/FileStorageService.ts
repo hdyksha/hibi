@@ -22,24 +22,74 @@ export class StorageError extends Error {
 }
 
 /**
+ * StorageContext - Manages the current storage file path globally
+ * This allows file switching without recreating service instances
+ */
+class StorageContext {
+    private static currentFilePath: string | null = null;
+
+    /**
+     * Set the current storage file path
+     * All FileStorageService instances without a fixed path will use this
+     */
+    static setFilePath(filePath: string): void {
+        this.currentFilePath = filePath;
+    }
+
+    /**
+     * Get the current storage file path
+     * Returns the set path or the default path
+     */
+    static getFilePath(): string {
+        return this.currentFilePath || this.getDefaultFilePath();
+    }
+
+    /**
+     * Get the default storage file path based on environment configuration
+     */
+    private static getDefaultFilePath(): string {
+        const projectRoot = getProjectRoot();
+        const dataDir = process.env.TODO_DATA_DIR
+            ? join(projectRoot, process.env.TODO_DATA_DIR)
+            : join(projectRoot, 'server', 'data');
+        return join(dataDir, 'tasks.json');
+    }
+
+    /**
+     * Reset to default path (useful for testing)
+     */
+    static reset(): void {
+        this.currentFilePath = null;
+    }
+}
+
+/**
  * File storage service for TodoItem data
+ * Supports dynamic file switching via StorageContext
  */
 export class FileStorageService {
-    private readonly filePath: string;
-    private writeQueue: Promise<void> = Promise.resolve();
+    private readonly fixedFilePath: string | null;
 
+    /**
+     * Create a new FileStorageService
+     * @param filePath - Optional fixed file path. If provided, this instance will always use this path.
+     *                   If not provided, the instance will use the current StorageContext path.
+     */
     constructor(filePath?: string) {
-        // Use provided path, or default to tasks.json in the configured data directory
-        if (filePath) {
-            this.filePath = filePath;
-        } else {
-            const projectRoot = getProjectRoot();
-            const dataDir = process.env.TODO_DATA_DIR 
-                ? join(projectRoot, process.env.TODO_DATA_DIR)
-                : join(projectRoot, 'server', 'data');
-            this.filePath = join(dataDir, 'tasks.json');
-        }
+        // If filePath is provided, use it as a fixed path (useful for testing)
+        // Otherwise, use null to indicate this instance should use StorageContext
+        this.fixedFilePath = filePath || null;
     }
+
+    /**
+     * Get the current file path
+     * Uses the fixed path if provided in constructor, otherwise uses StorageContext
+     */
+    private getCurrentFilePath(): string {
+        return this.fixedFilePath || StorageContext.getFilePath();
+    }
+
+    private writeQueue: Promise<void> = Promise.resolve();
 
     /**
      * Read all TodoItems from the JSON file
@@ -58,7 +108,7 @@ export class FileStorageService {
             }
 
             // Read file content
-            const fileContent = await fs.readFile(this.filePath, 'utf-8');
+            const fileContent = await fs.readFile(this.getCurrentFilePath(), 'utf-8');
 
             // Handle empty file
             if (!fileContent.trim()) {
@@ -112,7 +162,7 @@ export class FileStorageService {
             const jsonContent = JSON.stringify(todos, null, 2);
 
             // Write to file
-            await fs.writeFile(this.filePath, jsonContent, 'utf-8');
+            await fs.writeFile(this.getCurrentFilePath(), jsonContent, 'utf-8');
         } catch (error) {
             throw new StorageError(`Failed to write todos to storage: ${error instanceof Error ? error.message : 'Unknown error'}`, error instanceof Error ? error : undefined);
         }
@@ -210,7 +260,7 @@ export class FileStorageService {
      * Get the file path being used for storage
      */
     getFilePath(): string {
-        return this.filePath;
+        return this.getCurrentFilePath();
     }
 
     /**
@@ -218,7 +268,7 @@ export class FileStorageService {
      */
     private async fileExists(): Promise<boolean> {
         try {
-            await fs.access(this.filePath);
+            await fs.access(this.getCurrentFilePath());
             return true;
         } catch {
             return false;
@@ -230,7 +280,7 @@ export class FileStorageService {
      */
     private async ensureDirectoryExists(): Promise<void> {
         try {
-            const dir = dirname(this.filePath);
+            const dir = dirname(this.getCurrentFilePath());
             await fs.mkdir(dir, { recursive: true });
         } catch (error) {
             throw new StorageError(`Failed to create storage directory: ${error instanceof Error ? error.message : 'Unknown error'}`, error instanceof Error ? error : undefined);
@@ -270,11 +320,13 @@ let _defaultStorageService: FileStorageService | null = null;
 /**
  * Get the current default storage service
  * Lazy initialization ensures environment variables are loaded before creating the instance
+ * 
+ * Note: Creates the service WITHOUT a fixed path, so it uses StorageContext dynamically
  */
 export function getDefaultStorageService(): FileStorageService {
     if (!_defaultStorageService) {
-        const defaultFilePath = join(getDefaultDataDirectory(), 'tasks.json');
-        _defaultStorageService = new FileStorageService(defaultFilePath);
+        // Don't pass a filePath - let it use StorageContext
+        _defaultStorageService = new FileStorageService();
     }
     return _defaultStorageService;
 }
@@ -289,10 +341,23 @@ export function setDefaultStorageService(service: FileStorageService) {
 /**
  * Switch to a different storage file
  * Requirements: 複数ファイル間でのデータ切り替え機能
+ * 
+ * This updates the StorageContext, so all FileStorageService instances
+ * without a fixed path will automatically use the new file.
  */
 export function switchStorageFile(filePath: string) {
-    _defaultStorageService = new FileStorageService(filePath);
+    StorageContext.setFilePath(filePath);
 }
+
+/**
+ * Reset storage context to default (useful for testing)
+ */
+function resetStorageContext() {
+    StorageContext.reset();
+}
+
+// Export StorageContext utilities
+export { resetStorageContext };
 
 // Export for backward compatibility (deprecated - use getDefaultStorageService instead)
 export const defaultStorageService = _defaultStorageService;

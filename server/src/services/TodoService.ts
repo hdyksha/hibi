@@ -33,7 +33,7 @@ export class TodoService {
      */
     async getTodos(filter?: TodoFilter): Promise<TodoItem[]> {
         const todos = await this.storage.readTodos();
-        
+
         if (!filter || Object.keys(filter).length === 0) {
             return todos;
         }
@@ -89,7 +89,7 @@ export class TodoService {
         // Check if at least one field is being updated
         const updatableFields = ['completed', 'title', 'priority', 'tags', 'memo'];
         const hasUpdatableField = updatableFields.some(field => input.hasOwnProperty(field));
-        
+
         if (!hasUpdatableField) {
             throw new ValidationError('No valid fields to update', [
                 { field: 'body', message: `At least one of the following fields must be provided: ${updatableFields.join(', ')}` }
@@ -121,7 +121,7 @@ export class TodoService {
         if (input.hasOwnProperty('completed')) {
             const newCompletedStatus = Boolean(input.completed);
             updatedTodo.completed = newCompletedStatus;
-            
+
             // Handle completedAt timestamp
             if (newCompletedStatus && !existingTodo.completed) {
                 updatedTodo.completedAt = new Date().toISOString();
@@ -148,7 +148,7 @@ export class TodoService {
 
         // Update in storage
         const updateSuccess = await this.storage.updateTodo(id, updatedTodo);
-        
+
         if (!updateSuccess) {
             throw new AppError('Failed to update todo item in storage', 500, true, 'STORAGE_UPDATE_FAILED');
         }
@@ -169,7 +169,7 @@ export class TodoService {
 
         // Remove todo from storage
         const deleteSuccess = await this.storage.removeTodo(id);
-        
+
         if (!deleteSuccess) {
             throw new NotFoundError('Todo item', id);
         }
@@ -204,8 +204,8 @@ export class TodoService {
 
             // Tags filter (要件 7.2: タグによるフィルタリング機能を提供する)
             if (filter.tags && filter.tags.length > 0) {
-                const hasMatchingTag = filter.tags.some(filterTag => 
-                    todo.tags.some(todoTag => 
+                const hasMatchingTag = filter.tags.some(filterTag =>
+                    todo.tags.some(todoTag =>
                         todoTag.toLowerCase().includes(filterTag.toLowerCase())
                     )
                 );
@@ -218,7 +218,7 @@ export class TodoService {
                 const titleMatch = todo.title.toLowerCase().includes(searchTerm);
                 const memoMatch = todo.memo.toLowerCase().includes(searchTerm);
                 const tagMatch = todo.tags.some(tag => tag.toLowerCase().includes(searchTerm));
-                
+
                 if (!titleMatch && !memoMatch && !tagMatch) return false;
             }
 
@@ -245,12 +245,12 @@ export class TodoService {
         // Group todos by completion date (YYYY-MM-DD format)
         // 要件 9.2: アーカイブビューで完了日によるグルーピング機能を提供する
         const groupedTodos = new Map<string, TodoItem[]>();
-        
+
         completedTodos.forEach(todo => {
             if (todo.completedAt) {
                 // Extract date part from ISO string (YYYY-MM-DD)
                 const completionDate = todo.completedAt.split('T')[0];
-                
+
                 if (!groupedTodos.has(completionDate)) {
                     groupedTodos.set(completionDate, []);
                 }
@@ -331,6 +331,9 @@ let _defaultTodoService: TodoService | null = null;
 /**
  * Get the default TodoService instance
  * Lazy initialization ensures the storage service is ready
+ * 
+ * Note: The storage service uses StorageContext, so file switching
+ * is automatically reflected without recreating the TodoService instance.
  */
 export function getDefaultTodoService(): TodoService {
     if (!_defaultTodoService) {
