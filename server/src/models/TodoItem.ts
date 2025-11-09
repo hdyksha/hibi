@@ -94,45 +94,23 @@ export function validateTitle(title: string): ValidationResult {
  * 完了状態のバリデーション
  * 要件 1.4: デフォルトで未完了ステータス
  */
+const completedValidator = new Validator<boolean>('completed')
+    .isBoolean('Completed must be a boolean value');
+
 export function validateCompleted(completed: boolean): ValidationResult {
-    const errors: ValidationError[] = [];
-
-    if (typeof completed !== 'boolean') {
-        errors.push({
-            field: 'completed',
-            message: 'Completed must be a boolean value'
-        });
-    }
-
-    return {
-        isValid: errors.length === 0,
-        errors
-    };
+    return completedValidator.validate(completed);
 }
 
 /**
  * IDのバリデーション
  * 要件 1.5: 一意のIDを自動生成
  */
+const idValidator = new Validator<string>('id')
+    .isType('string', 'ID is required and must be a string')
+    .required('ID cannot be empty');
+
 export function validateId(id: string): ValidationResult {
-    const errors: ValidationError[] = [];
-
-    if (typeof id !== 'string') {
-        errors.push({
-            field: 'id',
-            message: 'ID is required and must be a string'
-        });
-    } else if (id.trim().length === 0) {
-        errors.push({
-            field: 'id',
-            message: 'ID cannot be empty'
-        });
-    }
-
-    return {
-        isValid: errors.length === 0,
-        errors
-    };
+    return idValidator.validate(id);
 }
 
 /**
@@ -140,27 +118,22 @@ export function validateId(id: string): ValidationResult {
  * 要件 1.6: 作成日時を自動記録
  */
 export function validateCreatedAt(createdAt: string): ValidationResult {
-    const errors: ValidationError[] = [];
-
-    if (!createdAt || typeof createdAt !== 'string') {
-        errors.push({
-            field: 'createdAt',
-            message: 'CreatedAt is required and must be a string'
-        });
-    } else {
-        const date = new Date(createdAt);
-        if (isNaN(date.getTime())) {
-            errors.push({
+    // First check type and emptiness
+    if (typeof createdAt !== 'string' || createdAt.trim().length === 0) {
+        return {
+            isValid: false,
+            errors: [{
                 field: 'createdAt',
-                message: 'CreatedAt must be a valid ISO 8601 date string'
-            });
-        }
+                message: 'CreatedAt is required and must be a string'
+            }]
+        };
     }
 
-    return {
-        isValid: errors.length === 0,
-        errors
-    };
+    // Then validate as ISO date using the validator
+    const dateValidator = new Validator<string>('createdAt')
+        .isISODate('CreatedAt must be a valid ISO 8601 date string');
+    
+    return dateValidator.validate(createdAt);
 }
 
 /**
@@ -168,57 +141,46 @@ export function validateCreatedAt(createdAt: string): ValidationResult {
  * 要件 3.5: 更新日時を自動更新
  */
 export function validateUpdatedAt(updatedAt: string): ValidationResult {
-    const errors: ValidationError[] = [];
-
-    if (!updatedAt || typeof updatedAt !== 'string') {
-        errors.push({
-            field: 'updatedAt',
-            message: 'UpdatedAt is required and must be a string'
-        });
-    } else {
-        const date = new Date(updatedAt);
-        if (isNaN(date.getTime())) {
-            errors.push({
+    // First check type and emptiness
+    if (typeof updatedAt !== 'string' || updatedAt.trim().length === 0) {
+        return {
+            isValid: false,
+            errors: [{
                 field: 'updatedAt',
-                message: 'UpdatedAt must be a valid ISO 8601 date string'
-            });
-        }
+                message: 'UpdatedAt is required and must be a string'
+            }]
+        };
     }
 
-    return {
-        isValid: errors.length === 0,
-        errors
-    };
+    // Then validate as ISO date using the validator
+    const dateValidator = new Validator<string>('updatedAt')
+        .isISODate('UpdatedAt must be a valid ISO 8601 date string');
+    
+    return dateValidator.validate(updatedAt);
 }
 
 /**
  * 完了日時のバリデーション
  * 要件 3.4: todoアイテムが完了済みになった時、完了日時を記録する
  */
-export function validateCompletedAt(completedAt: string | null): ValidationResult {
-    const errors: ValidationError[] = [];
-
-    if (completedAt !== null) {
-        if (typeof completedAt !== 'string') {
-            errors.push({
-                field: 'completedAt',
-                message: 'CompletedAt must be a string or null'
-            });
-        } else {
-            const date = new Date(completedAt);
-            if (isNaN(date.getTime())) {
-                errors.push({
-                    field: 'completedAt',
-                    message: 'CompletedAt must be a valid ISO 8601 date string'
-                });
+const completedAtValidator = new Validator<string | null>('completedAt')
+    .addRule({
+        validate: (value) => value === null || typeof value === 'string',
+        message: 'CompletedAt must be a string or null'
+    })
+    .addRule({
+        validate: (value) => {
+            if (value === null) {
+                return true;
             }
-        }
-    }
+            const date = new Date(value);
+            return !isNaN(date.getTime());
+        },
+        message: 'CompletedAt must be a valid ISO 8601 date string'
+    });
 
-    return {
-        isValid: errors.length === 0,
-        errors
-    };
+export function validateCompletedAt(completedAt: string | null): ValidationResult {
+    return completedAtValidator.validate(completedAt);
 }
 
 /**
