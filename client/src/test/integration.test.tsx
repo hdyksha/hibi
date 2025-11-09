@@ -10,7 +10,7 @@ import { App } from '../App';
 
 // モックの設定
 vi.mock('../services', () => ({
-  todoApiClient: {
+  todoApi: {
     getTodos: vi.fn(),
     getTags: vi.fn(),
     getArchive: vi.fn(),
@@ -18,6 +18,13 @@ vi.mock('../services', () => ({
     updateTodo: vi.fn(),
     toggleTodoCompletion: vi.fn(),
     deleteTodo: vi.fn(),
+  },
+  fileApi: {
+    getFiles: vi.fn(),
+    switchFile: vi.fn(),
+    getCurrentFile: vi.fn(),
+  },
+  httpClient: {
     setNetworkReporter: vi.fn(),
   },
   ApiClientError: class ApiClientError extends Error {
@@ -52,24 +59,34 @@ Object.defineProperty(globalThis, 'localStorage', {
   writable: true,
 });
 
-// Import the mocked API client
-import { todoApiClient } from '../services';
-const mockApiClient = todoApiClient as any;
+// Import the mocked API clients
+import { todoApi, fileApi } from '../services';
+const mockTodoApi = todoApi as any;
+const mockFileApi = fileApi as any;
 
 describe('フロントエンド統合テスト', () => {
   beforeEach(() => {
     // 全てのモックをクリア
-    Object.values(mockApiClient).forEach(mock => {
-      if (typeof mock === 'function') {
+    Object.values(mockTodoApi).forEach((mock: any) => {
+      if (typeof mock === 'function' && mock.mockClear) {
         mock.mockClear();
       }
     });
-    Object.values(mockLocalStorage).forEach(mock => mock.mockClear());
+    Object.values(mockFileApi).forEach((mock: any) => {
+      if (typeof mock === 'function' && mock.mockClear) {
+        mock.mockClear();
+      }
+    });
+    Object.values(mockLocalStorage).forEach((mock: any) => {
+      if (mock.mockClear) {
+        mock.mockClear();
+      }
+    });
     
     // デフォルトのモック戻り値を設定
-    mockApiClient.getTodos.mockResolvedValue([]);
-    mockApiClient.getTags.mockResolvedValue([]);
-    mockApiClient.getArchive.mockResolvedValue([]);
+    mockTodoApi.getTodos.mockResolvedValue([]);
+    mockTodoApi.getTags.mockResolvedValue([]);
+    mockTodoApi.getArchive.mockResolvedValue([]);
     
     // コンソール警告を抑制
     vi.spyOn(console, 'warn').mockImplementation(() => {});
@@ -102,8 +119,8 @@ describe('フロントエンド統合テスト', () => {
       });
 
       // Todo作成
-      mockApiClient.createTodo.mockResolvedValueOnce(sampleTodo);
-      mockApiClient.getTodos.mockResolvedValueOnce([sampleTodo]);
+      mockTodoApi.createTodo.mockResolvedValueOnce(sampleTodo);
+      mockTodoApi.getTodos.mockResolvedValueOnce([sampleTodo]);
 
       const titleInput = screen.getByLabelText('New Todo');
       const submitButton = screen.getByRole('button', { name: 'Create Todo' });
@@ -115,7 +132,7 @@ describe('フロントエンド統合テスト', () => {
         expect(screen.getByText('Test Todo')).toBeInTheDocument();
       });
 
-      expect(mockApiClient.createTodo).toHaveBeenCalledWith({
+      expect(mockTodoApi.createTodo).toHaveBeenCalledWith({
         title: 'Test Todo',
         priority: 'medium',
         tags: [],
@@ -124,25 +141,25 @@ describe('フロントエンド統合テスト', () => {
 
       // Todo完了
       const completedTodo = { ...sampleTodo, completed: true };
-      mockApiClient.toggleTodoCompletion.mockResolvedValueOnce(completedTodo);
-      mockApiClient.getTodos.mockResolvedValueOnce([completedTodo]);
+      mockTodoApi.toggleTodoCompletion.mockResolvedValueOnce(completedTodo);
+      mockTodoApi.getTodos.mockResolvedValueOnce([completedTodo]);
 
       const completeButton = screen.getByRole('button', { name: /mark as complete/i });
       fireEvent.click(completeButton);
 
       await waitFor(() => {
-        expect(mockApiClient.toggleTodoCompletion).toHaveBeenCalledWith('1');
+        expect(mockTodoApi.toggleTodoCompletion).toHaveBeenCalledWith('1');
       });
 
       // Todo削除
-      mockApiClient.deleteTodo.mockResolvedValueOnce(undefined);
-      mockApiClient.getTodos.mockResolvedValueOnce([]);
+      mockTodoApi.deleteTodo.mockResolvedValueOnce(undefined);
+      mockTodoApi.getTodos.mockResolvedValueOnce([]);
 
       const deleteButton = screen.getByRole('button', { name: /delete todo: test todo/i });
       fireEvent.click(deleteButton);
 
       await waitFor(() => {
-        expect(mockApiClient.deleteTodo).toHaveBeenCalledWith('1');
+        expect(mockTodoApi.deleteTodo).toHaveBeenCalledWith('1');
       });
     });
   });
@@ -170,8 +187,8 @@ describe('フロントエンド統合テスト', () => {
     ];
 
     beforeEach(() => {
-      mockApiClient.getTodos.mockResolvedValue(sampleTodos);
-      mockApiClient.getTags.mockResolvedValue(['work', 'personal', 'urgent']);
+      mockTodoApi.getTodos.mockResolvedValue(sampleTodos);
+      mockTodoApi.getTags.mockResolvedValue(['work', 'personal', 'urgent']);
     });
 
     it('フィルター機能の基本動作', async () => {
@@ -188,7 +205,7 @@ describe('フロントエンド統合テスト', () => {
       fireEvent.change(searchInput, { target: { value: 'work' } });
 
       await waitFor(() => {
-        expect(mockApiClient.getTodos).toHaveBeenCalledWith({
+        expect(mockTodoApi.getTodos).toHaveBeenCalledWith({
           status: 'pending',
           searchText: 'work'
         });
@@ -199,7 +216,7 @@ describe('フロントエンド統合テスト', () => {
       fireEvent.click(workCheckbox);
 
       await waitFor(() => {
-        expect(mockApiClient.getTodos).toHaveBeenCalledWith(
+        expect(mockTodoApi.getTodos).toHaveBeenCalledWith(
           expect.objectContaining({
             tags: ['work']
           })
@@ -222,9 +239,9 @@ describe('フロントエンド統合テスト', () => {
 
   describe('エラーハンドリング', () => {
     it('API エラーの適切な表示', async () => {
-      mockApiClient.getTodos.mockRejectedValueOnce(new Error('Network error'));
-      mockApiClient.getTags.mockRejectedValueOnce(new Error('Network error'));
-      mockApiClient.getArchive.mockRejectedValueOnce(new Error('Network error'));
+      mockTodoApi.getTodos.mockRejectedValueOnce(new Error('Network error'));
+      mockTodoApi.getTags.mockRejectedValueOnce(new Error('Network error'));
+      mockTodoApi.getArchive.mockRejectedValueOnce(new Error('Network error'));
 
       await act(async () => {
         render(<App />);
@@ -236,9 +253,9 @@ describe('フロントエンド統合テスト', () => {
       });
 
       // リトライ機能
-      mockApiClient.getTodos.mockResolvedValueOnce([]);
-      mockApiClient.getTags.mockResolvedValueOnce([]);
-      mockApiClient.getArchive.mockResolvedValueOnce([]);
+      mockTodoApi.getTodos.mockResolvedValueOnce([]);
+      mockTodoApi.getTags.mockResolvedValueOnce([]);
+      mockTodoApi.getArchive.mockResolvedValueOnce([]);
 
       fireEvent.click(screen.getByText('Retry'));
 
@@ -248,7 +265,7 @@ describe('フロントエンド統合テスト', () => {
     });
 
     it('Todo作成エラーの処理', async () => {
-      mockApiClient.createTodo.mockRejectedValueOnce(new Error('Title cannot be empty'));
+      mockTodoApi.createTodo.mockRejectedValueOnce(new Error('Title cannot be empty'));
 
       await act(async () => {
         render(<App />);

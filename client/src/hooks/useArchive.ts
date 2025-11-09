@@ -5,7 +5,7 @@
 
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { ArchiveGroup, TodoFilter } from '../types';
-import { todoApiClient } from '../services';
+import { todoApi } from '../services';
 import { useFilter } from './useFilter';
 import { useErrorHandler } from './useErrorHandler';
 
@@ -55,7 +55,7 @@ export const useArchive = (): UseArchiveReturn => {
     try {
       setLoading(true);
       clearError();
-      const data = await todoApiClient.getArchive();
+      const data = await todoApi.getArchive();
       setArchiveGroups(data);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to load archive data'));

@@ -5,7 +5,7 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { TodoItem, CreateTodoItemInput, UpdateTodoItemInput, TodoFilter } from '../types';
-import { todoApiClient } from '../services';
+import { todoApi } from '../services';
 import { useFilter } from './useFilter';
 import { useErrorHandler } from './useErrorHandler';
 
@@ -56,7 +56,7 @@ export const useTodos = (): UseTodosReturn => {
         try {
             setLoading(true);
             clearError();
-            const todoItems = await todoApiClient.getTodos(filter);
+            const todoItems = await todoApi.getTodos(filter);
             setTodos(todoItems);
         } catch (err) {
             setError(err instanceof Error ? err : new Error('Failed to load todos'));
@@ -67,7 +67,7 @@ export const useTodos = (): UseTodosReturn => {
 
     const refreshTags = useCallback(async () => {
         try {
-            const tags = await todoApiClient.getTags();
+            const tags = await todoApi.getTags();
             setAvailableTags(tags);
         } catch (err) {
             // Tags loading failure shouldn't block the main functionality
@@ -78,7 +78,7 @@ export const useTodos = (): UseTodosReturn => {
     const createTodo = useCallback(async (input: CreateTodoItemInput): Promise<TodoItem> => {
         try {
             clearError();
-            const newTodo = await todoApiClient.createTodo(input);
+            const newTodo = await todoApi.createTodo(input);
             await refreshTodos(); // Refresh to get the latest state from server
             await refreshTags(); // Refresh tags in case new tags were added
             return newTodo;
@@ -92,7 +92,7 @@ export const useTodos = (): UseTodosReturn => {
     const updateTodo = useCallback(async (id: string, input: UpdateTodoItemInput): Promise<TodoItem> => {
         try {
             clearError();
-            const updatedTodo = await todoApiClient.updateTodo(id, input);
+            const updatedTodo = await todoApi.updateTodo(id, input);
             await refreshTodos(); // Refresh to get the latest state from server
             await refreshTags(); // Refresh tags in case tags were modified
             return updatedTodo;
@@ -106,7 +106,7 @@ export const useTodos = (): UseTodosReturn => {
     const toggleTodoCompletion = useCallback(async (id: string): Promise<TodoItem> => {
         try {
             clearError();
-            const updatedTodo = await todoApiClient.toggleTodoCompletion(id);
+            const updatedTodo = await todoApi.toggleTodoCompletion(id);
             await refreshTodos(); // Refresh to get the latest state from server
             return updatedTodo;
         } catch (err) {
@@ -119,7 +119,7 @@ export const useTodos = (): UseTodosReturn => {
     const deleteTodo = useCallback(async (id: string): Promise<void> => {
         try {
             clearError();
-            await todoApiClient.deleteTodo(id);
+            await todoApi.deleteTodo(id);
             await refreshTodos(); // Refresh to get the latest state from server
         } catch (err) {
             const error = err instanceof Error ? err : new Error('Failed to delete todo');

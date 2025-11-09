@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { todoApiClient } from '../services/apiClient';
+import { fileApi } from '../services';
 import { FileInfo } from '../types';
 
 interface FileSelectorProps {
@@ -25,7 +25,7 @@ export function FileSelector({ onFileSwitch }: FileSelectorProps) {
     try {
       setLoading(true);
       setError(null);
-      const info = await todoApiClient.getFiles();
+      const info = await fileApi.getFiles();
       setFileInfo(info);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load files');
@@ -43,7 +43,7 @@ export function FileSelector({ onFileSwitch }: FileSelectorProps) {
     try {
       setLoading(true);
       setError(null);
-      await todoApiClient.switchFile(fileName);
+      await fileApi.switchFile(fileName);
       await loadFiles();
       setIsOpen(false);
       onFileSwitch?.();

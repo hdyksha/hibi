@@ -6,7 +6,7 @@
 import React, { createContext, useContext, ReactNode, useEffect } from 'react';
 import { useTodos, UseTodosReturn } from '../hooks/useTodos';
 import { useArchive, UseArchiveReturn } from '../hooks/useArchive';
-import { todoApiClient } from '../services';
+import { httpClient } from '../services';
 import { useNetworkContext } from './NetworkContext';
 
 interface TodoContextValue extends UseTodosReturn {
@@ -24,9 +24,9 @@ export const TodoProvider: React.FC<TodoProviderProps> = ({ children }) => {
   const todoState = useTodos();
   const archiveState = useArchive();
 
-  // Set up network reporter for API client
+  // Set up network reporter for HTTP client
   useEffect(() => {
-    todoApiClient.setNetworkReporter({
+    httpClient.setNetworkReporter({
       reportConnectionError: networkContext.reportConnectionError,
       reportConnectionSuccess: networkContext.reportConnectionSuccess,
     });

@@ -15,13 +15,21 @@ vi.mock('./components', () => ({
 
 // Mock the API client to prevent network calls during tests
 vi.mock('./services', () => ({
-  todoApiClient: {
+  todoApi: {
     getTodos: vi.fn().mockResolvedValue([]),
     getTags: vi.fn().mockResolvedValue([]),
     createTodo: vi.fn(),
     updateTodo: vi.fn(),
     toggleTodoCompletion: vi.fn(),
     deleteTodo: vi.fn(),
+    getArchive: vi.fn().mockResolvedValue([]),
+  },
+  fileApi: {
+    getFiles: vi.fn(),
+    switchFile: vi.fn(),
+    getCurrentFile: vi.fn(),
+  },
+  httpClient: {
     setNetworkReporter: vi.fn(),
   },
   ApiClientError: class ApiClientError extends Error {

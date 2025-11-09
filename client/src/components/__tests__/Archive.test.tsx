@@ -7,14 +7,14 @@
 import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
 import { vi } from 'vitest';
 import { Archive } from '../Archive';
-import { todoApiClient } from '../../services';
+import { todoApi, fileApi, httpClient } from '../../services';
 import { ArchiveGroup } from '../../types';
 import { TodoProvider } from '../../contexts/TodoContext';
 import { NetworkProvider } from '../../contexts/NetworkContext';
 
 // Mock the API client
 vi.mock('../../services', () => ({
-  todoApiClient: {
+  todoApi: {
     getArchive: vi.fn(),
     getTodos: vi.fn(),
     getTags: vi.fn(),
@@ -22,6 +22,13 @@ vi.mock('../../services', () => ({
     updateTodo: vi.fn(),
     toggleTodoCompletion: vi.fn(),
     deleteTodo: vi.fn(),
+  },
+  fileApi: {
+    getFiles: vi.fn(),
+    switchFile: vi.fn(),
+    getCurrentFile: vi.fn(),
+  },
+  httpClient: {
     setNetworkReporter: vi.fn(),
   },
   ApiClientError: class ApiClientError extends Error {
@@ -45,7 +52,7 @@ vi.mock('../../hooks/useNetworkStatus', () => ({
   }),
 }));
 
-const mockApiClient = todoApiClient as any;
+const mockTodoApi = todoApi as any;
 
 // Helper function to render Archive with NetworkProvider and TodoProvider
 const renderArchive = async (props = {}) => {
@@ -69,8 +76,8 @@ describe('Archive Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Mock the required methods for TodoProvider
-    mockApiClient.getTodos.mockResolvedValue([]);
-    mockApiClient.getTags.mockResolvedValue([]);
+    mockTodoApi.getTodos.mockResolvedValue([]);
+    mockTodoApi.getTags.mockResolvedValue([]);
   });
 
   const mockArchiveData: ArchiveGroup[] = [
@@ -122,7 +129,7 @@ describe('Archive Component', () => {
   ];
 
   it('displays loading state initially', async () => {
-    mockApiClient.getArchive.mockImplementation(() => new Promise(() => {}));
+    mockTodoApi.getArchive.mockImplementation(() => new Promise(() => {}));
     
     await renderArchive();
     
@@ -130,7 +137,7 @@ describe('Archive Component', () => {
   });
 
   it('displays archive groups with completed tasks', async () => {
-    mockApiClient.getArchive.mockResolvedValue(mockArchiveData);
+    mockTodoApi.getArchive.mockResolvedValue(mockArchiveData);
     
     await renderArchive();
     
@@ -165,7 +172,7 @@ describe('Archive Component', () => {
   });
 
   it('displays empty state when no completed tasks exist', async () => {
-    mockApiClient.getArchive.mockResolvedValue([]);
+    mockTodoApi.getArchive.mockResolvedValue([]);
     
     await renderArchive();
     
@@ -176,7 +183,7 @@ describe('Archive Component', () => {
 
   it('displays error state when API call fails', async () => {
     const errorMessage = 'Network error';
-    mockApiClient.getArchive.mockRejectedValue(new Error(errorMessage));
+    mockTodoApi.getArchive.mockRejectedValue(new Error(errorMessage));
     
     await renderArchive();
     
@@ -188,7 +195,7 @@ describe('Archive Component', () => {
   });
 
   it('groups tasks by completion date correctly', async () => {
-    mockApiClient.getArchive.mockResolvedValue(mockArchiveData);
+    mockTodoApi.getArchive.mockResolvedValue(mockArchiveData);
     
     await renderArchive();
     
@@ -208,7 +215,7 @@ describe('Archive Component', () => {
   });
 
   it('displays tasks with proper archive styling without line-through', async () => {
-    mockApiClient.getArchive.mockResolvedValue(mockArchiveData);
+    mockTodoApi.getArchive.mockResolvedValue(mockArchiveData);
     
     await renderArchive();
     
@@ -226,7 +233,7 @@ describe('Archive Component', () => {
   });
 
   it('displays archive-specific visual elements', async () => {
-    mockApiClient.getArchive.mockResolvedValue(mockArchiveData);
+    mockTodoApi.getArchive.mockResolvedValue(mockArchiveData);
     
     await renderArchive();
     
@@ -248,7 +255,7 @@ describe('Archive Component', () => {
   });
 
   it('displays edit buttons for archived tasks', async () => {
-    mockApiClient.getArchive.mockResolvedValue(mockArchiveData);
+    mockTodoApi.getArchive.mockResolvedValue(mockArchiveData);
     
     await renderArchive();
     
@@ -269,7 +276,7 @@ describe('Archive Component', () => {
 
   describe('Archive Filter Functionality', () => {
     beforeEach(() => {
-      mockApiClient.getArchive.mockResolvedValue(mockArchiveData);
+      mockTodoApi.getArchive.mockResolvedValue(mockArchiveData);
       // Clear localStorage to prevent filter state interference between tests
       localStorage.clear();
     });
