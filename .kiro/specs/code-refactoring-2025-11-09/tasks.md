@@ -78,7 +78,12 @@
   - `FileStorageService` への依存を注入
   - _要件: 2.1, 2.2, 5.2_
 
-- [ ] 2.2 フィルタリングロジックの移動
+- [x] 2.2 フィルタリングロジックの移動
+
+
+
+
+
   - `routes/todos.ts` のフィルタリングロジックを `TodoService` に移動
   - `applyFilter` メソッドを `TodoService` に実装
   - クエリパラメータのパース関数を抽出

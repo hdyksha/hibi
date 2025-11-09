@@ -4,87 +4,13 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { TodoItem, CreateTodoItemInput, validateCreateTodoItemInput, validateUpdateTodoItemInput, TodoFilter, FilterStatus, Priority, FILTER_STATUS_VALUES, PRIORITY_VALUES, ArchiveGroup } from '../models';
+import { TodoItem, CreateTodoItemInput, validateCreateTodoItemInput, validateUpdateTodoItemInput, ArchiveGroup } from '../models';
 import { getDefaultStorageService } from '../services/FileStorageService';
-import { generateTodoId } from '../utils';
+import { getDefaultTodoService } from '../services/TodoService';
+import { generateTodoId, buildFilterFromQuery } from '../utils';
 import { asyncHandler, ValidationError, NotFoundError, AppError } from '../middleware/errorHandler';
 
 const router = Router();
-
-/**
- * フィルタリング関数
- * 要件 7.2: タグによるフィルタリング機能を提供する
- * 要件 8.4: メモの内容を検索対象に含める
- */
-function filterTodos(todos: TodoItem[], filter: TodoFilter): TodoItem[] {
-    return todos.filter(todo => {
-        // ステータスフィルター
-        if (filter.status && filter.status !== 'all') {
-            if (filter.status === 'completed' && !todo.completed) return false;
-            if (filter.status === 'pending' && todo.completed) return false;
-        }
-
-        // 優先度フィルター
-        if (filter.priority && todo.priority !== filter.priority) {
-            return false;
-        }
-
-        // タグフィルター (要件 7.2)
-        if (filter.tags && filter.tags.length > 0) {
-            const hasMatchingTag = filter.tags.some(filterTag => 
-                todo.tags.some(todoTag => 
-                    todoTag.toLowerCase().includes(filterTag.toLowerCase())
-                )
-            );
-            if (!hasMatchingTag) return false;
-        }
-
-        // 検索テキストフィルター (要件 8.4: メモの内容を検索対象に含める)
-        if (filter.searchText && filter.searchText.trim().length > 0) {
-            const searchTerm = filter.searchText.toLowerCase();
-            const titleMatch = todo.title.toLowerCase().includes(searchTerm);
-            const memoMatch = todo.memo.toLowerCase().includes(searchTerm);
-            const tagMatch = todo.tags.some(tag => tag.toLowerCase().includes(searchTerm));
-            
-            if (!titleMatch && !memoMatch && !tagMatch) return false;
-        }
-
-        return true;
-    });
-}
-
-/**
- * クエリパラメータからフィルターオブジェクトを構築
- */
-function buildFilterFromQuery(query: any): TodoFilter {
-    const filter: TodoFilter = {};
-
-    // ステータスフィルター
-    if (query.status && FILTER_STATUS_VALUES.includes(query.status)) {
-        filter.status = query.status as FilterStatus;
-    }
-
-    // 優先度フィルター
-    if (query.priority && PRIORITY_VALUES.includes(query.priority)) {
-        filter.priority = query.priority as Priority;
-    }
-
-    // タグフィルター
-    if (query.tags) {
-        if (typeof query.tags === 'string') {
-            filter.tags = [query.tags];
-        } else if (Array.isArray(query.tags)) {
-            filter.tags = query.tags.filter((tag: any) => typeof tag === 'string');
-        }
-    }
-
-    // 検索テキスト
-    if (query.search && typeof query.search === 'string') {
-        filter.searchText = query.search.trim();
-    }
-
-    return filter;
-}
 
 /**
  * GET /api/todos - Get all todo items with optional filtering
@@ -96,29 +22,14 @@ function buildFilterFromQuery(query: any): TodoFilter {
  * - search: string (searches in title, memo, and tags)
  */
 router.get('/', asyncHandler(async (req: Request, res: Response) => {
-    // Retrieve all todos from storage
-    const todos = await getDefaultStorageService().readTodos();
-
     // Build filter from query parameters
     const filter = buildFilterFromQuery(req.query);
 
-    // Validate filter parameters
-    if (filter.searchText && filter.searchText.length > 1000) {
-        throw new ValidationError('Invalid search parameters', [
-            { field: 'search', message: 'Search text cannot exceed 1000 characters', value: filter.searchText.length }
-        ]);
-    }
-
-    if (filter.tags && filter.tags.length > 50) {
-        throw new ValidationError('Invalid filter parameters', [
-            { field: 'tags', message: 'Cannot filter by more than 50 tags at once', value: filter.tags.length }
-        ]);
-    }
-
-    // Apply filtering if any filters are specified
-    const filteredTodos = Object.keys(filter).length > 0 
-        ? filterTodos(todos, filter) 
-        : todos;
+    // Get todos with filtering from TodoService
+    const todoService = getDefaultTodoService();
+    const filteredTodos = await todoService.getTodos(
+        Object.keys(filter).length > 0 ? filter : undefined
+    );
 
     // Return filtered todo items
     res.status(200).json(filteredTodos);

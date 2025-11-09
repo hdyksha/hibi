@@ -4,3 +4,4 @@
 
 export * from './idGenerator';
 export * from './validator';
+export * from './queryParser';

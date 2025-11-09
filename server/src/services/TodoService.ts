@@ -7,8 +7,8 @@
  * for Todo operations.
  */
 
-import { TodoItem, CreateTodoItemInput, UpdateTodoItemInput, validateCreateTodoItemInput, validateUpdateTodoItemInput, validateId, TodoFilter, FilterStatus, Priority } from '../models';
-import { FileStorageService } from './FileStorageService';
+import { TodoItem, CreateTodoItemInput, UpdateTodoItemInput, validateCreateTodoItemInput, validateUpdateTodoItemInput, validateId, TodoFilter } from '../models';
+import { FileStorageService, getDefaultStorageService } from './FileStorageService';
 import { generateTodoId } from '../utils';
 import { ValidationError, NotFoundError, AppError } from '../middleware/errorHandler';
 
@@ -20,8 +20,16 @@ export class TodoService {
     constructor(private storage: FileStorageService) {}
 
     /**
+     * Get the storage service instance
+     * Useful for testing and debugging
+     */
+    getStorage(): FileStorageService {
+        return this.storage;
+    }
+
+    /**
      * Get all todos with optional filtering
-     * Requirements: 2.1, 2.2
+     * Requirements: 2.1, 2.2, 5.2
      */
     async getTodos(filter?: TodoFilter): Promise<TodoItem[]> {
         const todos = await this.storage.readTodos();
@@ -172,9 +180,16 @@ export class TodoService {
     /**
      * Apply filter to todos
      * Requirements: 2.1, 2.2, 5.2
-     * Private helper method for filtering logic
+     * 
+     * Filters todos based on status, priority, tags, and search text.
+     * - Status filter: 'all', 'pending', or 'completed'
+     * - Priority filter: 'high', 'medium', or 'low'
+     * - Tags filter: matches if any todo tag contains any filter tag (case-insensitive)
+     * - Search text: searches in title, memo, and tags (case-insensitive)
+     * 
+     * Requirements: 7.2 (tag filtering), 8.4 (memo search)
      */
-    private applyFilter(todos: TodoItem[], filter: TodoFilter): TodoItem[] {
+    applyFilter(todos: TodoItem[], filter: TodoFilter): TodoItem[] {
         return todos.filter(todo => {
             // Status filter
             if (filter.status && filter.status !== 'all') {
@@ -187,7 +202,7 @@ export class TodoService {
                 return false;
             }
 
-            // Tags filter
+            // Tags filter (要件 7.2: タグによるフィルタリング機能を提供する)
             if (filter.tags && filter.tags.length > 0) {
                 const hasMatchingTag = filter.tags.some(filterTag => 
                     todo.tags.some(todoTag => 
@@ -197,7 +212,7 @@ export class TodoService {
                 if (!hasMatchingTag) return false;
             }
 
-            // Search text filter (searches in title, memo, and tags)
+            // Search text filter (要件 8.4: メモの内容を検索対象に含める)
             if (filter.searchText && filter.searchText.trim().length > 0) {
                 const searchTerm = filter.searchText.toLowerCase();
                 const titleMatch = todo.title.toLowerCase().includes(searchTerm);
@@ -214,9 +229,12 @@ export class TodoService {
     /**
      * Validate filter parameters
      * Requirements: 2.1
-     * Private helper method for filter validation
+     * 
+     * Validates that filter parameters are within acceptable limits:
+     * - Search text must not exceed 1000 characters
+     * - Cannot filter by more than 50 tags at once
      */
-    private validateFilter(filter: TodoFilter): void {
+    validateFilter(filter: TodoFilter): void {
         if (filter.searchText && filter.searchText.length > 1000) {
             throw new ValidationError('Invalid search parameters', [
                 { field: 'search', message: 'Search text cannot exceed 1000 characters', value: filter.searchText.length }
@@ -229,4 +247,28 @@ export class TodoService {
             ]);
         }
     }
+}
+
+/**
+ * Default TodoService instance
+ * Lazy initialization pattern
+ */
+let _defaultTodoService: TodoService | null = null;
+
+/**
+ * Get the default TodoService instance
+ * Lazy initialization ensures the storage service is ready
+ */
+export function getDefaultTodoService(): TodoService {
+    if (!_defaultTodoService) {
+        _defaultTodoService = new TodoService(getDefaultStorageService());
+    }
+    return _defaultTodoService;
+}
+
+/**
+ * Set a new default TodoService instance (mainly for testing)
+ */
+export function setDefaultTodoService(service: TodoService) {
+    _defaultTodoService = service;
 }
