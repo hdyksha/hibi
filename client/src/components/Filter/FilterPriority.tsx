@@ -16,8 +16,8 @@ export const FilterPriority: React.FC<FilterPriorityProps> = ({
   priority,
   onPriorityChange,
 }) => {
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    onPriorityChange(e.target.value as Priority | '');
+  const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    onPriorityChange(event.target.value as Priority | '');
   };
 
   return (

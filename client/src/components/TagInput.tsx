@@ -38,8 +38,8 @@ export const TagInput: React.FC<TagInputProps> = ({
     }
 
     // Check for duplicate tags (case-insensitive)
-    const existingTags = tags.map(t => t.toLowerCase());
-    if (existingTags.includes(trimmedTag.toLowerCase())) {
+    const existingTagsLowerCase = tags.map(existingTag => existingTag.toLowerCase());
+    if (existingTagsLowerCase.includes(trimmedTag.toLowerCase())) {
       return { isValid: false, error: 'Tag already exists' };
     }
 
@@ -71,26 +71,26 @@ export const TagInput: React.FC<TagInputProps> = ({
     setError(null);
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(e.target.value);
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(event.target.value);
     if (error) {
       setError(null);
     }
   };
 
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' || e.key === ',') {
-      e.preventDefault();
+  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter' || event.key === ',') {
+      event.preventDefault();
       if (inputValue) { // Check inputValue directly, not trimmed
         addTag(inputValue);
       }
-    } else if (e.key === 'Backspace' && !inputValue && tags.length > 0) {
+    } else if (event.key === 'Backspace' && !inputValue && tags.length > 0) {
       // Remove last tag when backspace is pressed on empty input
       removeTag(tags.length - 1);
     }
   };
 
-  const handleAddClick = () => {
+  const handleAddButtonClick = () => {
     if (inputValue) { // Check inputValue directly, not trimmed
       addTag(inputValue);
     }
@@ -136,7 +136,7 @@ export const TagInput: React.FC<TagInputProps> = ({
             className={`bg-blue-600 text-white border-none rounded px-4 py-2 text-sm font-medium cursor-pointer transition-colors duration-200 whitespace-nowrap ${
               disabled ? 'bg-slate-400 cursor-not-allowed' : 'hover:bg-blue-700'
             }`}
-            onClick={handleAddClick}
+            onClick={handleAddButtonClick}
             disabled={disabled}
             aria-label="Add tag"
           >

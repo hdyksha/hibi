@@ -28,8 +28,8 @@ export const TodoFormAdvanced: React.FC<TodoFormAdvancedProps> = ({
   onMemoChange,
   isSubmitting,
 }) => {
-  const handlePriorityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    onPriorityChange(e.target.value as Priority);
+  const handlePriorityChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    onPriorityChange(event.target.value as Priority);
   };
 
   return (

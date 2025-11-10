@@ -24,22 +24,22 @@ export const MemoEditor: React.FC<MemoEditorProps> = ({
   className = "",
   disabled = false,
 }) => {
-  const [isPreviewMode, setIsPreviewMode] = useState(false);
-  const [isSplitView, setIsSplitView] = useState(false);
+  const [isPreviewModeActive, setIsPreviewModeActive] = useState(false);
+  const [isSplitViewActive, setIsSplitViewActive] = useState(false);
 
   const handleTextChange = useCallback((event: React.ChangeEvent<HTMLTextAreaElement>) => {
     onChange(event.target.value);
   }, [onChange]);
 
-  const togglePreview = useCallback(() => {
-    setIsPreviewMode(!isPreviewMode);
-    setIsSplitView(false);
-  }, [isPreviewMode]);
+  const togglePreviewMode = useCallback(() => {
+    setIsPreviewModeActive(!isPreviewModeActive);
+    setIsSplitViewActive(false);
+  }, [isPreviewModeActive]);
 
   const toggleSplitView = useCallback(() => {
-    setIsSplitView(!isSplitView);
-    setIsPreviewMode(false);
-  }, [isSplitView]);
+    setIsSplitViewActive(!isSplitViewActive);
+    setIsPreviewModeActive(false);
+  }, [isSplitViewActive]);
 
   const renderToolbar = () => (
     <div className="flex justify-between items-center px-3 py-2 bg-slate-50 border-b border-slate-200 rounded-t">
@@ -47,13 +47,13 @@ export const MemoEditor: React.FC<MemoEditorProps> = ({
         <button
           type="button"
           className={`px-3 py-1.5 border rounded text-xs transition-all duration-200 ${
-            !isPreviewMode && !isSplitView 
+            !isPreviewModeActive && !isSplitViewActive 
               ? 'bg-blue-600 text-white border-blue-600' 
               : 'bg-white border-slate-300 hover:bg-slate-100 hover:border-slate-400'
           } ${disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
           onClick={() => {
-            setIsPreviewMode(false);
-            setIsSplitView(false);
+            setIsPreviewModeActive(false);
+            setIsSplitViewActive(false);
           }}
           disabled={disabled}
           aria-label="Edit mode"
@@ -63,11 +63,11 @@ export const MemoEditor: React.FC<MemoEditorProps> = ({
         <button
           type="button"
           className={`px-3 py-1.5 border rounded text-xs transition-all duration-200 ${
-            isPreviewMode 
+            isPreviewModeActive 
               ? 'bg-blue-600 text-white border-blue-600' 
               : 'bg-white border-slate-300 hover:bg-slate-100 hover:border-slate-400'
           } ${disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
-          onClick={togglePreview}
+          onClick={togglePreviewMode}
           disabled={disabled}
           aria-label="Preview mode"
         >
@@ -76,7 +76,7 @@ export const MemoEditor: React.FC<MemoEditorProps> = ({
         <button
           type="button"
           className={`px-3 py-1.5 border rounded text-xs transition-all duration-200 ${
-            isSplitView 
+            isSplitViewActive 
               ? 'bg-blue-600 text-white border-blue-600' 
               : 'bg-white border-slate-300 hover:bg-slate-100 hover:border-slate-400'
           } ${disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
@@ -131,7 +131,7 @@ export const MemoEditor: React.FC<MemoEditorProps> = ({
     <div className={`border border-slate-300 rounded bg-white font-sans ${className}`}>
       {renderToolbar()}
       <div className="min-h-48 max-h-96">
-        {isSplitView ? (
+        {isSplitViewActive ? (
           <div className="flex h-48">
             <div className="flex-1 border-r border-slate-300">
               {renderEditor()}
@@ -140,7 +140,7 @@ export const MemoEditor: React.FC<MemoEditorProps> = ({
               {renderPreview()}
             </div>
           </div>
-        ) : isPreviewMode ? (
+        ) : isPreviewModeActive ? (
           renderPreview()
         ) : (
           renderEditor()

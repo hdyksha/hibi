@@ -36,9 +36,9 @@ interface UseTodoFormReturn {
   toggleAdvanced: () => void;
   
   // Form actions
-  handleSubmit: (e: React.FormEvent) => Promise<void>;
-  handleTitleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handlePriorityChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  handleSubmit: (event: React.FormEvent) => Promise<void>;
+  handleTitleChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  handlePriorityChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
   resetForm: () => void;
   
   // Validation
@@ -94,8 +94,8 @@ export const useTodoForm = ({
    * Handles form submission with validation
    * Requirements: 2.2, 5.2
    */
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = useCallback(async (event: React.FormEvent) => {
+    event.preventDefault();
 
     // Clear previous error
     setError(null);
@@ -121,8 +121,8 @@ export const useTodoForm = ({
 
       // Clear form on success
       resetForm();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create todo');
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to create todo');
     } finally {
       setIsSubmitting(false);
     }
@@ -131,8 +131,8 @@ export const useTodoForm = ({
   /**
    * Handles title input change and clears error
    */
-  const handleTitleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setTitle(e.target.value);
+  const handleTitleChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    setTitle(event.target.value);
     // Clear error when user starts typing
     if (error) {
       setError(null);
@@ -142,8 +142,8 @@ export const useTodoForm = ({
   /**
    * Handles priority select change
    */
-  const handlePriorityChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    setPriority(e.target.value as Priority);
+  const handlePriorityChange = useCallback((event: React.ChangeEvent<HTMLSelectElement>) => {
+    setPriority(event.target.value as Priority);
   }, []);
 
   /**

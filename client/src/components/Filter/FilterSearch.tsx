@@ -15,8 +15,8 @@ export const FilterSearch: React.FC<FilterSearchProps> = ({
   searchText,
   onSearchChange,
 }) => {
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onSearchChange(e.target.value);
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    onSearchChange(event.target.value);
   };
 
   return (

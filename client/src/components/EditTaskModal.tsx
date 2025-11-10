@@ -77,8 +77,8 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
       await onSave(task.id, updates);
       
       onClose();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save changes');
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to save changes');
     } finally {
       setIsSaving(false);
     }
@@ -93,14 +93,14 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
     onClose();
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') {
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Escape') {
       handleCancel();
     }
   };
 
-  const handleBackdropClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
+  const handleBackdropClick = (event: React.MouseEvent) => {
+    if (event.target === event.currentTarget) {
       handleCancel();
     }
   };
@@ -146,7 +146,7 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
               id="edit-title"
               type="text"
               value={editTitle}
-              onChange={(e) => setEditTitle(e.target.value)}
+              onChange={(event) => setEditTitle(event.target.value)}
               className={`w-full px-3 py-3 border border-slate-300 rounded-md text-sm sm:text-base transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/25 focus:border-blue-500 min-h-[48px] ${
                 isSaving ? 'bg-slate-50 text-slate-500 cursor-not-allowed' : ''
               }`}
@@ -164,7 +164,7 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
               <select
                 id="edit-priority"
                 value={editPriority}
-                onChange={(e) => setEditPriority(e.target.value as Priority)}
+                onChange={(event) => setEditPriority(event.target.value as Priority)}
                 className={`w-full px-3 py-3 border border-slate-300 rounded-md text-sm sm:text-base transition-all duration-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/25 focus:border-blue-500 min-h-[48px] ${
                   isSaving ? 'bg-slate-50 text-slate-500 cursor-not-allowed' : ''
                 }`}

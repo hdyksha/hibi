@@ -23,9 +23,9 @@ const getInitialFilter = (storageKey?: string, defaultFilter: TodoFilter = {}): 
   if (!storageKey) return defaultFilter;
   
   try {
-    const stored = localStorage.getItem(storageKey);
-    if (stored) {
-      return { ...defaultFilter, ...JSON.parse(stored) };
+    const storedFilterJson = localStorage.getItem(storageKey);
+    if (storedFilterJson) {
+      return { ...defaultFilter, ...JSON.parse(storedFilterJson) };
     }
   } catch (error) {
     console.warn(`Failed to load filter from localStorage (${storageKey}):`, error);
@@ -33,7 +33,7 @@ const getInitialFilter = (storageKey?: string, defaultFilter: TodoFilter = {}): 
   return defaultFilter;
 };
 
-const saveFilter = (filter: TodoFilter, storageKey?: string) => {
+const saveFilterToStorage = (filter: TodoFilter, storageKey?: string) => {
   if (!storageKey) return;
   
   try {
@@ -52,7 +52,7 @@ export const useFilter = (options: UseFilterOptions = {}): UseFilterReturn => {
 
   const setFilter = useCallback((newFilter: TodoFilter) => {
     setFilterState(newFilter);
-    saveFilter(newFilter, storageKey);
+    saveFilterToStorage(newFilter, storageKey);
   }, [storageKey]);
 
   const clearFilter = useCallback(() => {
@@ -60,13 +60,13 @@ export const useFilter = (options: UseFilterOptions = {}): UseFilterReturn => {
   }, [setFilter, defaultFilter]);
 
   const hasActiveFilter = useMemo(() => {
-    const activeKeys = Object.keys(filter).filter(key => {
+    const activeFilterKeys = Object.keys(filter).filter(key => {
       const value = filter[key as keyof TodoFilter];
       if (Array.isArray(value)) return value.length > 0;
       if (typeof value === 'string') return value.trim() !== '';
       return value !== undefined && value !== null;
     });
-    return activeKeys.length > 0;
+    return activeFilterKeys.length > 0;
   }, [filter]);
 
   const applyFilter = useCallback((items: TodoItem[]): TodoItem[] => {
@@ -86,22 +86,22 @@ export const useFilter = (options: UseFilterOptions = {}): UseFilterReturn => {
 
       // Tags filter
       if (filter.tags && filter.tags.length > 0) {
-        const hasMatchingTag = filter.tags.some(filterTag => 
+        const itemHasMatchingTag = filter.tags.some(filterTag => 
           item.tags.includes(filterTag)
         );
-        if (!hasMatchingTag) return false;
+        if (!itemHasMatchingTag) return false;
       }
 
       // Search text filter
       if (filter.searchText && filter.searchText.trim()) {
-        const searchLower = filter.searchText.toLowerCase();
-        const titleMatch = item.title.toLowerCase().includes(searchLower);
-        const memoMatch = item.memo?.toLowerCase().includes(searchLower) || false;
-        const tagMatch = item.tags.some(tag => 
-          tag.toLowerCase().includes(searchLower)
+        const searchTextLowerCase = filter.searchText.toLowerCase();
+        const titleMatches = item.title.toLowerCase().includes(searchTextLowerCase);
+        const memoMatches = item.memo?.toLowerCase().includes(searchTextLowerCase) || false;
+        const tagMatches = item.tags.some(tag => 
+          tag.toLowerCase().includes(searchTextLowerCase)
         );
         
-        if (!titleMatch && !memoMatch && !tagMatch) {
+        if (!titleMatches && !memoMatches && !tagMatches) {
           return false;
         }
       }

@@ -14,7 +14,7 @@ interface ArchiveTaskProps {
 }
 
 export const ArchiveTask: React.FC<ArchiveTaskProps> = ({ task, onEdit }) => {
-  const formatTime = (isoString: string): string => {
+  const formatTimeFromISO = (isoString: string): string => {
     const date = new Date(isoString);
     return date.toLocaleTimeString('ja-JP', {
       hour: '2-digit',
@@ -22,13 +22,13 @@ export const ArchiveTask: React.FC<ArchiveTaskProps> = ({ task, onEdit }) => {
     });
   };
 
-  const getPriorityStyles = (priority: string): string => {
-    const styles = {
+  const getPriorityBadgeStyles = (priority: string): string => {
+    const priorityStyles = {
       high: 'bg-red-100 text-red-700 border-red-200',
       medium: 'bg-yellow-100 text-yellow-700 border-yellow-200',
       low: 'bg-green-100 text-green-700 border-green-200'
     };
-    return styles[priority as keyof typeof styles] || styles.medium;
+    return priorityStyles[priority as keyof typeof priorityStyles] || priorityStyles.medium;
   };
 
   return (
@@ -42,12 +42,12 @@ export const ArchiveTask: React.FC<ArchiveTaskProps> = ({ task, onEdit }) => {
             {task.title}
           </h4>
           <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 self-start">
-            <span className={`px-2 py-1 rounded text-xs font-semibold uppercase border ${getPriorityStyles(task.priority)}`}>
+            <span className={`px-2 py-1 rounded text-xs font-semibold uppercase border ${getPriorityBadgeStyles(task.priority)}`}>
               {task.priority}
             </span>
             {task.completedAt && (
               <span className="text-slate-500 text-xs sm:text-sm">
-                {formatTime(task.completedAt)}
+                {formatTimeFromISO(task.completedAt)}
               </span>
             )}
           </div>

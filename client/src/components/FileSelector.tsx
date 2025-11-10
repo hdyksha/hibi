@@ -13,9 +13,9 @@ interface FileSelectorProps {
 
 export function FileSelector({ onFileSwitch }: FileSelectorProps) {
   const [fileInfo, setFileInfo] = useState<FileInfo | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   useEffect(() => {
     loadFiles();
@@ -23,38 +23,38 @@ export function FileSelector({ onFileSwitch }: FileSelectorProps) {
 
   const loadFiles = async () => {
     try {
-      setLoading(true);
+      setIsLoading(true);
       setError(null);
-      const info = await fileApi.getFiles();
-      setFileInfo(info);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load files');
+      const loadedFileInfo = await fileApi.getFiles();
+      setFileInfo(loadedFileInfo);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to load files');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   const handleFileSwitch = async (fileName: string) => {
     if (fileName === fileInfo?.currentFile) {
-      setIsOpen(false);
+      setIsDropdownOpen(false);
       return;
     }
 
     try {
-      setLoading(true);
+      setIsLoading(true);
       setError(null);
       await fileApi.switchFile(fileName);
       await loadFiles();
-      setIsOpen(false);
+      setIsDropdownOpen(false);
       onFileSwitch?.();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to switch file');
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to switch file');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
-  if (loading && !fileInfo) {
+  if (isLoading && !fileInfo) {
     return (
       <div className="text-sm text-gray-500">
         Loading files...
@@ -77,24 +77,24 @@ export function FileSelector({ onFileSwitch }: FileSelectorProps) {
   return (
     <div className="relative">
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
         className="flex items-center gap-2 px-3 py-1.5 text-sm bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        disabled={loading}
+        disabled={isLoading}
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
         </svg>
         <span>{fileInfo.currentFile}</span>
-        <svg className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
 
-      {isOpen && (
+      {isDropdownOpen && (
         <>
           <div 
             className="fixed inset-0 z-10" 
-            onClick={() => setIsOpen(false)}
+            onClick={() => setIsDropdownOpen(false)}
           />
           <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-300 rounded-md shadow-lg z-20">
             <div className="p-2 border-b border-gray-200">
@@ -121,10 +121,10 @@ export function FileSelector({ onFileSwitch }: FileSelectorProps) {
                     <li key={file}>
                       <button
                         onClick={() => handleFileSwitch(file)}
-                        disabled={loading}
+                        disabled={isLoading}
                         className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 flex items-center justify-between ${
                           file === fileInfo.currentFile ? 'bg-blue-50 text-blue-700' : 'text-gray-700'
-                        } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                       >
                         <span className="truncate">{file}</span>
                         {file === fileInfo.currentFile && (

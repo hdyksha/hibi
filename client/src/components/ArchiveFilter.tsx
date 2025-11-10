@@ -59,15 +59,15 @@ export const ArchiveFilter: React.FC<ArchiveFilterProps> = ({
     onFilterChange(newFilter);
   }, [filter, onFilterChange]);
 
-  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchText(value);
+  const handleSearchChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const searchValue = event.target.value;
+    setSearchText(searchValue);
     
     const newFilter = { ...filter };
-    if (value.trim() === '') {
+    if (searchValue.trim() === '') {
       delete newFilter.searchText;
     } else {
-      newFilter.searchText = value;
+      newFilter.searchText = searchValue;
     }
     onFilterChange(newFilter);
   }, [filter, onFilterChange]);

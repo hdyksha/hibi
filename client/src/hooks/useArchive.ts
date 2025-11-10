@@ -56,10 +56,10 @@ export const useArchive = (): UseArchiveReturn => {
     try {
       setLoading(true);
       clearError();
-      const data = await todoApi.getArchive();
-      setArchiveGroups(data);
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to load archive data'));
+      const archiveData = await todoApi.getArchive();
+      setArchiveGroups(archiveData);
+    } catch (error) {
+      setError(error instanceof Error ? error : new Error('Failed to load archive data'));
     } finally {
       setLoading(false);
     }

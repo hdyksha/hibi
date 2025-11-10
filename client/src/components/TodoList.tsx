@@ -27,7 +27,7 @@ export const TodoList: React.FC<TodoListProps> = ({ className }) => {
   const handleToggleComplete = async (id: string) => {
     try {
       await toggleTodoCompletion(id);
-    } catch (err) {
+    } catch (error) {
       // Error is already handled in the hook
     }
   };
@@ -35,7 +35,7 @@ export const TodoList: React.FC<TodoListProps> = ({ className }) => {
   const handleDelete = async (id: string) => {
     try {
       await deleteTodo(id);
-    } catch (err) {
+    } catch (error) {
       // Error is already handled in the hook
     }
   };
@@ -43,7 +43,7 @@ export const TodoList: React.FC<TodoListProps> = ({ className }) => {
   const handleUpdate = async (id: string, updates: { title?: string; priority?: Priority; tags?: string[] }) => {
     try {
       await updateTodo(id, updates);
-    } catch (err) {
+    } catch (error) {
       // Error is already handled in the hook
     }
   };

@@ -12,7 +12,7 @@ import { InlineLoadingSpinner } from '../';
 export interface TodoFormBasicProps {
   title: string;
   onTitleChange: (value: string) => void;
-  onSubmit: (e: React.FormEvent) => void;
+  onSubmit: (event: React.FormEvent) => void;
   onToggleAdvanced: () => void;
   isSubmitting: boolean;
   showAdvanced: boolean;
@@ -28,8 +28,8 @@ export const TodoFormBasic: React.FC<TodoFormBasicProps> = ({
   showAdvanced,
   error,
 }) => {
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onTitleChange(e.target.value);
+  const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    onTitleChange(event.target.value);
   };
 
   return (

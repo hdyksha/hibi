@@ -57,8 +57,8 @@ export interface UseTodosReturn {
 /**
  * Normalizes an error into a consistent Error object
  */
-const normalizeError = (err: unknown, defaultMessage: string): Error => {
-    return err instanceof Error ? err : new Error(defaultMessage);
+const normalizeError = (caughtError: unknown, defaultMessage: string): Error => {
+    return caughtError instanceof Error ? caughtError : new Error(defaultMessage);
 };
 
 /**
@@ -104,8 +104,8 @@ export const useTodos = (): UseTodosReturn => {
             clearError();
             const todoItems = await todoApi.getTodos(filter);
             setTodos(todoItems);
-        } catch (err) {
-            setError(normalizeError(err, 'Failed to load todos'));
+        } catch (error) {
+            setError(normalizeError(error, 'Failed to load todos'));
         } finally {
             setLoading(false);
         }
@@ -119,8 +119,8 @@ export const useTodos = (): UseTodosReturn => {
         try {
             const tags = await todoApi.getTags();
             setAvailableTags(tags);
-        } catch (err) {
-            console.warn('Failed to load tags:', err);
+        } catch (error) {
+            console.warn('Failed to load tags:', error);
         }
     }, []);
 
@@ -133,8 +133,8 @@ export const useTodos = (): UseTodosReturn => {
             const newTodo = await todoApi.createTodo(input);
             await Promise.all([refreshTodos(), refreshTags()]);
             return newTodo;
-        } catch (err) {
-            const error = normalizeError(err, 'Failed to create todo');
+        } catch (caughtError) {
+            const error = normalizeError(caughtError, 'Failed to create todo');
             setError(error);
             throw error;
         }
@@ -149,8 +149,8 @@ export const useTodos = (): UseTodosReturn => {
             const updatedTodo = await todoApi.updateTodo(id, input);
             await Promise.all([refreshTodos(), refreshTags()]);
             return updatedTodo;
-        } catch (err) {
-            const error = normalizeError(err, 'Failed to update todo');
+        } catch (caughtError) {
+            const error = normalizeError(caughtError, 'Failed to update todo');
             setError(error);
             throw error;
         }
@@ -165,8 +165,8 @@ export const useTodos = (): UseTodosReturn => {
             const updatedTodo = await todoApi.toggleTodoCompletion(id);
             await refreshTodos();
             return updatedTodo;
-        } catch (err) {
-            const error = normalizeError(err, 'Failed to toggle todo completion');
+        } catch (caughtError) {
+            const error = normalizeError(caughtError, 'Failed to toggle todo completion');
             setError(error);
             throw error;
         }
@@ -180,8 +180,8 @@ export const useTodos = (): UseTodosReturn => {
             clearError();
             await todoApi.deleteTodo(id);
             await refreshTodos();
-        } catch (err) {
-            const error = normalizeError(err, 'Failed to delete todo');
+        } catch (caughtError) {
+            const error = normalizeError(caughtError, 'Failed to delete todo');
             setError(error);
             throw error;
         }
