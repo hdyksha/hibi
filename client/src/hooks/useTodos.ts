@@ -1,6 +1,14 @@
 /**
- * Custom hook for managing todo state
- * Provides a single source of truth for todo operations
+ * Custom hook for managing todo state and operations
+ * 
+ * Responsibilities:
+ * - Manages todo list state and loading state
+ * - Provides CRUD operations for todos
+ * - Integrates filtering functionality
+ * - Handles errors consistently across all operations
+ * - Manages available tags for the application
+ * 
+ * @returns {UseTodosReturn} Todo state and operations
  */
 
 import { useState, useCallback, useEffect } from 'react';
@@ -10,30 +18,65 @@ import { useFilter } from './useFilter';
 import { useErrorHandler } from './useErrorHandler';
 import { DEFAULT_TODO_FILTER } from '../constants/filters';
 
+/**
+ * Return type for useTodos hook
+ */
 export interface UseTodosReturn {
+    /** List of todos based on current filter */
     todos: TodoItem[];
+    /** Loading state for todo operations */
     loading: boolean;
+    /** Current error message, if any */
     error: string | null;
+    /** Current filter settings */
     filter: TodoFilter;
+    /** List of all available tags across todos */
     availableTags: string[];
+    /** Whether any filter is currently active */
     hasActiveFilter: boolean;
+    /** Refresh todos from server */
     refreshTodos: () => Promise<void>;
+    /** Update current filter */
     setFilter: (filter: TodoFilter) => void;
+    /** Clear all filters */
     clearFilter: () => void;
+    /** Create a new todo */
     createTodo: (input: CreateTodoItemInput) => Promise<TodoItem>;
+    /** Update an existing todo */
     updateTodo: (id: string, input: UpdateTodoItemInput) => Promise<TodoItem>;
+    /** Toggle completion status of a todo */
     toggleTodoCompletion: (id: string) => Promise<TodoItem>;
+    /** Delete a todo */
     deleteTodo: (id: string) => Promise<void>;
+    /** Retry the last failed action */
     retryLastAction: () => Promise<void>;
+    /** Whether a retry is currently in progress */
     isRetrying: boolean;
 }
 
+/**
+ * Normalizes an error into a consistent Error object
+ */
+const normalizeError = (err: unknown, defaultMessage: string): Error => {
+    return err instanceof Error ? err : new Error(defaultMessage);
+};
+
+/**
+ * Main hook for managing todos
+ * 
+ * This hook coordinates:
+ * - Todo data fetching and state management
+ * - CRUD operations with consistent error handling
+ * - Filter integration for todo list
+ * - Tag management for the application
+ */
 export const useTodos = (): UseTodosReturn => {
+    // Local state
     const [todos, setTodos] = useState<TodoItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [availableTags, setAvailableTags] = useState<string[]>([]);
     
-    // Use enhanced error handler
+    // Integrated hooks for cross-cutting concerns
     const { 
         error: errorState, 
         setError, 
@@ -42,7 +85,6 @@ export const useTodos = (): UseTodosReturn => {
         isRetrying 
     } = useErrorHandler();
 
-    // Use common filter hook with default to show only pending tasks
     const { 
         filter, 
         setFilter, 
@@ -53,6 +95,9 @@ export const useTodos = (): UseTodosReturn => {
         defaultFilter: DEFAULT_TODO_FILTER
     });
 
+    /**
+     * Fetches todos from the server with current filter applied
+     */
     const refreshTodos = useCallback(async () => {
         try {
             setLoading(true);
@@ -60,76 +105,89 @@ export const useTodos = (): UseTodosReturn => {
             const todoItems = await todoApi.getTodos(filter);
             setTodos(todoItems);
         } catch (err) {
-            setError(err instanceof Error ? err : new Error('Failed to load todos'));
+            setError(normalizeError(err, 'Failed to load todos'));
         } finally {
             setLoading(false);
         }
     }, [filter, clearError, setError]);
 
+    /**
+     * Fetches available tags from the server
+     * Non-critical operation - failures are logged but don't block functionality
+     */
     const refreshTags = useCallback(async () => {
         try {
             const tags = await todoApi.getTags();
             setAvailableTags(tags);
         } catch (err) {
-            // Tags loading failure shouldn't block the main functionality
             console.warn('Failed to load tags:', err);
         }
     }, []);
 
+    /**
+     * Creates a new todo and refreshes the list
+     */
     const createTodo = useCallback(async (input: CreateTodoItemInput): Promise<TodoItem> => {
         try {
             clearError();
             const newTodo = await todoApi.createTodo(input);
-            await refreshTodos(); // Refresh to get the latest state from server
-            await refreshTags(); // Refresh tags in case new tags were added
+            await Promise.all([refreshTodos(), refreshTags()]);
             return newTodo;
         } catch (err) {
-            const error = err instanceof Error ? err : new Error('Failed to create todo');
+            const error = normalizeError(err, 'Failed to create todo');
             setError(error);
             throw error;
         }
     }, [refreshTodos, refreshTags, clearError, setError]);
 
+    /**
+     * Updates an existing todo and refreshes the list
+     */
     const updateTodo = useCallback(async (id: string, input: UpdateTodoItemInput): Promise<TodoItem> => {
         try {
             clearError();
             const updatedTodo = await todoApi.updateTodo(id, input);
-            await refreshTodos(); // Refresh to get the latest state from server
-            await refreshTags(); // Refresh tags in case tags were modified
+            await Promise.all([refreshTodos(), refreshTags()]);
             return updatedTodo;
         } catch (err) {
-            const error = err instanceof Error ? err : new Error('Failed to update todo');
+            const error = normalizeError(err, 'Failed to update todo');
             setError(error);
             throw error;
         }
     }, [refreshTodos, refreshTags, clearError, setError]);
 
+    /**
+     * Toggles the completion status of a todo
+     */
     const toggleTodoCompletion = useCallback(async (id: string): Promise<TodoItem> => {
         try {
             clearError();
             const updatedTodo = await todoApi.toggleTodoCompletion(id);
-            await refreshTodos(); // Refresh to get the latest state from server
+            await refreshTodos();
             return updatedTodo;
         } catch (err) {
-            const error = err instanceof Error ? err : new Error('Failed to toggle todo completion');
+            const error = normalizeError(err, 'Failed to toggle todo completion');
             setError(error);
             throw error;
         }
     }, [refreshTodos, clearError, setError]);
 
+    /**
+     * Deletes a todo and refreshes the list
+     */
     const deleteTodo = useCallback(async (id: string): Promise<void> => {
         try {
             clearError();
             await todoApi.deleteTodo(id);
-            await refreshTodos(); // Refresh to get the latest state from server
+            await refreshTodos();
         } catch (err) {
-            const error = err instanceof Error ? err : new Error('Failed to delete todo');
+            const error = normalizeError(err, 'Failed to delete todo');
             setError(error);
             throw error;
         }
     }, [refreshTodos, clearError, setError]);
 
-    // Load todos and tags on mount
+    // Initialize: Load todos and tags on mount
     useEffect(() => {
         refreshTodos();
         refreshTags();
