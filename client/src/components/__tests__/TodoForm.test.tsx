@@ -8,12 +8,16 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import '@testing-library/jest-dom';
 import { TodoForm } from '../';
 import { TodoItem } from '../../types';
+import { TestProviders } from '../../test/MockProviders';
 
-// Mock the TodoContext
-vi.mock('../../contexts', () => ({
-  TodoProvider: ({ children }: { children: React.ReactNode }) => children,
-  useTodoContext: vi.fn(),
-}));
+// Mock the useTodoContext hook for test flexibility
+vi.mock('../../contexts', async () => {
+  const actual = await vi.importActual('../../contexts');
+  return {
+    ...actual,
+    useTodoContext: vi.fn(),
+  };
+});
 
 import { useTodoContext } from '../../contexts';
 const mockUseTodoContext = useTodoContext as any;
@@ -31,7 +35,11 @@ const mockCreatedTodo: TodoItem = {
 };
 
 const renderTodoForm = () => {
-  return render(<TodoForm />);
+  return render(
+    <TestProviders>
+      <TodoForm />
+    </TestProviders>
+  );
 };
 
 describe('TodoForm', () => {
