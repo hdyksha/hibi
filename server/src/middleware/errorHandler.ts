@@ -212,10 +212,10 @@ export function notFoundHandler(req: Request, res: Response, next: NextFunction)
  * Catches async errors and passes them to error middleware
  */
 export function asyncHandler<T extends Request, U extends Response>(
-    fn: (req: T, res: U, next: NextFunction) => Promise<any>
+    routeHandler: (req: T, res: U, next: NextFunction) => Promise<any>
 ) {
     return (req: T, res: U, next: NextFunction): void => {
-        Promise.resolve(fn(req, res, next)).catch(next);
+        Promise.resolve(routeHandler(req, res, next)).catch(next);
     };
 }
 

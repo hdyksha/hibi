@@ -15,7 +15,7 @@ const router = Router();
  * Get the default data directory
  * This function is called at runtime to ensure environment variables are loaded
  */
-function getDefaultDataDir(): string {
+function getDefaultDataDirectory(): string {
     const projectRoot = getProjectRoot();
     return process.env.TODO_DATA_DIR 
         ? join(projectRoot, process.env.TODO_DATA_DIR)
@@ -27,8 +27,8 @@ function getDefaultDataDir(): string {
  * Requirements: 指定ディレクトリ内のJSONファイル一覧表示
  */
 router.get('/', asyncHandler(async (_req: Request, res: Response) => {
-    const dataDir = getDefaultDataDir();
-    const files = await listJsonFiles(dataDir);
+    const dataDirectory = getDefaultDataDirectory();
+    const files = await listJsonFiles(dataDirectory);
     
     // Get current storage service
     const currentService = getDefaultStorageService();
@@ -38,7 +38,7 @@ router.get('/', asyncHandler(async (_req: Request, res: Response) => {
     res.status(200).json({
         files,
         currentFile: currentFileName,
-        directory: dataDir
+        directory: dataDirectory
     });
 }));
 
@@ -64,13 +64,13 @@ router.post('/switch', asyncHandler(async (req: Request, res: Response) => {
         ]);
     }
     
-    const dataDir = getDefaultDataDir();
+    const dataDirectory = getDefaultDataDirectory();
     
     // Construct full file path
-    const filePath = join(dataDir, fileName);
+    const filePath = join(dataDirectory, fileName);
     
     // Verify file exists in the list
-    const availableFiles = await listJsonFiles(dataDir);
+    const availableFiles = await listJsonFiles(dataDirectory);
     if (!availableFiles.includes(fileName)) {
         throw new ValidationError('File not found', [
             { field: 'fileName', message: 'The specified file does not exist in the data directory', value: fileName }
@@ -103,7 +103,7 @@ router.get('/current', asyncHandler(async (_req: Request, res: Response) => {
     res.status(200).json({
         fileName: currentFileName,
         filePath: currentFilePath,
-        directory: getDefaultDataDir(),
+        directory: getDefaultDataDirectory(),
         todoCount: todos.length
     });
 }));

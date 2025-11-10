@@ -89,7 +89,7 @@ export class FileStorageService {
         return this.fixedFilePath || StorageContext.getFilePath();
     }
 
-    private writeQueue: Promise<void> = Promise.resolve();
+    private pendingWriteOperations: Promise<void> = Promise.resolve();
 
     /**
      * Read all TodoItems from the JSON file
@@ -101,8 +101,8 @@ export class FileStorageService {
             await this.ensureDirectoryExists();
 
             // Check if file exists
-            const fileExists = await this.fileExists();
-            if (!fileExists) {
+            const doesFileExist = await this.fileExists();
+            if (!doesFileExist) {
                 // Return empty array if file doesn't exist
                 return [];
             }
@@ -116,14 +116,14 @@ export class FileStorageService {
             }
 
             // Parse JSON content
-            const data = JSON.parse(fileContent);
+            const parsedData = JSON.parse(fileContent);
 
             // Validate that data is an array
-            if (!Array.isArray(data)) {
+            if (!Array.isArray(parsedData)) {
                 throw new StorageError('Invalid data format: expected array of TodoItems');
             }
 
-            return data as TodoItem[];
+            return parsedData as TodoItem[];
         } catch (error) {
             if (error instanceof StorageError) {
                 throw error;
@@ -143,11 +143,11 @@ export class FileStorageService {
      */
     async writeTodos(todos: TodoItem[]): Promise<void> {
         // Queue write operations to prevent concurrent file corruption
-        this.writeQueue = this.writeQueue.then(async () => {
+        this.pendingWriteOperations = this.pendingWriteOperations.then(async () => {
             await this.writeToFileDirectly(todos);
         });
 
-        return this.writeQueue;
+        return this.pendingWriteOperations;
     }
 
     /**
@@ -174,7 +174,7 @@ export class FileStorageService {
      */
     async addTodo(todo: TodoItem): Promise<void> {
         // Queue operations to prevent race conditions
-        this.writeQueue = this.writeQueue.then(async () => {
+        this.pendingWriteOperations = this.pendingWriteOperations.then(async () => {
             try {
                 const todos = await this.readTodos();
                 todos.push(todo);
@@ -187,7 +187,7 @@ export class FileStorageService {
             }
         });
 
-        return this.writeQueue;
+        return this.pendingWriteOperations;
     }
 
     /**
@@ -195,22 +195,22 @@ export class FileStorageService {
      * Requirements: 3.3 - Data persistence for status changes
      */
     async updateTodo(id: string, updatedTodo: TodoItem): Promise<boolean> {
-        let result = false;
+        let wasUpdateSuccessful = false;
 
         // Queue operations to prevent race conditions
-        this.writeQueue = this.writeQueue.then(async () => {
+        this.pendingWriteOperations = this.pendingWriteOperations.then(async () => {
             try {
                 const todos = await this.readTodos();
-                const index = todos.findIndex(todo => todo.id === id);
+                const todoIndex = todos.findIndex(todo => todo.id === id);
 
-                if (index === -1) {
-                    result = false; // Todo not found
+                if (todoIndex === -1) {
+                    wasUpdateSuccessful = false; // Todo not found
                     return;
                 }
 
-                todos[index] = updatedTodo;
+                todos[todoIndex] = updatedTodo;
                 await this.writeToFileDirectly(todos);
-                result = true;
+                wasUpdateSuccessful = true;
             } catch (error) {
                 if (error instanceof StorageError) {
                     throw error;
@@ -219,8 +219,8 @@ export class FileStorageService {
             }
         });
 
-        await this.writeQueue;
-        return result;
+        await this.pendingWriteOperations;
+        return wasUpdateSuccessful;
     }
 
     /**
@@ -228,22 +228,22 @@ export class FileStorageService {
      * Requirements: Data persistence for deletions
      */
     async removeTodo(id: string): Promise<boolean> {
-        let result = false;
+        let wasRemovalSuccessful = false;
 
         // Queue operations to prevent race conditions
-        this.writeQueue = this.writeQueue.then(async () => {
+        this.pendingWriteOperations = this.pendingWriteOperations.then(async () => {
             try {
                 const todos = await this.readTodos();
-                const initialLength = todos.length;
-                const filteredTodos = todos.filter(todo => todo.id !== id);
+                const todosBeforeRemoval = todos.length;
+                const remainingTodos = todos.filter(todo => todo.id !== id);
 
-                if (filteredTodos.length === initialLength) {
-                    result = false; // Todo not found
+                if (remainingTodos.length === todosBeforeRemoval) {
+                    wasRemovalSuccessful = false; // Todo not found
                     return;
                 }
 
-                await this.writeToFileDirectly(filteredTodos);
-                result = true;
+                await this.writeToFileDirectly(remainingTodos);
+                wasRemovalSuccessful = true;
             } catch (error) {
                 if (error instanceof StorageError) {
                     throw error;
@@ -252,8 +252,8 @@ export class FileStorageService {
             }
         });
 
-        await this.writeQueue;
-        return result;
+        await this.pendingWriteOperations;
+        return wasRemovalSuccessful;
     }
 
     /**
@@ -280,8 +280,8 @@ export class FileStorageService {
      */
     private async ensureDirectoryExists(): Promise<void> {
         try {
-            const dir = dirname(this.getCurrentFilePath());
-            await fs.mkdir(dir, { recursive: true });
+            const directoryPath = dirname(this.getCurrentFilePath());
+            await fs.mkdir(directoryPath, { recursive: true });
         } catch (error) {
             throw new StorageError(`Failed to create storage directory: ${error instanceof Error ? error.message : 'Unknown error'}`, error instanceof Error ? error : undefined);
         }
@@ -315,7 +315,7 @@ function getDefaultDataDirectory(): string {
 /**
  * Default storage service instance (lazy initialization)
  */
-let _defaultStorageService: FileStorageService | null = null;
+let defaultStorageServiceInstance: FileStorageService | null = null;
 
 /**
  * Get the current default storage service
@@ -324,18 +324,18 @@ let _defaultStorageService: FileStorageService | null = null;
  * Note: Creates the service WITHOUT a fixed path, so it uses StorageContext dynamically
  */
 export function getDefaultStorageService(): FileStorageService {
-    if (!_defaultStorageService) {
+    if (!defaultStorageServiceInstance) {
         // Don't pass a filePath - let it use StorageContext
-        _defaultStorageService = new FileStorageService();
+        defaultStorageServiceInstance = new FileStorageService();
     }
-    return _defaultStorageService;
+    return defaultStorageServiceInstance;
 }
 
 /**
  * Set a new default storage service (mainly for testing)
  */
 export function setDefaultStorageService(service: FileStorageService) {
-    _defaultStorageService = service;
+    defaultStorageServiceInstance = service;
 }
 
 /**
@@ -360,4 +360,4 @@ function resetStorageContext() {
 export { resetStorageContext };
 
 // Export for backward compatibility (deprecated - use getDefaultStorageService instead)
-export const defaultStorageService = _defaultStorageService;
+export const defaultStorageService = defaultStorageServiceInstance;

@@ -32,16 +32,16 @@ export class TodoService {
      * Requirements: 2.1, 2.2, 5.2
      */
     async getTodos(filter?: TodoFilter): Promise<TodoItem[]> {
-        const todos = await this.storage.readTodos();
+        const allTodos = await this.storage.readTodos();
 
         if (!filter || Object.keys(filter).length === 0) {
-            return todos;
+            return allTodos;
         }
 
         // Validate filter parameters
         this.validateFilter(filter);
 
-        return this.applyFilter(todos, filter);
+        return this.applyFilter(allTodos, filter);
     }
 
     /**
@@ -88,9 +88,9 @@ export class TodoService {
 
         // Check if at least one field is being updated
         const updatableFields = ['completed', 'title', 'priority', 'tags', 'memo'];
-        const hasUpdatableField = updatableFields.some(field => input.hasOwnProperty(field));
+        const hasAtLeastOneUpdatableField = updatableFields.some(field => input.hasOwnProperty(field));
 
-        if (!hasUpdatableField) {
+        if (!hasAtLeastOneUpdatableField) {
             throw new ValidationError('No valid fields to update', [
                 { field: 'body', message: `At least one of the following fields must be provided: ${updatableFields.join(', ')}` }
             ]);
@@ -103,10 +103,10 @@ export class TodoService {
         }
 
         // Get all todos from storage
-        const todos = await this.storage.readTodos();
+        const allTodos = await this.storage.readTodos();
 
         // Find the todo item to update
-        const existingTodo = todos.find(todo => todo.id === id);
+        const existingTodo = allTodos.find(todo => todo.id === id);
         if (!existingTodo) {
             throw new NotFoundError('Todo item', id);
         }
@@ -147,9 +147,9 @@ export class TodoService {
         }
 
         // Update in storage
-        const updateSuccess = await this.storage.updateTodo(id, updatedTodo);
+        const wasUpdateSuccessful = await this.storage.updateTodo(id, updatedTodo);
 
-        if (!updateSuccess) {
+        if (!wasUpdateSuccessful) {
             throw new AppError('Failed to update todo item in storage', 500, true, 'STORAGE_UPDATE_FAILED');
         }
 
@@ -168,9 +168,9 @@ export class TodoService {
         }
 
         // Remove todo from storage
-        const deleteSuccess = await this.storage.removeTodo(id);
+        const wasDeleteSuccessful = await this.storage.removeTodo(id);
 
-        if (!deleteSuccess) {
+        if (!wasDeleteSuccessful) {
             throw new NotFoundError('Todo item', id);
         }
 
@@ -236,32 +236,32 @@ export class TodoService {
      */
     async getArchive(): Promise<ArchiveGroup[]> {
         // Retrieve all todos from storage
-        const todos = await this.storage.readTodos();
+        const allTodos = await this.storage.readTodos();
 
         // Filter only completed todos that have a completedAt date
         // 要件 9.1: 完了済みのtodoアイテムをアーカイブビューで表示する
-        const completedTodos = todos.filter(todo => todo.completed && todo.completedAt);
+        const completedTodos = allTodos.filter(todo => todo.completed && todo.completedAt);
 
         // Group todos by completion date (YYYY-MM-DD format)
         // 要件 9.2: アーカイブビューで完了日によるグルーピング機能を提供する
-        const groupedTodos = new Map<string, TodoItem[]>();
+        const todosByCompletionDate = new Map<string, TodoItem[]>();
 
         completedTodos.forEach(todo => {
             if (todo.completedAt) {
                 // Extract date part from ISO string (YYYY-MM-DD)
                 const completionDate = todo.completedAt.split('T')[0];
 
-                if (!groupedTodos.has(completionDate)) {
-                    groupedTodos.set(completionDate, []);
+                if (!todosByCompletionDate.has(completionDate)) {
+                    todosByCompletionDate.set(completionDate, []);
                 }
-                groupedTodos.get(completionDate)!.push(todo);
+                todosByCompletionDate.get(completionDate)!.push(todo);
             }
         });
 
         // Convert to ArchiveGroup array and sort by date (newest first)
         // 要件 9.3: 完了日が新しいものから順に表示する
         // 要件 9.5: アーカイブビューで各グループの完了タスク数を表示する
-        const archiveGroups = Array.from(groupedTodos.entries())
+        const archiveGroups = Array.from(todosByCompletionDate.entries())
             .map(([date, tasks]) => ({
                 date,
                 tasks: tasks.sort((a, b) => {
@@ -286,17 +286,17 @@ export class TodoService {
      */
     async getTags(): Promise<string[]> {
         // Retrieve all todos from storage
-        const todos = await this.storage.readTodos();
+        const allTodos = await this.storage.readTodos();
 
         // Extract all unique tags
-        const allTags = todos.reduce((tags: string[], todo) => {
-            return tags.concat(todo.tags);
+        const allTags = allTodos.reduce((accumulatedTags: string[], todo) => {
+            return accumulatedTags.concat(todo.tags);
         }, []);
 
         // Remove duplicates and sort alphabetically
-        const uniqueTags = Array.from(new Set(allTags)).sort();
+        const uniqueSortedTags = Array.from(new Set(allTags)).sort();
 
-        return uniqueTags;
+        return uniqueSortedTags;
     }
 
     /**
@@ -326,7 +326,7 @@ export class TodoService {
  * Default TodoService instance
  * Lazy initialization pattern
  */
-let _defaultTodoService: TodoService | null = null;
+let defaultTodoServiceInstance: TodoService | null = null;
 
 /**
  * Get the default TodoService instance
@@ -336,15 +336,15 @@ let _defaultTodoService: TodoService | null = null;
  * is automatically reflected without recreating the TodoService instance.
  */
 export function getDefaultTodoService(): TodoService {
-    if (!_defaultTodoService) {
-        _defaultTodoService = new TodoService(getDefaultStorageService());
+    if (!defaultTodoServiceInstance) {
+        defaultTodoServiceInstance = new TodoService(getDefaultStorageService());
     }
-    return _defaultTodoService;
+    return defaultTodoServiceInstance;
 }
 
 /**
  * Set a new default TodoService instance (mainly for testing)
  */
 export function setDefaultTodoService(service: TodoService) {
-    _defaultTodoService = service;
+    defaultTodoServiceInstance = service;
 }

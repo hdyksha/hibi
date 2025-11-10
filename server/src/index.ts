@@ -62,10 +62,10 @@ app.use(notFoundHandler);
 app.use(errorHandler);
 
 // サーバー起動 (テスト環境では起動しない)
-let server: any = null;
+let serverInstance: any = null;
 
 if (process.env.NODE_ENV !== 'test') {
-  server = app.listen(PORT, () => {
+  serverInstance = app.listen(PORT, () => {
     console.log(`Todo App Server is running on port ${PORT}`);
     console.log(`Data directory: ${process.env.TODO_DATA_DIR || 'server/data (default)'}`);
   });
@@ -73,10 +73,10 @@ if (process.env.NODE_ENV !== 'test') {
   // Graceful shutdown
   process.on('SIGTERM', () => {
     console.log('SIGTERM received, shutting down gracefully');
-    server.close(() => {
+    serverInstance.close(() => {
       console.log('Process terminated');
     });
   });
 }
 
-export { app, server };
+export { app, serverInstance as server };
