@@ -56,37 +56,32 @@ export const TodoFormBasic: React.FC<TodoFormBasicProps> = ({
             <button
               type="button"
               onClick={onToggleAdvanced}
-              className={`px-4 py-3 bg-slate-100 border border-slate-300 rounded-lg cursor-pointer text-sm text-slate-600 transition-all duration-200 min-w-[48px] min-h-[48px] flex items-center justify-center ${
-                isSubmitting 
-                  ? 'bg-slate-50 cursor-not-allowed opacity-60' 
-                  : 'hover:bg-slate-200 hover:border-slate-400 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/25 focus:border-blue-500 active:bg-slate-300'
-              }`}
+              className={`px-3 bg-slate-100 border border-slate-300 rounded-lg cursor-pointer text-sm text-slate-600 transition-all duration-200 min-w-[48px] h-[48px] flex items-center justify-center ${isSubmitting
+                ? 'bg-slate-50 cursor-not-allowed opacity-60'
+                : 'hover:bg-slate-200 hover:border-slate-400 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/25 focus:border-blue-500 active:bg-slate-300'
+                }`}
               disabled={isSubmitting}
               aria-expanded={showAdvanced}
               aria-label={showAdvanced ? 'Hide advanced options' : 'Show advanced options'}
             >
               {showAdvanced ? '▲' : '▼'}
             </button>
+            <Button
+              type="submit"
+              variant="primary"
+              size="md"
+              disabled={isSubmitting || !title.trim()}
+            >
+              {isSubmitting ? (
+                <span className="flex items-center gap-2">
+                  <InlineLoadingSpinner size="sm" />
+                  <span className="whitespace-nowrap">Creating...</span>
+                </span>
+              ) : (
+                'Create'
+              )}
+            </Button>
           </div>
-        </div>
-
-        <div className="flex justify-start mt-3 sm:mt-4">
-          <Button
-            type="submit"
-            variant="primary"
-            size="md"
-            fullWidth
-            disabled={isSubmitting || !title.trim()}
-          >
-            {isSubmitting ? (
-              <span className="flex items-center gap-2">
-                <InlineLoadingSpinner size="sm" />
-                Creating...
-              </span>
-            ) : (
-              'Create Todo'
-            )}
-          </Button>
         </div>
       </div>
     </form>
