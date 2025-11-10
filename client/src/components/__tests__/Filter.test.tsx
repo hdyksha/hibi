@@ -7,7 +7,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Filter } from '../Filter';
 import { TodoFilter } from '../../types';
-import { TodoProvider, NetworkProvider } from '../../contexts';
+import { TestProviders } from '../../test/MockProviders';
 
 describe('Filter Component', () => {
   const mockOnFilterChange = vi.fn();
@@ -21,16 +21,14 @@ describe('Filter Component', () => {
 
   const renderFilter = (filter: TodoFilter, hideStatusFilter = false) => {
     return render(
-      <NetworkProvider>
-        <TodoProvider>
-          <Filter
-            filter={filter}
-            availableTags={mockAvailableTags}
-            onFilterChange={mockOnFilterChange}
-            hideStatusFilter={hideStatusFilter}
-          />
-        </TodoProvider>
-      </NetworkProvider>
+      <TestProviders>
+        <Filter
+          filter={filter}
+          availableTags={mockAvailableTags}
+          onFilterChange={mockOnFilterChange}
+          hideStatusFilter={hideStatusFilter}
+        />
+      </TestProviders>
     );
   };
 
@@ -148,15 +146,13 @@ describe('Filter Component', () => {
     const filter: TodoFilter = {};
     
     render(
-      <NetworkProvider>
-        <TodoProvider>
-          <Filter
-            filter={filter}
-            availableTags={[]}
-            onFilterChange={mockOnFilterChange}
-          />
-        </TodoProvider>
-      </NetworkProvider>
+      <TestProviders>
+        <Filter
+          filter={filter}
+          availableTags={[]}
+          onFilterChange={mockOnFilterChange}
+        />
+      </TestProviders>
     );
 
     expect(screen.queryByText('Tags')).not.toBeInTheDocument();

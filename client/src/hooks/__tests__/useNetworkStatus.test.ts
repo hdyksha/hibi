@@ -46,13 +46,14 @@ describe('useNetworkStatus', () => {
 
     expect(result.current.isOnline).toBe(true);
     expect(result.current.isSlowConnection).toBe(false);
-    // Initially lastOnlineAt is null, will be set after first successful check
+    // In test environment, initial connection check is skipped
+    // so lastOnlineAt remains null
     expect(result.current.lastOnlineAt).toBeNull();
     expect(result.current.connectionType).toBeNull();
 
-    // Wait for initial connection check to complete
+    // Manually trigger connection check in test
     await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0));
+      await result.current.checkConnection();
     });
 
     // After successful connection check, lastOnlineAt should be set

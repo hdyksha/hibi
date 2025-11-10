@@ -6,7 +6,7 @@
 import React, { createContext, useContext, ReactNode } from 'react';
 import { useNetworkStatus, UseNetworkStatusReturn } from '../hooks/useNetworkStatus';
 
-const NetworkContext = createContext<UseNetworkStatusReturn | undefined>(undefined);
+export const NetworkContext = createContext<UseNetworkStatusReturn | undefined>(undefined);
 
 interface NetworkProviderProps {
   children: ReactNode;
