@@ -32,8 +32,8 @@ export const FilterTags: React.FC<FilterTagsProps> = ({
       <div className="space-y-2 max-h-32 sm:max-h-40 overflow-y-auto">
         {availableTags.map(tag => (
           <label key={tag} className="
-            flex items-center space-x-3 p-2 rounded-md hover:bg-slate-50 
-            cursor-pointer transition-colors duration-200 min-h-[44px] active:bg-slate-100
+            flex items-center space-x-2 px-2 py-1 rounded-md hover:bg-slate-50 
+            cursor-pointer transition-colors duration-200 active:bg-slate-100
           ">
             <input
               type="checkbox"
