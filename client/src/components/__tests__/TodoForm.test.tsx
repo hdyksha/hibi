@@ -55,7 +55,7 @@ describe('TodoForm', () => {
     
     expect(screen.getByLabelText('New Todo')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Enter todo title...')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Create Todo' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Create' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Show advanced options' })).toBeInTheDocument();
     
     // Advanced options should be hidden by default
@@ -78,7 +78,7 @@ describe('TodoForm', () => {
     renderTodoForm();
     
     const titleInput = screen.getByLabelText('New Todo');
-    const submitButton = screen.getByRole('button', { name: 'Create Todo' });
+    const submitButton = screen.getByRole('button', { name: 'Create' });
     
     fireEvent.change(titleInput, { target: { value: 'New Todo' } });
     fireEvent.click(submitButton);
@@ -117,7 +117,7 @@ describe('TodoForm', () => {
     const longTitle = 'a'.repeat(201);
     
     fireEvent.change(titleInput, { target: { value: longTitle } });
-    fireEvent.click(screen.getByRole('button', { name: 'Create Todo' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Create' }));
     
     await waitFor(() => {
       expect(screen.getByText('Title must be 200 characters or less')).toBeInTheDocument();
@@ -142,7 +142,7 @@ describe('TodoForm', () => {
     const titleInput = screen.getByLabelText('New Todo');
     
     fireEvent.change(titleInput, { target: { value: '  New Todo  ' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Create Todo' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Create' }));
     
     await waitFor(() => {
       expect(mockCreateTodo).toHaveBeenCalledWith({
@@ -157,7 +157,7 @@ describe('TodoForm', () => {
   it('disables submit button when title is empty', () => {
     renderTodoForm();
     
-    const submitButton = screen.getByRole('button', { name: 'Create Todo' });
+    const submitButton = screen.getByRole('button', { name: 'Create' });
     expect(submitButton).toBeDisabled();
   });
 
@@ -165,7 +165,7 @@ describe('TodoForm', () => {
     renderTodoForm();
     
     const titleInput = screen.getByLabelText('New Todo');
-    const submitButton = screen.getByRole('button', { name: 'Create Todo' });
+    const submitButton = screen.getByRole('button', { name: 'Create' });
     
     fireEvent.change(titleInput, { target: { value: 'New Todo' } });
     
@@ -190,7 +190,7 @@ describe('TodoForm', () => {
     const titleInput = screen.getByLabelText('New Todo');
     
     fireEvent.change(titleInput, { target: { value: 'New Todo' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Create Todo' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Create' }));
     
     await waitFor(() => {
       expect(screen.getByText('Creating...')).toBeInTheDocument();
@@ -216,7 +216,7 @@ describe('TodoForm', () => {
     const titleInput = screen.getByLabelText('New Todo');
     
     fireEvent.change(titleInput, { target: { value: 'New Todo' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Create Todo' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Create' }));
     
     await waitFor(() => {
       expect(screen.getByText('Network error')).toBeInTheDocument();
@@ -293,7 +293,7 @@ describe('TodoForm', () => {
       
       // Create todo
       fireEvent.change(titleInput, { target: { value: 'Test Todo' } });
-      fireEvent.click(screen.getByRole('button', { name: 'Create Todo' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Create' }));
       
       await waitFor(() => {
         expect(screen.queryByLabelText('Priority')).not.toBeInTheDocument();
@@ -352,7 +352,7 @@ describe('TodoForm', () => {
       fireEvent.click(toggleButton);
       
       const prioritySelect = screen.getByLabelText('Priority');
-      const submitButton = screen.getByRole('button', { name: 'Create Todo' });
+      const submitButton = screen.getByRole('button', { name: 'Create' });
       
       fireEvent.change(titleInput, { target: { value: 'High Priority Todo' } });
       fireEvent.change(prioritySelect, { target: { value: 'high' } });
@@ -393,7 +393,7 @@ describe('TodoForm', () => {
       
       fireEvent.change(titleInput, { target: { value: 'Test Todo' } });
       fireEvent.change(prioritySelect, { target: { value: 'high' } });
-      fireEvent.click(screen.getByRole('button', { name: 'Create Todo' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Create' }));
       
       await waitFor(() => {
         // Need to open advanced options again to check the reset value

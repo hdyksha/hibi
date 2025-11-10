@@ -8,6 +8,7 @@ import { ArchiveGroup, TodoFilter } from '../types';
 import { todoApi } from '../services';
 import { useFilter } from './useFilter';
 import { useErrorHandler } from './useErrorHandler';
+import { DEFAULT_ARCHIVE_FILTER } from '../constants/filters';
 
 export interface UseArchiveReturn {
   archiveGroups: ArchiveGroup[];
@@ -48,7 +49,7 @@ export const useArchive = (): UseArchiveReturn => {
     applyFilter 
   } = useFilter({
     storageKey: 'todo-app-archive-filter',
-    defaultFilter: {}
+    defaultFilter: DEFAULT_ARCHIVE_FILTER
   });
 
   const refreshArchive = useCallback(async () => {

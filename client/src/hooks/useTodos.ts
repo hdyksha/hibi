@@ -8,6 +8,7 @@ import { TodoItem, CreateTodoItemInput, UpdateTodoItemInput, TodoFilter } from '
 import { todoApi } from '../services';
 import { useFilter } from './useFilter';
 import { useErrorHandler } from './useErrorHandler';
+import { DEFAULT_TODO_FILTER } from '../constants/filters';
 
 export interface UseTodosReturn {
     todos: TodoItem[];
@@ -49,7 +50,7 @@ export const useTodos = (): UseTodosReturn => {
         hasActiveFilter 
     } = useFilter({
         storageKey: 'todo-app-filter',
-        defaultFilter: { status: 'pending' }
+        defaultFilter: DEFAULT_TODO_FILTER
     });
 
     const refreshTodos = useCallback(async () => {

@@ -11,6 +11,8 @@ import { FilterSearch } from './Filter/FilterSearch';
 import { FilterStatus as FilterStatusComponent } from './Filter/FilterStatus';
 import { FilterPriority } from './Filter/FilterPriority';
 import { FilterTags } from './Filter/FilterTags';
+import { useTodoContext } from '../contexts';
+import { DEFAULT_TODO_FILTER } from '../constants/filters';
 
 interface FilterProps {
   filter: TodoFilter;
@@ -39,6 +41,7 @@ export const Filter: React.FC<FilterProps> = ({
   className,
   hideStatusFilter = false,
 }) => {
+  const { clearFilter } = useTodoContext();
   const [searchText, setSearchText] = useState(filter.searchText || '');
 
   const handleStatusChange = useCallback((status: FilterStatus) => {
@@ -89,8 +92,8 @@ export const Filter: React.FC<FilterProps> = ({
 
   const handleClearFilters = useCallback(() => {
     setSearchText('');
-    onFilterChange({});
-  }, [onFilterChange]);
+    clearFilter();
+  }, [clearFilter]);
 
   const hasActiveFilters = Object.keys(filter).length > 0;
 
@@ -125,7 +128,7 @@ export const Filter: React.FC<FilterProps> = ({
       {/* Status Filter */}
       {!hideStatusFilter && (
         <FilterStatusComponent
-          status={filter.status || 'pending'}
+          status={filter.status || DEFAULT_TODO_FILTER.status!}
           onStatusChange={handleStatusChange}
         />
       )}

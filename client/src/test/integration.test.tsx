@@ -123,7 +123,7 @@ describe('フロントエンド統合テスト', () => {
       mockTodoApi.getTodos.mockResolvedValueOnce([sampleTodo]);
 
       const titleInput = screen.getByLabelText('New Todo');
-      const submitButton = screen.getByRole('button', { name: 'Create Todo' });
+      const submitButton = screen.getByRole('button', { name: 'Create' });
 
       fireEvent.change(titleInput, { target: { value: 'Test Todo' } });
       fireEvent.click(submitButton);
@@ -277,7 +277,7 @@ describe('フロントエンド統合テスト', () => {
 
       const titleInput = screen.getByLabelText('New Todo');
       fireEvent.change(titleInput, { target: { value: 'Test Todo' } });
-      fireEvent.click(screen.getByRole('button', { name: 'Create Todo' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Create' }));
 
       await waitFor(() => {
         expect(screen.getByText('Title cannot be empty')).toBeInTheDocument();
@@ -304,7 +304,7 @@ describe('フロントエンド統合テスト', () => {
 
       // モバイルでも基本的な要素が表示されることを確認
       expect(screen.getByLabelText('New Todo')).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'Create Todo' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Create' })).toBeInTheDocument();
     });
   });
 });

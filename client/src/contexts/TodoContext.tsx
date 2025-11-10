@@ -9,8 +9,9 @@ import { useArchive, UseArchiveReturn } from '../hooks/useArchive';
 import { httpClient } from '../services';
 import { useNetworkContext } from './NetworkContext';
 
-interface TodoContextValue extends UseTodosReturn {
+interface TodoContextValue extends Omit<UseTodosReturn, 'clearFilter'> {
   archive: UseArchiveReturn;
+  clearFilter: () => void;
 }
 
 const TodoContext = createContext<TodoContextValue | undefined>(undefined);
@@ -35,6 +36,7 @@ export const TodoProvider: React.FC<TodoProviderProps> = ({ children }) => {
   const contextValue: TodoContextValue = {
     ...todoState,
     archive: archiveState,
+    clearFilter: todoState.clearFilter,
   };
 
   return (
