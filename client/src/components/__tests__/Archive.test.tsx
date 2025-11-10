@@ -9,8 +9,7 @@ import { vi } from 'vitest';
 import { Archive } from '../Archive';
 import { todoApi, fileApi, httpClient } from '../../services';
 import { ArchiveGroup } from '../../types';
-import { TodoProvider } from '../../contexts/TodoContext';
-import { NetworkProvider } from '../../contexts/NetworkContext';
+import { TestProviders } from '../../test/MockProviders';
 
 // Mock the API client
 vi.mock('../../services', () => ({
@@ -39,31 +38,16 @@ vi.mock('../../services', () => ({
   },
 }));
 
-// Mock the useNetworkStatus hook
-vi.mock('../../hooks/useNetworkStatus', () => ({
-  useNetworkStatus: () => ({
-    isOnline: true,
-    isSlowConnection: false,
-    lastOnlineAt: Date.now(),
-    connectionType: null,
-    checkConnection: vi.fn().mockResolvedValue(true),
-    reportConnectionError: vi.fn(),
-    reportConnectionSuccess: vi.fn(),
-  }),
-}));
-
 const mockTodoApi = todoApi as any;
 
-// Helper function to render Archive with NetworkProvider and TodoProvider
+// Helper function to render Archive with TestProviders
 const renderArchive = async (props = {}) => {
   let result;
   await act(async () => {
     result = render(
-      <NetworkProvider>
-        <TodoProvider>
-          <Archive {...props} />
-        </TodoProvider>
-      </NetworkProvider>
+      <TestProviders>
+        <Archive {...props} />
+      </TestProviders>
     );
     // Wait for all promises to resolve
     await Promise.resolve();

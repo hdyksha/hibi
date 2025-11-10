@@ -427,7 +427,12 @@
   - vi.mockの使用を最小限に抑える
   - _要件: 9.1, 9.2, 12.1_
 
-- [ ] 10.1 Archive.test.tsx のリファクタリング
+- [x] 10.1 Archive.test.tsx のリファクタリング
+
+
+
+
+
   - `TestProviders` を使用して NetworkProvider と TodoProvider を置き換え
   - `vi.mock('../../hooks/useNetworkStatus')` を削除
   - renderArchive ヘルパー関数を簡素化
