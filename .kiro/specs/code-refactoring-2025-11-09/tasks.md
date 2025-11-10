@@ -210,7 +210,12 @@
   - スタイリングユーティリティを作成する
   - _要件: 1.1, 2.1, 5.1, 12.1_
 
-- [ ] 5.1 共通Buttonコンポーネントの作成
+- [x] 5.1 共通Buttonコンポーネントの作成
+
+
+
+
+
   - `client/src/components/common/Button.tsx` を作成
   - primary、secondary、danger などのバリアントを実装
   - サイズ、無効化状態などのプロップスを実装
