@@ -353,7 +353,12 @@
   - フィルター管理ロジックを整理する
   - _要件: 2.1, 2.2, 5.1_
 
-- [ ] 8.1 Filter サブコンポーネントの作成
+- [x] 8.1 Filter サブコンポーネントの作成
+
+
+
+
+
   - `client/src/components/Filter/` ディレクトリを作成
   - `FilterSearch.tsx`、`FilterStatus.tsx`、`FilterPriority.tsx`、`FilterTags.tsx` を作成
   - 各サブコンポーネントに適切な責任を割り当て
