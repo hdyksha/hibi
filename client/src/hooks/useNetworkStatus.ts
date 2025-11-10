@@ -124,11 +124,6 @@ export const useNetworkStatus = (): UseNetworkStatusReturn => {
 
   // Initial connection check - no periodic polling
   useEffect(() => {
-    // Skip initial check in test environment to avoid act() warnings
-    if (typeof process !== 'undefined' && process.env.NODE_ENV === 'test') {
-      return;
-    }
-    // Initial check
     checkConnection();
   }, [checkConnection]);
 

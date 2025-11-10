@@ -44,19 +44,17 @@ describe('useNetworkStatus', () => {
   it('should initialize with online status', async () => {
     const { result } = renderHook(() => useNetworkStatus());
 
+    // Initial state before connection check
     expect(result.current.isOnline).toBe(true);
     expect(result.current.isSlowConnection).toBe(false);
-    // In test environment, initial connection check is skipped
-    // so lastOnlineAt remains null
-    expect(result.current.lastOnlineAt).toBeNull();
     expect(result.current.connectionType).toBeNull();
 
-    // Manually trigger connection check in test
+    // Wait for initial connection check to complete
     await act(async () => {
-      await result.current.checkConnection();
+      await new Promise(resolve => setTimeout(resolve, 0));
     });
 
-    // After successful connection check, lastOnlineAt should be set
+    // After initial connection check, lastOnlineAt should be set
     expect(result.current.lastOnlineAt).toBeTypeOf('number');
   });
 
@@ -69,28 +67,15 @@ describe('useNetworkStatus', () => {
 
     const { result } = renderHook(() => useNetworkStatus());
 
-    // Wait for initial effect to complete
-    await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0));
-    });
-
+    // The initial state should reflect navigator.onLine
     expect(result.current.isOnline).toBe(false);
     expect(result.current.lastOnlineAt).toBeNull();
   });
 
   it('should check connection successfully', async () => {
-    // Set up mock before rendering
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-    });
-
     const { result } = renderHook(() => useNetworkStatus());
 
-    // Wait for initial effect to complete
-    await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0));
-    });
-
+    // Manually call checkConnection
     let connectionResult: boolean;
     await act(async () => {
       connectionResult = await result.current.checkConnection();
@@ -110,11 +95,7 @@ describe('useNetworkStatus', () => {
 
     const { result } = renderHook(() => useNetworkStatus());
 
-    // Wait for initial effect to complete
-    await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0));
-    });
-
+    // Manually trigger connection check
     await act(async () => {
       await result.current.checkConnection();
     });
@@ -139,7 +120,6 @@ describe('useNetworkStatus', () => {
     });
 
     expect(connectionResult!).toBe(false);
-    // The hook should update isOnline to false when connection check fails
     expect(result.current.isOnline).toBe(false);
   });
 
@@ -171,8 +151,6 @@ describe('useNetworkStatus', () => {
     await act(async () => {
       // Simulate offline event
       window.dispatchEvent(new Event('offline'));
-      // Wait for any async operations to complete
-      await new Promise(resolve => setTimeout(resolve, 0));
     });
 
     expect(result.current.isOnline).toBe(false);
@@ -186,11 +164,6 @@ describe('useNetworkStatus', () => {
     });
 
     const { result } = renderHook(() => useNetworkStatus());
-
-    // Wait for initial effect to complete
-    await act(async () => {
-      await new Promise(resolve => setTimeout(resolve, 0));
-    });
 
     let connectionResult: boolean;
     await act(async () => {
