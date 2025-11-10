@@ -260,7 +260,12 @@
   - プレゼンテーション層とロジック層を分離する
   - _要件: 2.1, 2.2, 5.1, 5.2_
 
-- [ ] 6.1 TodoItem サブコンポーネントの作成
+- [x] 6.1 TodoItem サブコンポーネントの作成
+
+
+
+
+
   - `client/src/components/TodoItem/` ディレクトリを作成
   - `TodoItemHeader.tsx`、`TodoItemContent.tsx`、`TodoItemActions.tsx` を作成
   - 各サブコンポーネントに適切な責任を割り当て
