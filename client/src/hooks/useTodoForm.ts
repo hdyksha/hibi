@@ -12,7 +12,7 @@ interface ValidationResult {
 }
 
 interface UseTodoFormOptions {
-  onSubmit: (input: CreateTodoItemInput) => Promise<void>;
+  onSubmit: (input: CreateTodoItemInput) => Promise<unknown>;
   initialPriority?: Priority;
 }
 
