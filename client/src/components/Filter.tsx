@@ -1,11 +1,16 @@
 /**
  * Filter Component
  * Provides filtering controls for todo items
- * Requirements: 7.2, 8.4
+ * Requirements: 2.1, 2.2, 5.1
  */
 
 import React, { useState, useCallback } from 'react';
 import { TodoFilter, FilterStatus, Priority } from '../types';
+import { Button } from './common/Button';
+import { FilterSearch } from './Filter/FilterSearch';
+import { FilterStatus as FilterStatusComponent } from './Filter/FilterStatus';
+import { FilterPriority } from './Filter/FilterPriority';
+import { FilterTags } from './Filter/FilterTags';
 
 interface FilterProps {
   filter: TodoFilter;
@@ -70,8 +75,7 @@ export const Filter: React.FC<FilterProps> = ({
     onFilterChange(newFilter);
   }, [filter, onFilterChange]);
 
-  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
+  const handleSearchChange = useCallback((value: string) => {
     setSearchText(value);
     
     const newFilter = { ...filter };
@@ -101,129 +105,43 @@ export const Filter: React.FC<FilterProps> = ({
           <span>Filters</span>
         </h3>
         {hasActiveFilters && (
-          <button
-            type="button"
+          <Button
+            variant="secondary"
+            size="sm"
             onClick={handleClearFilters}
-            className="
-              px-3 py-2 bg-slate-100 text-slate-700 rounded-md text-sm font-medium
-              hover:bg-slate-200 transition-colors duration-200 min-h-[44px] active:bg-slate-300
-              self-start sm:self-auto
-            "
+            className="self-start sm:self-auto"
           >
             Clear
-          </button>
+          </Button>
         )}
       </div>
 
-      {/* Search Box - Mobile responsive */}
-      <div className="space-y-2">
-        <label htmlFor="search-input" className="block text-sm font-medium text-slate-700 flex items-center space-x-1">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-          <span>Search</span>
-        </label>
-        <input
-          id="search-input"
-          type="text"
-          value={searchText}
-          onChange={handleSearchChange}
-          placeholder="Search by title, memo, tags..."
-          className="
-            w-full px-3 sm:px-4 py-3 rounded-lg border border-slate-200 text-sm sm:text-base
-            focus:outline-none focus:ring-2 focus:ring-slate-400/30 focus:border-slate-400
-            transition-all duration-200 min-h-[48px]
-          "
-        />
-      </div>
+      {/* Search Box */}
+      <FilterSearch
+        searchText={searchText}
+        onSearchChange={handleSearchChange}
+      />
 
       {/* Status Filter */}
       {!hideStatusFilter && (
-        <div className="space-y-3">
-          <label className="block text-sm font-medium text-slate-700 flex items-center space-x-1">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>Status</span>
-          </label>
-          <div className="space-y-2">
-            {FILTER_STATUS_OPTIONS.map(option => (
-              <label key={option.value} className="flex items-center space-x-3 cursor-pointer group">
-                <input
-                  type="radio"
-                  name="status"
-                  value={option.value}
-                  checked={(filter.status || 'pending') === option.value}
-                  onChange={() => handleStatusChange(option.value)}
-                  className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                />
-                <span className="text-sm text-gray-700 group-hover:text-gray-900">
-                  {option.label}
-                </span>
-              </label>
-            ))}
-          </div>
-        </div>
+        <FilterStatusComponent
+          status={filter.status || 'pending'}
+          onStatusChange={handleStatusChange}
+        />
       )}
 
-      {/* Priority Filter - Mobile responsive */}
-      <div className="space-y-2">
-        <label htmlFor="priority-select" className="block text-sm font-medium text-slate-700 flex items-center space-x-1">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11l5-5m0 0l5 5m-5-5v12" />
-          </svg>
-          <span>Priority</span>
-        </label>
-        <select
-          id="priority-select"
-          value={filter.priority || ''}
-          onChange={(e) => handlePriorityChange(e.target.value as Priority | '')}
-          className="
-            w-full px-3 sm:px-4 py-3 rounded-lg border border-slate-200 bg-white text-sm sm:text-base
-            focus:outline-none focus:ring-2 focus:ring-slate-400/30 focus:border-slate-400
-            transition-all duration-200 min-h-[48px]
-          "
-        >
-          <option value="">All Priorities</option>
-          <option value="high">● 高</option>
-          <option value="medium">● 中</option>
-          <option value="low">● 低</option>
-        </select>
-      </div>
+      {/* Priority Filter */}
+      <FilterPriority
+        priority={filter.priority}
+        onPriorityChange={handlePriorityChange}
+      />
 
-      {/* Tags Filter - Mobile responsive */}
-      {availableTags.length > 0 && (
-        <div className="space-y-3">
-          <label className="block text-sm font-medium text-slate-700 flex items-center space-x-1">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-            </svg>
-            <span>Tags</span>
-          </label>
-          <div className="space-y-2 max-h-32 sm:max-h-40 overflow-y-auto">
-            {availableTags.map(tag => (
-              <label key={tag} className="
-                flex items-center space-x-3 p-2 rounded-md hover:bg-slate-50 
-                cursor-pointer transition-colors duration-200 min-h-[44px] active:bg-slate-100
-              ">
-                <input
-                  type="checkbox"
-                  checked={(filter.tags || []).includes(tag)}
-                  onChange={() => handleTagToggle(tag)}
-                  className="w-4 h-4 text-slate-600 border-slate-300 rounded focus:ring-slate-500"
-                />
-                <span className={`text-sm ${
-                  (filter.tags || []).includes(tag) 
-                    ? 'font-medium text-slate-700' 
-                    : 'text-slate-600'
-                }`}>
-                  {tag}
-                </span>
-              </label>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* Tags Filter */}
+      <FilterTags
+        availableTags={availableTags}
+        selectedTags={filter.tags || []}
+        onTagToggle={handleTagToggle}
+      />
 
       {/* Active Filters Summary - Mobile responsive */}
       {hasActiveFilters && (
