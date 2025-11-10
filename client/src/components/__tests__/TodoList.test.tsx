@@ -8,15 +8,18 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import '@testing-library/jest-dom';
 import { TodoList } from '../';
 import { TodoItem } from '../../types';
+import { TestProviders } from '../../test/MockProviders';
 
-// Mock the TodoContext
-vi.mock('../../contexts', () => ({
-  TodoProvider: ({ children }: { children: React.ReactNode }) => children,
-  useTodoContext: vi.fn(),
-}));
+// Mock the useTodoContext hook for test flexibility
+vi.mock('../../contexts', async () => {
+  const actual = await vi.importActual('../../contexts');
+  return {
+    ...actual,
+    useTodoContext: vi.fn(),
+  };
+});
 
 import { useTodoContext } from '../../contexts';
-
 const mockUseTodoContext = useTodoContext as any;
 
 const mockTodos: TodoItem[] = [
@@ -47,7 +50,11 @@ const mockTodos: TodoItem[] = [
 const renderTodoList = async () => {
   let result;
   await act(async () => {
-    result = render(<TodoList />);
+    result = render(
+      <TestProviders>
+        <TodoList />
+      </TestProviders>
+    );
     // Wait for all promises to resolve
     await Promise.resolve();
     await new Promise(resolve => setTimeout(resolve, 0));
