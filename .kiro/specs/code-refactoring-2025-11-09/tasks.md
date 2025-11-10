@@ -307,7 +307,12 @@
   - フォーム管理ロジックをカスタムフックに抽出する
   - _要件: 2.1, 2.2, 5.1, 5.2_
 
-- [ ] 7.1 TodoForm サブコンポーネントの作成
+- [x] 7.1 TodoForm サブコンポーネントの作成
+
+
+
+
+
   - `client/src/components/TodoForm/` ディレクトリを作成
   - `TodoFormBasic.tsx`、`TodoFormAdvanced.tsx` を作成
   - 各サブコンポーネントに適切な責任を割り当て
