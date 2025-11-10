@@ -6,6 +6,7 @@
 
 import React from 'react';
 import { TodoItem } from '../../types';
+import { cn, todoItem } from '../../utils/styles';
 
 interface TodoItemActionsProps {
   todo: TodoItem;
@@ -23,14 +24,13 @@ export const TodoItemActions: React.FC<TodoItemActionsProps> = ({
   };
 
   return (
-    <div className="flex-shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200">
-      <div className="flex flex-col sm:flex-row space-y-1 sm:space-y-0 sm:space-x-2">
+    <div className={todoItem.layout.actionsContainer}>
+      <div className={todoItem.layout.actionsButtons}>
         <button
-          className="
-            p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 
-            rounded-md transition-colors duration-200 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0
-            active:bg-slate-200 flex items-center justify-center
-          "
+          className={cn(
+            todoItem.actionButton.base,
+            todoItem.actionButton.edit
+          )}
           onClick={onEdit}
           aria-label={`Edit todo: ${todo.title}`}
         >
@@ -39,11 +39,10 @@ export const TodoItemActions: React.FC<TodoItemActionsProps> = ({
           </svg>
         </button>
         <button
-          className="
-            p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 
-            rounded-md transition-colors duration-200 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0
-            active:bg-red-100 flex items-center justify-center
-          "
+          className={cn(
+            todoItem.actionButton.base,
+            todoItem.actionButton.delete
+          )}
           onClick={handleDeleteClick}
           aria-label={`Delete todo: ${todo.title}`}
         >

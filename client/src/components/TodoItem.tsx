@@ -12,6 +12,7 @@ import { TodoItemHeader } from './TodoItem/TodoItemHeader';
 import { TodoItemContent } from './TodoItem/TodoItemContent';
 import { TodoItemActions } from './TodoItem/TodoItemActions';
 import { useTodoItemModal } from '../hooks/useTodoItemModal';
+import { cn, todoItem } from '../utils/styles';
 
 interface TodoItemProps {
   todo: TodoItemType;
@@ -31,18 +32,17 @@ export const TodoItem: React.FC<TodoItemProps> = ({
   return (
     <div
       data-testid="todo-item"
-      className={`
-        group relative bg-white/95 backdrop-blur-xl rounded-lg shadow-md border border-slate-200/50 
-        p-3 sm:p-5 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 animate-fade-in-up
-        ${todo.completed ? 'opacity-70 bg-slate-50/80' : ''}
-      `}>
+      className={cn(
+        todoItem.container,
+        todo.completed && todoItem.containerCompleted
+      )}>
 
       <div className="flex items-start justify-between">
         <TodoItemHeader todo={todo} onToggleComplete={onToggleComplete} />
         <TodoItemActions todo={todo} onEdit={openModal} onDelete={onDelete} />
       </div>
 
-      <div className="ml-10 sm:ml-10">
+      <div className={todoItem.layout.contentMargin}>
         <TodoItemContent todo={todo} />
       </div>
 

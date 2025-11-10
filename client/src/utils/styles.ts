@@ -271,3 +271,122 @@ export function responsive(
 ): string {
   return cn(mobile, tablet, desktop);
 }
+
+/**
+ * TodoItem specific styles
+ */
+export const todoItem = {
+  // Container styles
+  container: cn(
+    'group relative bg-white/95 backdrop-blur-xl rounded-lg shadow-md',
+    'border border-slate-200/50 p-3 sm:p-5',
+    'transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5',
+    'animate-fade-in-up'
+  ),
+  containerCompleted: 'opacity-70 bg-slate-50/80',
+  
+  // Checkbox/Toggle button styles
+  checkbox: {
+    base: cn(
+      'flex-shrink-0 w-7 h-7 sm:w-6 sm:h-6 rounded-full border-2',
+      'transition-all duration-200 flex items-center justify-center',
+      'text-xs font-bold min-h-[44px] sm:min-h-0'
+    ),
+    completed: 'bg-slate-600 border-slate-600 text-white shadow-md',
+    uncompleted: cn(
+      'border-slate-300 hover:border-slate-500',
+      'hover:bg-slate-50 active:bg-slate-100'
+    ),
+  },
+  
+  // Title styles
+  title: {
+    base: 'text-base sm:text-lg font-medium leading-tight flex-1',
+    completed: 'line-through text-slate-500',
+    uncompleted: 'text-slate-800',
+  },
+  
+  // Priority badge styles
+  priorityBadge: {
+    base: cn(
+      'self-start px-2 sm:px-3 py-1 rounded-md',
+      'text-xs font-medium uppercase tracking-wide border'
+    ),
+    high: 'bg-red-100 text-red-700 border-red-200',
+    medium: 'bg-yellow-100 text-yellow-700 border-yellow-200',
+    low: 'bg-green-100 text-green-700 border-green-200',
+  },
+  
+  // Tag styles
+  tag: cn(
+    'px-2 sm:px-3 py-1 bg-slate-100 text-slate-700',
+    'rounded-md text-xs font-medium border border-slate-200'
+  ),
+  
+  // Memo button styles
+  memoButton: cn(
+    'flex items-center space-x-2 px-3 py-2',
+    'bg-slate-100 hover:bg-slate-200 active:bg-slate-300',
+    'rounded-md text-sm text-slate-600',
+    'transition-colors duration-200 min-h-[44px] sm:min-h-0'
+  ),
+  
+  // Memo content styles
+  memoContent: cn(
+    'mt-2 sm:mt-3 p-3 sm:p-4',
+    'bg-slate-50 rounded-lg border border-slate-200'
+  ),
+  
+  // Action button styles
+  actionButton: {
+    base: cn(
+      'p-2 rounded-md transition-colors duration-200',
+      'min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0',
+      'flex items-center justify-center'
+    ),
+    edit: 'text-slate-400 hover:text-slate-600 hover:bg-slate-100 active:bg-slate-200',
+    delete: 'text-slate-400 hover:text-red-500 hover:bg-red-50 active:bg-red-100',
+  },
+  
+  // Metadata styles
+  metadata: {
+    container: cn(
+      'overflow-hidden transition-all duration-200',
+      'max-h-0 group-hover:max-h-16 sm:group-hover:max-h-10',
+      'opacity-0 group-hover:opacity-100'
+    ),
+    text: 'flex items-center space-x-1',
+    icon: 'w-3 h-3',
+  },
+  
+  // Layout utilities
+  layout: {
+    headerContainer: 'flex items-start space-x-3 sm:space-x-4',
+    headerContent: 'flex-1 min-w-0',
+    headerRow: cn(
+      'flex flex-col sm:flex-row sm:items-start sm:justify-between',
+      'mb-2 sm:mb-3 gap-2'
+    ),
+    contentMargin: 'ml-10 sm:ml-10',
+    tagsContainer: 'flex flex-wrap gap-1 sm:gap-2 mb-2 sm:mb-3',
+    actionsContainer: cn(
+      'flex-shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100',
+      'transition-opacity duration-200'
+    ),
+    actionsButtons: 'flex flex-col sm:flex-row space-y-1 sm:space-y-0 sm:space-x-2',
+    metadataList: cn(
+      'flex flex-col sm:flex-row sm:items-center sm:space-x-4',
+      'space-y-1 sm:space-y-0 text-xs text-slate-500'
+    ),
+  },
+  
+  // Transition effects
+  transitions: {
+    memoReveal: cn(
+      'overflow-hidden transition-all duration-200',
+      'group-hover:mb-2 sm:group-hover:mb-3',
+      'max-h-0 group-hover:max-h-96',
+      'opacity-0 group-hover:opacity-100'
+    ),
+  },
+} as const;
