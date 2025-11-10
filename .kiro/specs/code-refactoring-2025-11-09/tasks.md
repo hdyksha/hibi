@@ -389,7 +389,12 @@
   - 共通UIコンポーネントを使用する
   - _要件: 2.1, 2.2, 5.1_
 
-- [ ] 9.1 Archive サブコンポーネントの作成
+- [x] 9.1 Archive サブコンポーネントの作成
+
+
+
+
+
   - `client/src/components/Archive/` ディレクトリを作成
   - `ArchiveGroup.tsx`、`ArchiveTask.tsx` を作成
   - 各サブコンポーネントに適切な責任を割り当て
