@@ -65,11 +65,6 @@ export interface ApiError {
   details?: ValidationError[];
 }
 
-export interface ApiResponse<T> {
-  data?: T;
-  error?: ApiError;
-}
-
 export interface ArchiveGroup {
   date: string;        // YYYY-MM-DD format
   tasks: TodoItem[];   // 完了済みtodoアイテム
