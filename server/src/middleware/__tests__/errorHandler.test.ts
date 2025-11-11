@@ -12,8 +12,7 @@ import {
     timeoutHandler,
     AppError, 
     ValidationError, 
-    NotFoundError, 
-    ConflictError 
+    NotFoundError
 } from '../errorHandler';
 import { StorageError } from '../../services/FileStorageService';
 
@@ -116,16 +115,6 @@ describe('Error Handler Middleware', () => {
             
             expect(error.message).toBe("Todo with identifier 'abc123' not found");
             expect(error.statusCode).toBe(404);
-        });
-    });
-
-    describe('ConflictError', () => {
-        it('should create ConflictError', () => {
-            const error = new ConflictError('Resource already exists');
-            
-            expect(error.message).toBe('Resource already exists');
-            expect(error.statusCode).toBe(409);
-            expect(error.errorCode).toBe('CONFLICT');
         });
     });
 

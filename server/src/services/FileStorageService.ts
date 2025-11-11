@@ -358,6 +358,3 @@ function resetStorageContext() {
 
 // Export StorageContext utilities
 export { resetStorageContext };
-
-// Export for backward compatibility (deprecated - use getDefaultStorageService instead)
-export const defaultStorageService = defaultStorageServiceInstance;
