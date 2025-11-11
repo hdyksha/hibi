@@ -6,12 +6,16 @@ import { useTodoContext } from './contexts';
 type ViewMode = 'todos' | 'archive';
 
 function AppContent() {
-  const { filter, availableTags, setFilter, refreshTodos } = useTodoContext();
+  const { filter, availableTags, setFilter, refreshTodos, archive } = useTodoContext();
   const [currentView, setCurrentView] = useState<ViewMode>('todos');
 
   const handleFileSwitch = () => {
-    // Refresh todos after switching files
-    refreshTodos();
+    // Refresh data based on current view
+    if (currentView === 'todos') {
+      refreshTodos();
+    } else {
+      archive.refreshArchive();
+    }
   };
 
   return (
