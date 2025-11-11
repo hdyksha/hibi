@@ -7,13 +7,32 @@ import { Request, Response, NextFunction } from 'express';
 import { StorageError } from '../services/FileStorageService';
 
 /**
- * Custom application error types
+ * Base application error class
+ * 
+ * Extends the standard Error class with additional properties for HTTP status codes,
+ * operational error flags, and error codes for better error handling and logging.
+ * 
+ * @example
+ * ```typescript
+ * throw new AppError('Database connection failed', 503, true, 'DB_CONNECTION_ERROR');
+ * ```
  */
 export class AppError extends Error {
+    /** HTTP status code for the error */
     public readonly statusCode: number;
+    /** Whether this is an operational error (expected) or a programming error (unexpected) */
     public readonly isOperational: boolean;
+    /** Optional machine-readable error code */
     public readonly errorCode?: string;
 
+    /**
+     * Create a new AppError
+     * 
+     * @param message - Human-readable error message
+     * @param statusCode - HTTP status code (default: 500)
+     * @param isOperational - Whether this is an operational error (default: true)
+     * @param errorCode - Optional machine-readable error code
+     */
     constructor(
         message: string,
         statusCode: number = 500,
@@ -32,23 +51,69 @@ export class AppError extends Error {
 
 /**
  * Validation error detail interface
+ * 
+ * Represents a single field validation error with optional value information.
  */
 export interface ValidationErrorDetail {
+    /** The name of the field that failed validation */
     field: string;
+    /** Human-readable error message */
     message: string;
+    /** Optional value that failed validation (for debugging) */
     value?: unknown;
 }
 
+/**
+ * Validation error class
+ * 
+ * Specialized error for validation failures, includes detailed information
+ * about which fields failed validation and why.
+ * 
+ * @example
+ * ```typescript
+ * throw new ValidationError('Invalid input', [
+ *   { field: 'title', message: 'Title is required' },
+ *   { field: 'priority', message: 'Priority must be high, medium, or low' }
+ * ]);
+ * ```
+ */
 export class ValidationError extends AppError {
+    /** Array of validation error details */
     public readonly details: ValidationErrorDetail[];
 
+    /**
+     * Create a new ValidationError
+     * 
+     * @param message - General error message
+     * @param details - Array of field-specific validation errors
+     */
     constructor(message: string, details: ValidationErrorDetail[]) {
         super(message, 400, true, 'VALIDATION_ERROR');
         this.details = details;
     }
 }
 
+/**
+ * Not found error class
+ * 
+ * Specialized error for resource not found scenarios (404 errors).
+ * 
+ * @example
+ * ```typescript
+ * throw new NotFoundError('Todo item', '123');
+ * // Results in: "Todo item with identifier '123' not found"
+ * 
+ * throw new NotFoundError('Route', req.path);
+ * // Results in: "Route with identifier '/api/invalid' not found"
+ * ```
+ */
 export class NotFoundError extends AppError {
+    /**
+     * Create a new NotFoundError
+     * 
+     * @param resource - The type of resource that was not found (e.g., 'Todo item', 'Route')
+     * @param identifier - Optional identifier of the resource (e.g., ID, path)
+     */
     constructor(resource: string, identifier?: string) {
         const message = identifier 
             ? `${resource} with identifier '${identifier}' not found`
@@ -80,6 +145,13 @@ interface DevErrorResponse extends ErrorResponse {
 
 /**
  * Log error details for monitoring and debugging
+ * 
+ * Logs errors with contextual information including request details.
+ * Client errors (4xx) are logged as warnings, server errors (5xx) as errors.
+ * Logging is suppressed during tests to reduce noise.
+ * 
+ * @param error - The error to log
+ * @param req - The Express request object for context
  */
 function logError(error: Error, req: Request): void {
     // Skip logging during tests to reduce output noise
@@ -111,6 +183,13 @@ function logError(error: Error, req: Request): void {
 
 /**
  * Convert known error types to AppError instances
+ * 
+ * Normalizes various error types (StorageError, SyntaxError, etc.) into
+ * consistent AppError instances with appropriate status codes and messages.
+ * This ensures all errors are handled uniformly by the error middleware.
+ * 
+ * @param error - The error to normalize
+ * @returns An AppError instance
  */
 function normalizeError(error: Error): AppError {
     // Handle storage errors
@@ -155,6 +234,14 @@ function normalizeError(error: Error): AppError {
 
 /**
  * Create error response object
+ * 
+ * Constructs a standardized error response with appropriate details.
+ * In development mode, includes stack traces for debugging.
+ * For validation errors, includes detailed field-level error information.
+ * 
+ * @param error - The AppError to convert to a response
+ * @param req - The Express request object for context
+ * @returns An error response object ready to be sent to the client
  */
 function createErrorResponse(error: AppError, req: Request): ErrorResponse | DevErrorResponse {
     const baseResponse: ErrorResponse = {
@@ -181,7 +268,24 @@ function createErrorResponse(error: AppError, req: Request): ErrorResponse | Dev
 
 /**
  * Global error handling middleware
- * Must be the last middleware in the chain
+ * 
+ * Catches all errors thrown in route handlers and other middleware,
+ * normalizes them to AppError instances, logs them appropriately,
+ * and sends a standardized error response to the client.
+ * 
+ * This middleware must be registered last in the middleware chain
+ * to catch errors from all other middleware and routes.
+ * 
+ * @param error - The error that was thrown
+ * @param req - The Express request object
+ * @param res - The Express response object
+ * @param next - The Express next function (unused but required by Express)
+ * 
+ * @example
+ * ```typescript
+ * // In your Express app setup
+ * app.use(errorHandler);
+ * ```
  */
 export function errorHandler(
     error: Error,
@@ -204,6 +308,23 @@ export function errorHandler(
 
 /**
  * Handle 404 errors for undefined routes
+ * 
+ * Middleware that catches requests to undefined routes and creates
+ * a NotFoundError. Should be registered after all route handlers
+ * but before the error handler.
+ * 
+ * @param req - The Express request object
+ * @param res - The Express response object
+ * @param next - The Express next function
+ * 
+ * @example
+ * ```typescript
+ * // In your Express app setup
+ * app.use('/api/todos', todosRouter);
+ * app.use('/api/files', filesRouter);
+ * app.use(notFoundHandler);  // Catch undefined routes
+ * app.use(errorHandler);     // Handle all errors
+ * ```
  */
 export function notFoundHandler(req: Request, res: Response, next: NextFunction): void {
     const error = new NotFoundError('Route', req.path);
@@ -212,7 +333,34 @@ export function notFoundHandler(req: Request, res: Response, next: NextFunction)
 
 /**
  * Async error wrapper for route handlers
- * Catches async errors and passes them to error middleware
+ * 
+ * Wraps async route handlers to automatically catch rejected promises
+ * and pass them to the error handling middleware. This eliminates the
+ * need for try-catch blocks in every async route handler.
+ * 
+ * @template T - Request type (extends Express Request)
+ * @template U - Response type (extends Express Response)
+ * @param routeHandler - The async route handler function to wrap
+ * @returns A wrapped route handler that catches async errors
+ * 
+ * @example
+ * ```typescript
+ * // Without asyncHandler (requires try-catch)
+ * app.get('/todos', async (req, res, next) => {
+ *   try {
+ *     const todos = await todoService.getTodos();
+ *     res.json(todos);
+ *   } catch (error) {
+ *     next(error);
+ *   }
+ * });
+ * 
+ * // With asyncHandler (automatic error handling)
+ * app.get('/todos', asyncHandler(async (req, res) => {
+ *   const todos = await todoService.getTodos();
+ *   res.json(todos);
+ * }));
+ * ```
  */
 export function asyncHandler<T extends Request, U extends Response>(
     routeHandler: (req: T, res: U, next: NextFunction) => Promise<void | Response>
@@ -224,6 +372,21 @@ export function asyncHandler<T extends Request, U extends Response>(
 
 /**
  * Request timeout middleware
+ * 
+ * Sets a timeout for each request. If the request takes longer than the
+ * specified timeout, a REQUEST_TIMEOUT error is generated.
+ * 
+ * @param timeoutMs - Timeout duration in milliseconds (default: 30000ms = 30s)
+ * @returns Express middleware function
+ * 
+ * @example
+ * ```typescript
+ * // Use default 30 second timeout
+ * app.use(timeoutHandler());
+ * 
+ * // Use custom 10 second timeout
+ * app.use(timeoutHandler(10000));
+ * ```
  */
 export function timeoutHandler(timeoutMs: number = 30000) {
     return (req: Request, res: Response, next: NextFunction): void => {

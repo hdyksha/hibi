@@ -78,44 +78,89 @@ export interface UpdateTodoItemInput {
 
 
 /**
- * タイトルのバリデーション
- * 要件 1.3: タイトルは必須
+ * Title validator
+ * Requirements: 1.3 - Title is required
+ * 
+ * Validates that the title is a non-empty string with a maximum length of 200 characters.
  */
 const titleValidator = new Validator<string>('title')
     .isType('string', 'Title is required and must be a string')
     .required('Title cannot be empty')
     .maxLength(200, 'Title cannot exceed 200 characters');
 
+/**
+ * Validate a TodoItem title
+ * Requirements: 1.3 - Title is required
+ * 
+ * @param title - The title to validate
+ * @returns ValidationResult indicating if the title is valid
+ * 
+ * @example
+ * ```typescript
+ * const result = validateTitle('Buy groceries');
+ * if (!result.isValid) {
+ *   console.error('Title validation failed:', result.errors);
+ * }
+ * ```
+ */
 export function validateTitle(title: string): ValidationResult {
     return titleValidator.validate(title);
 }
 
 /**
- * 完了状態のバリデーション
- * 要件 1.4: デフォルトで未完了ステータス
+ * Completed status validator
+ * Requirements: 1.4 - Default to incomplete status
+ * 
+ * Validates that the completed status is a boolean value.
  */
 const completedValidator = new Validator<boolean>('completed')
     .isBoolean('Completed must be a boolean value');
 
+/**
+ * Validate a TodoItem completed status
+ * Requirements: 1.4 - Default to incomplete status
+ * 
+ * @param completed - The completed status to validate
+ * @returns ValidationResult indicating if the completed status is valid
+ */
 export function validateCompleted(completed: boolean): ValidationResult {
     return completedValidator.validate(completed);
 }
 
 /**
- * IDのバリデーション
- * 要件 1.5: 一意のIDを自動生成
+ * ID validator
+ * Requirements: 1.5 - Auto-generate unique ID
+ * 
+ * Validates that the ID is a non-empty string.
  */
 const idValidator = new Validator<string>('id')
     .isType('string', 'ID is required and must be a string')
     .required('ID cannot be empty');
 
+/**
+ * Validate a TodoItem ID
+ * Requirements: 1.5 - Auto-generate unique ID
+ * 
+ * @param id - The ID to validate
+ * @returns ValidationResult indicating if the ID is valid
+ */
 export function validateId(id: string): ValidationResult {
     return idValidator.validate(id);
 }
 
 /**
- * 作成日時のバリデーション
- * 要件 1.6: 作成日時を自動記録
+ * Validate a TodoItem creation timestamp
+ * Requirements: 1.6 - Auto-record creation timestamp
+ * 
+ * Validates that the createdAt timestamp is a non-empty string in ISO 8601 format.
+ * 
+ * @param createdAt - The creation timestamp to validate
+ * @returns ValidationResult indicating if the timestamp is valid
+ * 
+ * @example
+ * ```typescript
+ * const result = validateCreatedAt(new Date().toISOString());
+ * ```
  */
 export function validateCreatedAt(createdAt: string): ValidationResult {
     // First check type and emptiness
@@ -137,8 +182,13 @@ export function validateCreatedAt(createdAt: string): ValidationResult {
 }
 
 /**
- * 更新日時のバリデーション
- * 要件 3.5: 更新日時を自動更新
+ * Validate a TodoItem update timestamp
+ * Requirements: 3.5 - Auto-update modification timestamp
+ * 
+ * Validates that the updatedAt timestamp is a non-empty string in ISO 8601 format.
+ * 
+ * @param updatedAt - The update timestamp to validate
+ * @returns ValidationResult indicating if the timestamp is valid
  */
 export function validateUpdatedAt(updatedAt: string): ValidationResult {
     // First check type and emptiness
@@ -160,8 +210,11 @@ export function validateUpdatedAt(updatedAt: string): ValidationResult {
 }
 
 /**
- * 完了日時のバリデーション
- * 要件 3.4: todoアイテムが完了済みになった時、完了日時を記録する
+ * Completed timestamp validator
+ * Requirements: 3.4 - Record completion timestamp when todo is completed
+ * 
+ * Validates that the completedAt timestamp is either null (for incomplete todos)
+ * or a valid ISO 8601 date string (for completed todos).
  */
 const completedAtValidator = new Validator<string | null>('completedAt')
     .addRule({
@@ -179,13 +232,42 @@ const completedAtValidator = new Validator<string | null>('completedAt')
         message: 'CompletedAt must be a valid ISO 8601 date string'
     });
 
+/**
+ * Validate a TodoItem completion timestamp
+ * Requirements: 3.4 - Record completion timestamp when todo is completed
+ * 
+ * @param completedAt - The completion timestamp to validate (null for incomplete todos)
+ * @returns ValidationResult indicating if the timestamp is valid
+ * 
+ * @example
+ * ```typescript
+ * // For incomplete todo
+ * const result1 = validateCompletedAt(null);
+ * 
+ * // For completed todo
+ * const result2 = validateCompletedAt(new Date().toISOString());
+ * ```
+ */
 export function validateCompletedAt(completedAt: string | null): ValidationResult {
     return completedAtValidator.validate(completedAt);
 }
 
 /**
- * 優先度のバリデーション
- * 要件 6.1: 各todoアイテムに優先度（high、medium、low）を設定できる
+ * Validate a TodoItem priority
+ * Requirements: 6.1 - Set priority (high, medium, low) for each todo item
+ * 
+ * Validates that the priority is one of the allowed values: 'high', 'medium', or 'low'.
+ * 
+ * @param priority - The priority to validate
+ * @returns ValidationResult indicating if the priority is valid
+ * 
+ * @example
+ * ```typescript
+ * const result = validatePriority('high');
+ * if (!result.isValid) {
+ *   console.error('Invalid priority:', result.errors);
+ * }
+ * ```
  */
 export function validatePriority(priority: Priority): ValidationResult {
     const errors: ValidationError[] = [];
@@ -217,8 +299,25 @@ export function validatePriority(priority: Priority): ValidationResult {
 }
 
 /**
- * タグのバリデーション
- * 要件 7.1: 各todoアイテムに複数のタグを追加できる
+ * Validate TodoItem tags
+ * Requirements: 7.1 - Add multiple tags to each todo item
+ * 
+ * Validates that:
+ * - Tags is an array
+ * - Each tag is a non-empty string
+ * - Each tag does not exceed 50 characters
+ * - Tags are unique (case-insensitive)
+ * 
+ * @param tags - The array of tags to validate
+ * @returns ValidationResult indicating if the tags are valid
+ * 
+ * @example
+ * ```typescript
+ * const result = validateTags(['work', 'urgent', 'meeting']);
+ * if (!result.isValid) {
+ *   console.error('Invalid tags:', result.errors);
+ * }
+ * ```
  */
 export function validateTags(tags: string[]): ValidationResult {
     const errors: ValidationError[] = [];
@@ -273,18 +372,48 @@ export function validateTags(tags: string[]): ValidationResult {
 }
 
 /**
- * メモのバリデーション
- * 要件 8.1: 各todoアイテムにメモフィールドを提供する
+ * Memo validator
+ * Requirements: 8.1 - Provide memo field for each todo item
+ * 
+ * Validates that the memo is a string.
  */
 const memoValidator = new Validator<string>('memo')
     .isType('string', 'Memo must be a string');
 
+/**
+ * Validate a TodoItem memo
+ * Requirements: 8.1 - Provide memo field for each todo item
+ * 
+ * @param memo - The memo to validate
+ * @returns ValidationResult indicating if the memo is valid
+ */
 export function validateMemo(memo: string): ValidationResult {
     return memoValidator.validate(memo);
 }
 
 /**
- * TodoItem作成入力データのバリデーション
+ * Validate TodoItem creation input data
+ * 
+ * Validates all required and optional fields for creating a new TodoItem.
+ * Required fields: title
+ * Optional fields: priority, tags, memo
+ * 
+ * @param input - The creation input data to validate
+ * @returns ValidationResult containing all validation errors (if any)
+ * 
+ * @example
+ * ```typescript
+ * const input: CreateTodoItemInput = {
+ *   title: 'Buy groceries',
+ *   priority: 'high',
+ *   tags: ['shopping', 'urgent']
+ * };
+ * 
+ * const result = validateCreateTodoItemInput(input);
+ * if (!result.isValid) {
+ *   throw new ValidationError('Invalid input', result.errors);
+ * }
+ * ```
  */
 export function validateCreateTodoItemInput(input: CreateTodoItemInput): ValidationResult {
     return combineValidationResults(
@@ -296,7 +425,26 @@ export function validateCreateTodoItemInput(input: CreateTodoItemInput): Validat
 }
 
 /**
- * TodoItem更新入力データのバリデーション
+ * Validate TodoItem update input data
+ * 
+ * Validates all optional fields for updating an existing TodoItem.
+ * All fields are optional, but at least one must be provided.
+ * 
+ * @param input - The update input data to validate
+ * @returns ValidationResult containing all validation errors (if any)
+ * 
+ * @example
+ * ```typescript
+ * const input: UpdateTodoItemInput = {
+ *   completed: true,
+ *   priority: 'low'
+ * };
+ * 
+ * const result = validateUpdateTodoItemInput(input);
+ * if (!result.isValid) {
+ *   throw new ValidationError('Invalid update input', result.errors);
+ * }
+ * ```
  */
 export function validateUpdateTodoItemInput(input: UpdateTodoItemInput): ValidationResult {
     return combineValidationResults(
@@ -309,7 +457,33 @@ export function validateUpdateTodoItemInput(input: UpdateTodoItemInput): Validat
 }
 
 /**
- * 完全なTodoItemのバリデーション
+ * Validate a complete TodoItem object
+ * 
+ * Validates all fields of a TodoItem, ensuring the entire object is valid.
+ * This is typically used when reading data from storage or before saving.
+ * 
+ * @param todoItem - The complete TodoItem to validate
+ * @returns ValidationResult containing all validation errors (if any)
+ * 
+ * @example
+ * ```typescript
+ * const todo: TodoItem = {
+ *   id: '123',
+ *   title: 'Buy groceries',
+ *   completed: false,
+ *   priority: 'high',
+ *   tags: ['shopping'],
+ *   memo: 'Don\'t forget milk',
+ *   createdAt: '2024-01-15T10:00:00Z',
+ *   updatedAt: '2024-01-15T10:00:00Z',
+ *   completedAt: null
+ * };
+ * 
+ * const result = validateTodoItem(todo);
+ * if (!result.isValid) {
+ *   console.error('Invalid todo item:', result.errors);
+ * }
+ * ```
  */
 export function validateTodoItem(todoItem: TodoItem): ValidationResult {
     return combineValidationResults(
