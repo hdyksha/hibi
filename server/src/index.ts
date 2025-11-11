@@ -62,7 +62,9 @@ app.use(notFoundHandler);
 app.use(errorHandler);
 
 // サーバー起動 (テスト環境では起動しない)
-let serverInstance: any = null;
+import type { Server } from 'http';
+
+let serverInstance: Server | null = null;
 
 if (process.env.NODE_ENV !== 'test') {
   serverInstance = app.listen(PORT, () => {
@@ -73,7 +75,7 @@ if (process.env.NODE_ENV !== 'test') {
   // Graceful shutdown
   process.on('SIGTERM', () => {
     console.log('SIGTERM received, shutting down gracefully');
-    serverInstance.close(() => {
+    serverInstance?.close(() => {
       console.log('Process terminated');
     });
   });

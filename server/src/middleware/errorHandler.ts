@@ -30,10 +30,19 @@ export class AppError extends Error {
     }
 }
 
-export class ValidationError extends AppError {
-    public readonly details: Array<{ field: string; message: string; value?: any }>;
+/**
+ * Validation error detail interface
+ */
+export interface ValidationErrorDetail {
+    field: string;
+    message: string;
+    value?: unknown;
+}
 
-    constructor(message: string, details: Array<{ field: string; message: string; value?: any }>) {
+export class ValidationError extends AppError {
+    public readonly details: ValidationErrorDetail[];
+
+    constructor(message: string, details: ValidationErrorDetail[]) {
         super(message, 400, true, 'VALIDATION_ERROR');
         this.details = details;
     }
@@ -62,7 +71,7 @@ interface ErrorResponse {
     message: string;
     statusCode: number;
     errorCode?: string;
-    details?: any;
+    details?: ValidationErrorDetail[];
     timestamp: string;
     path: string;
     requestId?: string;
@@ -212,7 +221,7 @@ export function notFoundHandler(req: Request, res: Response, next: NextFunction)
  * Catches async errors and passes them to error middleware
  */
 export function asyncHandler<T extends Request, U extends Response>(
-    routeHandler: (req: T, res: U, next: NextFunction) => Promise<any>
+    routeHandler: (req: T, res: U, next: NextFunction) => Promise<void | Response>
 ) {
     return (req: T, res: U, next: NextFunction): void => {
         Promise.resolve(routeHandler(req, res, next)).catch(next);

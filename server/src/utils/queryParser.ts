@@ -9,36 +9,67 @@
 import { TodoFilter, FilterStatus, Priority, FILTER_STATUS_VALUES, PRIORITY_VALUES } from '../models';
 
 /**
+ * Type guard to check if a value is a valid FilterStatus
+ */
+function isFilterStatus(value: unknown): value is FilterStatus {
+    return typeof value === 'string' && FILTER_STATUS_VALUES.includes(value as FilterStatus);
+}
+
+/**
+ * Type guard to check if a value is a valid Priority
+ */
+function isPriority(value: unknown): value is Priority {
+    return typeof value === 'string' && PRIORITY_VALUES.includes(value as Priority);
+}
+
+/**
+ * Type guard to check if a value is a string
+ */
+function isString(value: unknown): value is string {
+    return typeof value === 'string';
+}
+
+/**
+ * Type guard to check if a value is an array of strings
+ */
+function isStringArray(value: unknown): value is string[] {
+    return Array.isArray(value) && value.every(item => typeof item === 'string');
+}
+
+/**
  * Build a TodoFilter object from query parameters
  * Requirements: 2.1, 2.2
  * 
  * @param query - The query object from Express request
  * @returns A TodoFilter object with validated filter parameters
  */
-export function buildFilterFromQuery(query: any): TodoFilter {
+export function buildFilterFromQuery(query: Record<string, unknown>): TodoFilter {
     const filter: TodoFilter = {};
 
     // Status filter
-    if (query.status && FILTER_STATUS_VALUES.includes(query.status)) {
-        filter.status = query.status as FilterStatus;
+    if (isFilterStatus(query.status)) {
+        filter.status = query.status;
     }
 
     // Priority filter
-    if (query.priority && PRIORITY_VALUES.includes(query.priority)) {
-        filter.priority = query.priority as Priority;
+    if (isPriority(query.priority)) {
+        filter.priority = query.priority;
     }
 
     // Tags filter
     if (query.tags) {
-        if (typeof query.tags === 'string') {
+        if (isString(query.tags)) {
             filter.tags = [query.tags];
+        } else if (isStringArray(query.tags)) {
+            filter.tags = query.tags;
         } else if (Array.isArray(query.tags)) {
-            filter.tags = query.tags.filter((tag: any) => typeof tag === 'string');
+            // Filter out non-string elements
+            filter.tags = query.tags.filter(isString);
         }
     }
 
     // Search text
-    if (query.search && typeof query.search === 'string') {
+    if (isString(query.search)) {
         filter.searchText = query.search.trim();
     }
 
