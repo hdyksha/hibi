@@ -44,10 +44,12 @@ export const TodoForm: React.FC<TodoFormProps> = ({ className }) => {
       <TodoFormBasic
         title={title}
         onTitleChange={(value) => {
-          const event = {
-            target: { value },
+          // Create a synthetic event object that matches the expected type
+          const syntheticEvent: React.ChangeEvent<HTMLInputElement> = {
+            target: { value } as HTMLInputElement,
+            currentTarget: { value } as HTMLInputElement,
           } as React.ChangeEvent<HTMLInputElement>;
-          handleTitleChange(event);
+          handleTitleChange(syntheticEvent);
         }}
         onSubmit={handleSubmit}
         onToggleAdvanced={toggleAdvanced}

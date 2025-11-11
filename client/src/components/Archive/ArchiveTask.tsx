@@ -23,12 +23,12 @@ export const ArchiveTask: React.FC<ArchiveTaskProps> = ({ task, onEdit }) => {
   };
 
   const getPriorityBadgeStyles = (priority: string): string => {
-    const priorityStyles = {
+    const priorityStyles: Record<string, string> = {
       high: 'bg-red-100 text-red-700 border-red-200',
       medium: 'bg-yellow-100 text-yellow-700 border-yellow-200',
       low: 'bg-green-100 text-green-700 border-green-200'
     };
-    return priorityStyles[priority as keyof typeof priorityStyles] || priorityStyles.medium;
+    return priorityStyles[priority] || priorityStyles.medium;
   };
 
   return (

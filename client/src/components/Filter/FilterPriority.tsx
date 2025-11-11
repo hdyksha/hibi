@@ -9,7 +9,7 @@ import { Priority } from '../../types';
 
 interface FilterPriorityProps {
   priority?: Priority;
-  onPriorityChange: (priority: Priority | '') => void;
+  onPriorityChange: (priority: string) => void;
 }
 
 export const FilterPriority: React.FC<FilterPriorityProps> = ({
@@ -17,7 +17,7 @@ export const FilterPriority: React.FC<FilterPriorityProps> = ({
   onPriorityChange,
 }) => {
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    onPriorityChange(event.target.value as Priority | '');
+    onPriorityChange(event.target.value);
   };
 
   return (

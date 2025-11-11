@@ -5,7 +5,7 @@
  */
 
 import React, { useState, useCallback } from 'react';
-import { TodoFilter, FilterStatus, Priority } from '../types';
+import { TodoFilter, FilterStatus, Priority, isPriority } from '../types';
 import { Button } from './common/Button';
 import { FilterSearch } from './Filter/FilterSearch';
 import { FilterStatus as FilterStatusComponent } from './Filter/FilterStatus';
@@ -50,12 +50,12 @@ export const Filter: React.FC<FilterProps> = ({
     onFilterChange(newFilter);
   }, [filter, onFilterChange]);
 
-  const handlePriorityChange = useCallback((priority: Priority | '') => {
+  const handlePriorityChange = useCallback((priority: string) => {
     const newFilter = { ...filter };
     if (priority === '') {
       delete newFilter.priority;
-    } else {
-      newFilter.priority = priority as Priority;
+    } else if (isPriority(priority)) {
+      newFilter.priority = priority;
     }
     onFilterChange(newFilter);
   }, [filter, onFilterChange]);

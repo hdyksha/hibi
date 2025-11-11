@@ -4,7 +4,7 @@
  */
 
 import { useState, useCallback } from 'react';
-import { CreateTodoItemInput, Priority } from '../types';
+import { CreateTodoItemInput, Priority, isPriority } from '../types';
 
 interface ValidationResult {
   isValid: boolean;
@@ -143,7 +143,10 @@ export const useTodoForm = ({
    * Handles priority select change
    */
   const handlePriorityChange = useCallback((event: React.ChangeEvent<HTMLSelectElement>) => {
-    setPriority(event.target.value as Priority);
+    const value = event.target.value;
+    if (isPriority(value)) {
+      setPriority(value);
+    }
   }, []);
 
   /**

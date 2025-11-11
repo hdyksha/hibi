@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { Priority } from '../../types';
+import { Priority, isPriority } from '../../types';
 import { TagInput } from '../TagInput';
 import { MemoEditor } from '../MemoEditor';
 
@@ -29,7 +29,10 @@ export const TodoFormAdvanced: React.FC<TodoFormAdvancedProps> = ({
   isSubmitting,
 }) => {
   const handlePriorityChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    onPriorityChange(event.target.value as Priority);
+    const value = event.target.value;
+    if (isPriority(value)) {
+      onPriorityChange(value);
+    }
   };
 
   return (
@@ -47,9 +50,8 @@ export const TodoFormAdvanced: React.FC<TodoFormAdvancedProps> = ({
             id="todo-priority"
             value={priority}
             onChange={handlePriorityChange}
-            className={`px-3 sm:px-4 py-3 border border-slate-300 rounded-lg text-sm sm:text-base bg-white cursor-pointer transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/25 focus:border-blue-500 min-h-[48px] ${
-              isSubmitting ? 'bg-slate-50 cursor-not-allowed opacity-60' : 'hover:border-slate-400'
-            }`}
+            className={`px-3 sm:px-4 py-3 border border-slate-300 rounded-lg text-sm sm:text-base bg-white cursor-pointer transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/25 focus:border-blue-500 min-h-[48px] ${isSubmitting ? 'bg-slate-50 cursor-not-allowed opacity-60' : 'hover:border-slate-400'
+              }`}
             disabled={isSubmitting}
           >
             <option value="low">Low</option>

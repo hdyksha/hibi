@@ -93,7 +93,9 @@ export class HttpClient {
    */
   private async parseResponse<T>(response: Response): Promise<T> {
     if (response.status === 204) {
-      return undefined as T;
+      // For 204 No Content, return undefined which is valid for certain response types
+      // The caller should handle this appropriately based on their expected type
+      return undefined as unknown as T;
     }
 
     try {
@@ -144,7 +146,12 @@ export class HttpClient {
 
       // Handle API errors (4xx)
       if (!response.ok) {
-        const apiError = data as ApiError;
+        // Type guard to check if data is an ApiError
+        const isApiError = (obj: unknown): obj is ApiError => {
+          return typeof obj === 'object' && obj !== null && 'message' in obj;
+        };
+        
+        const apiError = isApiError(data) ? data : undefined;
         throw new ApiClientError(
           apiError?.message || `Request failed: ${response.status} ${response.statusText}`,
           response.status,

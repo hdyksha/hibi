@@ -6,7 +6,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { TodoItem, Priority } from '../types';
+import { TodoItem, Priority, isPriority } from '../types';
 import { TagInput } from './TagInput';
 import { MemoEditor } from './MemoEditor';
 
@@ -164,7 +164,12 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({
               <select
                 id="edit-priority"
                 value={editPriority}
-                onChange={(event) => setEditPriority(event.target.value as Priority)}
+                onChange={(event) => {
+                  const value = event.target.value;
+                  if (isPriority(value)) {
+                    setEditPriority(value);
+                  }
+                }}
                 className={`w-full px-3 py-3 border border-slate-300 rounded-md text-sm sm:text-base transition-all duration-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/25 focus:border-blue-500 min-h-[48px] ${
                   isSaving ? 'bg-slate-50 text-slate-500 cursor-not-allowed' : ''
                 }`}

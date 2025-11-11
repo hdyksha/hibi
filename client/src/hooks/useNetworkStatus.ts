@@ -94,7 +94,16 @@ export const useNetworkStatus = (): UseNetworkStatusReturn => {
 
     // Get connection information if available
     if ('connection' in navigator) {
-      const connection = (navigator as any).connection;
+      // Type guard for NetworkInformation API
+      interface NavigatorWithConnection extends Navigator {
+        connection?: {
+          effectiveType?: string;
+          addEventListener?: (type: string, listener: EventListener) => void;
+          removeEventListener?: (type: string, listener: EventListener) => void;
+        };
+      }
+      
+      const connection = (navigator as NavigatorWithConnection).connection;
       setNetworkStatus(prev => ({
         ...prev,
         connectionType: connection?.effectiveType || null,
@@ -107,12 +116,12 @@ export const useNetworkStatus = (): UseNetworkStatusReturn => {
         }));
       };
 
-      connection?.addEventListener('change', handleConnectionChange);
+      connection?.addEventListener?.('change', handleConnectionChange as EventListener);
 
       return () => {
         window.removeEventListener('online', handleOnline);
         window.removeEventListener('offline', handleOffline);
-        connection?.removeEventListener('change', handleConnectionChange);
+        connection?.removeEventListener?.('change', handleConnectionChange as EventListener);
       };
     }
 

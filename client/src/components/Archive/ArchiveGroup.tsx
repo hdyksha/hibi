@@ -10,7 +10,7 @@ import { ArchiveTask } from './ArchiveTask';
 
 interface ArchiveGroupProps {
   group: ArchiveGroupType;
-  onEditTask: (task: any) => void;
+  onEditTask: (task: ArchiveGroupType['tasks'][number]) => void;
 }
 
 export const ArchiveGroup: React.FC<ArchiveGroupProps> = ({ group, onEditTask }) => {

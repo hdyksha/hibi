@@ -60,8 +60,8 @@ export const useFilter = (options: UseFilterOptions = {}): UseFilterReturn => {
   }, [setFilter, defaultFilter]);
 
   const hasActiveFilter = useMemo(() => {
-    const activeFilterKeys = Object.keys(filter).filter(key => {
-      const value = filter[key as keyof TodoFilter];
+    const activeFilterKeys = (Object.keys(filter) as Array<keyof TodoFilter>).filter(key => {
+      const value = filter[key];
       if (Array.isArray(value)) return value.length > 0;
       if (typeof value === 'string') return value.trim() !== '';
       return value !== undefined && value !== null;

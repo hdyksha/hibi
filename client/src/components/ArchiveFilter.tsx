@@ -5,7 +5,7 @@
  */
 
 import React, { useState, useCallback } from 'react';
-import { TodoFilter, Priority } from '../types';
+import { TodoFilter, Priority, isPriority } from '../types';
 
 interface ArchiveFilterProps {
   filter: TodoFilter;
@@ -31,12 +31,12 @@ export const ArchiveFilter: React.FC<ArchiveFilterProps> = ({
   const [searchText, setSearchText] = useState(filter.searchText || '');
   const [showAdvanced, setShowAdvanced] = useState(false);
 
-  const handlePriorityChange = useCallback((priority: Priority | '') => {
+  const handlePriorityChange = useCallback((priority: string) => {
     const newFilter = { ...filter };
     if (priority === '') {
       delete newFilter.priority;
-    } else {
-      newFilter.priority = priority as Priority;
+    } else if (isPriority(priority)) {
+      newFilter.priority = priority;
     }
     onFilterChange(newFilter);
   }, [filter, onFilterChange]);
@@ -139,7 +139,7 @@ export const ArchiveFilter: React.FC<ArchiveFilterProps> = ({
             <select
               id="archive-priority-select"
               value={filter.priority || ''}
-              onChange={(e) => handlePriorityChange(e.target.value as Priority | '')}
+              onChange={(e) => handlePriorityChange(e.target.value)}
               className="px-3 py-3 border border-slate-300 rounded text-base bg-white cursor-pointer transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/25 focus:border-blue-500"
             >
               <option value="">All Priorities</option>

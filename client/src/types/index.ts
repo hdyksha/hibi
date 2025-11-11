@@ -6,6 +6,20 @@
 export type Priority = 'high' | 'medium' | 'low';
 export type FilterStatus = 'all' | 'pending' | 'completed';
 
+/**
+ * Type guard to check if a value is a valid Priority
+ */
+export function isPriority(value: unknown): value is Priority {
+  return typeof value === 'string' && ['high', 'medium', 'low'].includes(value);
+}
+
+/**
+ * Type guard to check if a value is a valid FilterStatus
+ */
+export function isFilterStatus(value: unknown): value is FilterStatus {
+  return typeof value === 'string' && ['all', 'pending', 'completed'].includes(value);
+}
+
 export interface TodoItem {
   id: string;
   title: string;
