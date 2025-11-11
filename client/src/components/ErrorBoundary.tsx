@@ -43,7 +43,7 @@ export class ErrorBoundary extends Component<Props, State> {
     });
 
     // Log error to console in development
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.MODE === 'development') {
       console.error('ErrorBoundary caught an error:', error);
       console.error('Error info:', errorInfo);
     }
@@ -79,7 +79,7 @@ export class ErrorBoundary extends Component<Props, State> {
               retryLabel="Reload Page"
             />
             
-            {process.env.NODE_ENV === 'development' && this.state.error && (
+            {import.meta.env.MODE === 'development' && this.state.error && (
               <details className="mt-4 p-4 bg-gray-100 rounded-lg text-sm">
                 <summary className="cursor-pointer font-medium text-gray-700 mb-2">
                   Error Details (Development Only)

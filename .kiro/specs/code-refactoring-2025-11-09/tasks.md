@@ -547,7 +547,12 @@
   - 型アサーションを型ガードに置き換え
   - _要件: 7.1, 7.2, 7.3, 7.4_
 
-- [ ] 13.3 環境変数チェックのモダン化
+- [x] 13.3 環境変数チェックのモダン化
+
+
+
+
+
   - `useNetworkStatus.ts` の環境変数チェックを Vite 標準の方法に変更
   - `process.env.NODE_ENV` を `import.meta.env.MODE` に置き換え
   - `typeof process !== 'undefined'` チェックを削除してコードを簡素化
