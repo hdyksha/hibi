@@ -18,6 +18,16 @@ function AppContent() {
     }
   };
 
+  const handleViewChange = (view: ViewMode) => {
+    setCurrentView(view);
+    // Refresh data when switching to a view to ensure it shows current file
+    if (view === 'todos') {
+      refreshTodos();
+    } else {
+      archive.refreshArchive();
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-slate-50 to-gray-100">
       {/* Responsive Header */}
@@ -44,7 +54,7 @@ function AppContent() {
                       ? 'bg-white text-slate-800 shadow-sm'
                       : 'text-slate-600 hover:text-slate-800 hover:bg-white/60 active:bg-white/80'
                   }`}
-                  onClick={() => setCurrentView('todos')}
+                  onClick={() => handleViewChange('todos')}
                 >
                   Tasks
                 </button>
@@ -54,7 +64,7 @@ function AppContent() {
                       ? 'bg-white text-slate-800 shadow-sm'
                       : 'text-slate-600 hover:text-slate-800 hover:bg-white/60 active:bg-white/80'
                   }`}
-                  onClick={() => setCurrentView('archive')}
+                  onClick={() => handleViewChange('archive')}
                 >
                   Archive
                 </button>
