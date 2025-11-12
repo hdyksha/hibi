@@ -6,15 +6,35 @@
 
 ```
 todo-app/
-├── client/          # React フロントエンド
+├── client/                    # React フロントエンド
 │   ├── src/
+│   │   ├── components/       # UI コンポーネント
+│   │   │   ├── common/       # 共通UIコンポーネント（Button、Inputなど）
+│   │   │   ├── TodoItem/     # TodoItemコンポーネントとサブコンポーネント
+│   │   │   ├── TodoForm/     # TodoFormコンポーネントとサブコンポーネント
+│   │   │   ├── Filter/       # Filterコンポーネントとサブコンポーネント
+│   │   │   └── Archive/      # Archiveコンポーネントとサブコンポーネント
+│   │   ├── contexts/         # React Context（状態管理）
+│   │   ├── hooks/            # カスタムフック
+│   │   ├── services/         # API通信層
+│   │   │   ├── api/          # 機能別APIクライアント（TodoApi、FileApiなど）
+│   │   │   └── http/         # 共通HTTPクライアント
+│   │   ├── types/            # TypeScript型定義
+│   │   ├── utils/            # ユーティリティ関数
+│   │   └── test/             # テストユーティリティ
 │   ├── package.json
 │   ├── tsconfig.json
 │   ├── vite.config.ts
 │   └── vitest.config.ts
-├── server/          # Express.js バックエンド
+├── server/                    # Express.js バックエンド
 │   ├── src/
-│   ├── data/        # JSON データストレージ
+│   │   ├── middleware/       # Express ミドルウェア
+│   │   ├── models/           # データモデルとバリデーション
+│   │   ├── routes/           # API ルートハンドラー
+│   │   ├── services/         # ビジネスロジック層
+│   │   ├── utils/            # ユーティリティ関数（バリデーターなど）
+│   │   └── test-utils/       # テストユーティリティ
+│   ├── data/                 # JSON データストレージ（デフォルト）
 │   ├── package.json
 │   ├── tsconfig.json
 │   └── vitest.config.ts
@@ -114,9 +134,39 @@ npm start
 npm run clean
 ```
 
+## アーキテクチャ
+
+### フロントエンド（Client）
+
+- **コンポーネント設計**: 小さく再利用可能なコンポーネントに分割
+  - 共通UIコンポーネント（Button、Inputなど）を提供
+  - 大きなコンポーネントをサブコンポーネントに分割して責任を明確化
+- **状態管理**: React Context APIを使用
+- **API通信**: 機能別に分割されたAPIクライアント（TodoApi、FileApi）
+  - 共通HTTPクライアントでエラーハンドリングを統一
+- **カスタムフック**: ロジックを再利用可能なフックに抽出
+- **スタイリング**: Tailwind CSSを使用し、共通スタイルを定数化
+
+### バックエンド（Server）
+
+- **レイヤードアーキテクチャ**: Routes → Services → Models
+  - **Routes**: 薄いルートハンドラー、サービス層への委譲に専念
+  - **Services**: ビジネスロジックを集約（TodoService）
+  - **Models**: データモデルとバリデーション
+- **バリデーション**: 統一されたバリデーターユーティリティを使用
+- **エラーハンドリング**: 統一されたエラーハンドリングミドルウェア
+- **データ永続化**: JSONファイルベース（FileStorageService）
+
+### コード品質
+
+- **型安全性**: TypeScriptの型システムを最大限活用、`any`型の使用を最小化
+- **テスト**: Vitestを使用した包括的なテストスイート
+- **コードの一貫性**: 統一された命名規則とコーディングスタイル
+- **ドキュメント**: JSDocコメントと複雑なロジックへの説明コメント
+
 ## 技術スタック
 
-- **フロントエンド**: React 18, TypeScript, Vite
+- **フロントエンド**: React 18, TypeScript, Vite, Tailwind CSS
 - **バックエンド**: Node.js, Express.js, TypeScript
-- **テスト**: Vitest
+- **テスト**: Vitest, React Testing Library, Supertest
 - **データストレージ**: JSON ファイル
