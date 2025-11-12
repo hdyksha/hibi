@@ -9,7 +9,11 @@ import { TodoItem } from '../../types';
 import { MarkdownPreview } from '../MarkdownPreview';
 import { todoItem } from '../../utils/styles';
 
+/**
+ * Props for TodoItemContent component
+ */
 interface TodoItemContentProps {
+  /** The todo item whose content to display */
   todo: TodoItem;
 }
 

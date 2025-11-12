@@ -7,8 +7,13 @@
 import React from 'react';
 import { FilterStatus as FilterStatusType } from '../../types';
 
+/**
+ * Props for FilterStatus component
+ */
 interface FilterStatusProps {
+  /** Current status filter value */
   status: FilterStatusType;
+  /** Callback function when status filter changes */
   onStatusChange: (status: FilterStatusType) => void;
 }
 

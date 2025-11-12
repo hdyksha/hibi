@@ -1,12 +1,19 @@
 /**
  * Shared ReactMarkdown components configuration
  * Provides consistent styling across all markdown renderers
+ * 
+ * This module exports two sets of markdown components:
+ * - baseMarkdownComponents: Compact styling for inline previews (e.g., in todo items)
+ * - editorMarkdownComponents: Larger styling for the memo editor preview
  */
 
 import React from 'react';
 import { Components } from 'react-markdown';
 
-// Base components for general markdown rendering
+/**
+ * Base components for general markdown rendering
+ * Used in compact contexts like todo item memos
+ */
 export const baseMarkdownComponents: Components = {
   h1: ({ children }) => (
     <h1 className="text-lg font-bold text-slate-800 mb-2">{children}</h1>
@@ -52,7 +59,10 @@ export const baseMarkdownComponents: Components = {
   ),
 };
 
-// Components optimized for editor preview (slightly larger text)
+/**
+ * Components optimized for editor preview
+ * Features slightly larger text and spacing for better readability in the memo editor
+ */
 export const editorMarkdownComponents: Components = {
   ...baseMarkdownComponents,
   h1: ({ children }) => (

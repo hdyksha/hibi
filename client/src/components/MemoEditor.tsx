@@ -9,11 +9,19 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { editorMarkdownComponents } from '../utils/markdownComponents';
 
+/**
+ * Props for MemoEditor component
+ */
 interface MemoEditorProps {
+  /** Current memo content */
   value: string;
+  /** Callback function when content changes */
   onChange: (value: string) => void;
+  /** Placeholder text for the editor */
   placeholder?: string;
+  /** Additional CSS classes */
   className?: string;
+  /** Whether the editor is disabled */
   disabled?: boolean;
 }
 

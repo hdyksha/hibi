@@ -7,8 +7,13 @@
 import React from 'react';
 import { Priority } from '../../types';
 
+/**
+ * Props for FilterPriority component
+ */
 interface FilterPriorityProps {
+  /** Current priority filter value (undefined means all priorities) */
   priority?: Priority;
+  /** Callback function when priority filter changes */
   onPriorityChange: (priority: string) => void;
 }
 

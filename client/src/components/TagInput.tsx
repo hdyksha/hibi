@@ -6,12 +6,21 @@
 
 import React, { useState, KeyboardEvent } from 'react';
 
+/**
+ * Props for TagInput component
+ */
 interface TagInputProps {
+  /** Current array of tags */
   tags: string[];
+  /** Callback function when tags change */
   onChange: (tags: string[]) => void;
+  /** Placeholder text for the input field */
   placeholder?: string;
+  /** Whether the input is disabled */
   disabled?: boolean;
+  /** Maximum number of tags allowed */
   maxTags?: number;
+  /** Additional CSS classes */
   className?: string;
 }
 

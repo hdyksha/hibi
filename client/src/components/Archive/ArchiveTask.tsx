@@ -8,8 +8,13 @@ import React from 'react';
 import { TodoItem } from '../../types';
 import { MarkdownPreview } from '../MarkdownPreview';
 
+/**
+ * Props for ArchiveTask component
+ */
 interface ArchiveTaskProps {
+  /** The completed task to display */
   task: TodoItem;
+  /** Callback function when task edit is requested */
   onEdit: (task: TodoItem) => void;
 }
 

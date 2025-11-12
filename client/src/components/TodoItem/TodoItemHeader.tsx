@@ -8,8 +8,13 @@ import React from 'react';
 import { TodoItem, Priority } from '../../types';
 import { cn, todoItem } from '../../utils/styles';
 
+/**
+ * Props for TodoItemHeader component
+ */
 interface TodoItemHeaderProps {
+  /** The todo item to display */
   todo: TodoItem;
+  /** Callback function to toggle the completion status of the todo */
   onToggleComplete: (id: string) => void;
 }
 

@@ -9,13 +9,23 @@ import { Priority, isPriority } from '../../types';
 import { TagInput } from '../TagInput';
 import { MemoEditor } from '../MemoEditor';
 
+/**
+ * Props for TodoFormAdvanced component
+ */
 export interface TodoFormAdvancedProps {
+  /** Current priority value */
   priority: Priority;
+  /** Current tags array */
   tags: string[];
+  /** Current memo content */
   memo: string;
+  /** Callback function when priority changes */
   onPriorityChange: (priority: Priority) => void;
+  /** Callback function when tags change */
   onTagsChange: (tags: string[]) => void;
+  /** Callback function when memo changes */
   onMemoChange: (memo: string) => void;
+  /** Whether the form is currently submitting */
   isSubmitting: boolean;
 }
 

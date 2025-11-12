@@ -7,23 +7,61 @@
 import { useState, useCallback, useRef } from 'react';
 import { ApiClientError } from '../services';
 
+/**
+ * Represents the state of an error with metadata
+ */
 export interface ErrorState {
+  /** Human-readable error message */
   message: string;
+  /** Category of error for appropriate handling */
   type: 'network' | 'validation' | 'server' | 'unknown';
+  /** HTTP status code if applicable */
   status?: number;
+  /** Whether the operation can be retried */
   retryable: boolean;
+  /** Timestamp when the error occurred */
   timestamp: number;
 }
 
+/**
+ * Return value from useErrorHandler hook
+ */
 export interface UseErrorHandlerReturn {
+  /** Current error state, null if no error */
   error: ErrorState | null;
+  /** Whether an error is currently present */
   hasError: boolean;
+  /** Set or clear the error state */
   setError: (error: Error | string | null) => void;
+  /** Clear the current error */
   clearError: () => void;
+  /** Retry the last failed action */
   retryLastAction: () => Promise<void>;
+  /** Whether a retry is currently in progress */
   isRetrying: boolean;
 }
 
+/**
+ * Custom hook for centralized error handling
+ * Provides consistent error state management with automatic error categorization
+ * and retry capabilities for recoverable errors
+ * 
+ * @param onRetry - Optional callback function to execute when retrying
+ * @returns Error state and management functions
+ * 
+ * @example
+ * ```tsx
+ * const { error, setError, clearError, retryLastAction } = useErrorHandler(
+ *   async () => await fetchData()
+ * );
+ * 
+ * try {
+ *   await someOperation();
+ * } catch (err) {
+ *   setError(err);
+ * }
+ * ```
+ */
 export const useErrorHandler = (
   onRetry?: () => Promise<void>
 ): UseErrorHandlerReturn => {

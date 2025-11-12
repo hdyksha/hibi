@@ -9,13 +9,23 @@ import { Input } from '../common/Input';
 import { Button } from '../common/Button';
 import { InlineLoadingSpinner } from '../';
 
+/**
+ * Props for TodoFormBasic component
+ */
 export interface TodoFormBasicProps {
+  /** Current title value */
   title: string;
+  /** Callback function when title changes */
   onTitleChange: (value: string) => void;
+  /** Callback function when form is submitted */
   onSubmit: (event: React.FormEvent) => void;
+  /** Callback function to toggle advanced options visibility */
   onToggleAdvanced: () => void;
+  /** Whether the form is currently submitting */
   isSubmitting: boolean;
+  /** Whether advanced options are visible */
   showAdvanced: boolean;
+  /** Error message to display, if any */
   error?: string | null;
 }
 

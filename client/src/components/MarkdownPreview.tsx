@@ -7,8 +7,13 @@ import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import { baseMarkdownComponents } from '../utils/markdownComponents';
 
+/**
+ * Props for MarkdownPreview component
+ */
 interface MarkdownPreviewProps {
+  /** Markdown content to render */
   content: string;
+  /** Additional CSS classes */
   className?: string;
 }
 

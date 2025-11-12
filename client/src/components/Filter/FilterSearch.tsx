@@ -6,8 +6,13 @@
 
 import React from 'react';
 
+/**
+ * Props for FilterSearch component
+ */
 interface FilterSearchProps {
+  /** Current search text value */
   searchText: string;
+  /** Callback function when search text changes */
   onSearchChange: (value: string) => void;
 }
 

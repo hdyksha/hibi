@@ -1,5 +1,6 @@
 /**
  * FileSelector Component
+ * Provides a dropdown interface for switching between different JSON data files
  * Requirements: ファイル選択UIの実装、複数ファイル間でのデータ切り替え機能
  */
 
@@ -7,10 +8,21 @@ import { useState, useEffect } from 'react';
 import { fileApi } from '../services';
 import { FileInfo } from '../types';
 
+/**
+ * Props for FileSelector component
+ */
 interface FileSelectorProps {
+  /** Optional callback function called after successful file switch */
   onFileSwitch?: () => void;
 }
 
+/**
+ * FileSelector component for switching between data files
+ * Displays available JSON files and allows users to switch the active data file
+ * 
+ * @param props - Component props
+ * @returns File selector dropdown component
+ */
 export function FileSelector({ onFileSwitch }: FileSelectorProps) {
   const [fileInfo, setFileInfo] = useState<FileInfo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -21,6 +33,9 @@ export function FileSelector({ onFileSwitch }: FileSelectorProps) {
     loadFiles();
   }, []);
 
+  /**
+   * Loads the list of available files from the server
+   */
   const loadFiles = async () => {
     try {
       setIsLoading(true);
@@ -34,6 +49,12 @@ export function FileSelector({ onFileSwitch }: FileSelectorProps) {
     }
   };
 
+  /**
+   * Handles switching to a different data file
+   * Reloads the file list after successful switch and triggers callback
+   * 
+   * @param fileName - Name of the file to switch to
+   */
   const handleFileSwitch = async (fileName: string) => {
     if (fileName === fileInfo?.currentFile) {
       setIsDropdownOpen(false);

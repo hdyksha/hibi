@@ -6,11 +6,19 @@
 
 import React from 'react';
 
+/**
+ * Props for ErrorMessage component
+ */
 interface ErrorMessageProps {
+  /** Error message to display */
   message: string;
+  /** Optional callback function for retry action */
   onRetry?: () => void;
+  /** Label for the retry button */
   retryLabel?: string;
+  /** Visual variant of the error message */
   variant?: 'default' | 'compact';
+  /** Additional CSS classes */
   className?: string;
 }
 
@@ -66,8 +74,13 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
   );
 };
 
+/**
+ * Props for InlineErrorMessage component
+ */
 interface InlineErrorMessageProps {
+  /** Error message to display inline */
   message: string;
+  /** Additional CSS classes */
   className?: string;
 }
 

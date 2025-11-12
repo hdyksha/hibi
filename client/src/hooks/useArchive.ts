@@ -10,23 +10,57 @@ import { useFilter } from './useFilter';
 import { useErrorHandler } from './useErrorHandler';
 import { DEFAULT_ARCHIVE_FILTER } from '../constants/filters';
 
+/**
+ * Return value from useArchive hook
+ */
 export interface UseArchiveReturn {
+  /** All archive groups (unfiltered) */
   archiveGroups: ArchiveGroup[];
+  /** Whether archive data is currently loading */
   loading: boolean;
+  /** Current error message, if any */
   error: string | null;
+  /** Current filter state */
   filter: TodoFilter;
+  /** All available tags from archived tasks */
   availableTags: string[];
+  /** Archive groups after applying filters */
   filteredGroups: ArchiveGroup[];
+  /** Total number of archived tasks (unfiltered) */
   totalTasks: number;
+  /** Number of tasks after applying filters */
   filteredTasks: number;
+  /** Whether any filter is currently active */
   hasActiveFilter: boolean;
+  /** Update the filter state */
   setFilter: (filter: TodoFilter) => void;
+  /** Refresh archive data from the server */
   refreshArchive: () => Promise<void>;
+  /** Clear all filters and reset to default */
   clearFilter: () => void;
+  /** Retry the last failed action */
   retryLastAction: () => Promise<void>;
+  /** Whether a retry is currently in progress */
   isRetrying: boolean;
 }
 
+/**
+ * Custom hook for managing archive state and operations
+ * Handles loading, filtering, and managing completed todo items
+ * 
+ * @returns Archive state and operations
+ * 
+ * @example
+ * ```tsx
+ * const { 
+ *   filteredGroups, 
+ *   loading, 
+ *   error, 
+ *   setFilter,
+ *   refreshArchive 
+ * } = useArchive();
+ * ```
+ */
 export const useArchive = (): UseArchiveReturn => {
   const [archiveGroups, setArchiveGroups] = useState<ArchiveGroup[]>([]);
   const [loading, setLoading] = useState(true);

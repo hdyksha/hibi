@@ -8,9 +8,15 @@ import React from 'react';
 import { TodoItem } from '../../types';
 import { cn, todoItem } from '../../utils/styles';
 
+/**
+ * Props for TodoItemActions component
+ */
 interface TodoItemActionsProps {
+  /** The todo item for which to display actions */
   todo: TodoItem;
+  /** Callback function to handle edit action */
   onEdit: () => void;
+  /** Callback function to handle delete action */
   onDelete: (id: string) => void;
 }
 

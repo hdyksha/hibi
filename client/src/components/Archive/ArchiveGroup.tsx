@@ -8,8 +8,13 @@ import React from 'react';
 import { ArchiveGroup as ArchiveGroupType } from '../../types';
 import { ArchiveTask } from './ArchiveTask';
 
+/**
+ * Props for ArchiveGroup component
+ */
 interface ArchiveGroupProps {
+  /** Archive group containing tasks completed on the same date */
   group: ArchiveGroupType;
+  /** Callback function when a task edit is requested */
   onEditTask: (task: ArchiveGroupType['tasks'][number]) => void;
 }
 

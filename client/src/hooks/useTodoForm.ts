@@ -6,42 +6,72 @@
 import { useState, useCallback } from 'react';
 import { CreateTodoItemInput, Priority, isPriority } from '../types';
 
+/**
+ * Result of a validation check
+ */
 interface ValidationResult {
+  /** Whether the validation passed */
   isValid: boolean;
+  /** Error message if validation failed */
   error?: string;
 }
 
+/**
+ * Options for configuring the useTodoForm hook
+ */
 interface UseTodoFormOptions {
+  /** Callback function to handle form submission */
   onSubmit: (input: CreateTodoItemInput) => Promise<unknown>;
+  /** Initial priority value (defaults to 'medium') */
   initialPriority?: Priority;
 }
 
+/**
+ * Return value from useTodoForm hook
+ */
 interface UseTodoFormReturn {
   // Form state
+  /** Current title value */
   title: string;
+  /** Current priority value */
   priority: Priority;
+  /** Current tags array */
   tags: string[];
+  /** Current memo content */
   memo: string;
+  /** Whether advanced options are visible */
   showAdvanced: boolean;
   
   // UI state
+  /** Whether the form is currently submitting */
   isSubmitting: boolean;
+  /** Current error message, if any */
   error: string | null;
   
   // Form handlers
+  /** Set the title value */
   setTitle: (title: string) => void;
+  /** Set the priority value */
   setPriority: (priority: Priority) => void;
+  /** Set the tags array */
   setTags: (tags: string[]) => void;
+  /** Set the memo content */
   setMemo: (memo: string) => void;
+  /** Toggle advanced options visibility */
   toggleAdvanced: () => void;
   
   // Form actions
+  /** Handle form submission */
   handleSubmit: (event: React.FormEvent) => Promise<void>;
+  /** Handle title input change */
   handleTitleChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  /** Handle priority select change */
   handlePriorityChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  /** Reset form to initial state */
   resetForm: () => void;
   
   // Validation
+  /** Validate the title field */
   validateTitle: (title: string) => ValidationResult;
 }
 

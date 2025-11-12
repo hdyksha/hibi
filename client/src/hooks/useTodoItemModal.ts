@@ -7,6 +7,17 @@
 import { useState } from 'react';
 import { Priority } from '../types';
 
+/**
+ * Custom hook for managing todo item edit modal state
+ * 
+ * @param onUpdate - Callback function to handle todo item updates
+ * @returns Object containing modal state and handlers
+ * 
+ * @example
+ * ```tsx
+ * const { isModalOpen, openModal, closeModal, handleTaskUpdate } = useTodoItemModal(updateTodo);
+ * ```
+ */
 export const useTodoItemModal = (
   onUpdate: (id: string, updates: { title?: string; priority?: Priority; tags?: string[]; memo?: string }) => void
 ) => {

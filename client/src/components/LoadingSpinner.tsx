@@ -6,9 +6,15 @@
 
 import React from 'react';
 
+/**
+ * Props for LoadingSpinner component
+ */
 interface LoadingSpinnerProps {
+  /** Size of the spinner */
   size?: 'sm' | 'md' | 'lg';
+  /** Loading message to display */
   message?: string;
+  /** Additional CSS classes */
   className?: string;
 }
 
@@ -43,8 +49,13 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   );
 };
 
+/**
+ * Props for InlineLoadingSpinner component
+ */
 interface InlineLoadingSpinnerProps {
+  /** Size of the inline spinner */
   size?: 'sm' | 'md';
+  /** Additional CSS classes */
   className?: string;
 }
 

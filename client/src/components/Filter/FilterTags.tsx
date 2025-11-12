@@ -6,9 +6,15 @@
 
 import React from 'react';
 
+/**
+ * Props for FilterTags component
+ */
 interface FilterTagsProps {
+  /** List of all available tags to display */
   availableTags: string[];
+  /** List of currently selected tags */
   selectedTags: string[];
+  /** Callback function when a tag is toggled on/off */
   onTagToggle: (tag: string) => void;
 }
 
