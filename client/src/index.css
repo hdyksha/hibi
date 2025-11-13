@@ -9,9 +9,26 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
+
+  /* Animation duration custom properties */
+  --duration-instant: 0ms;
+  --duration-fast: 100ms;
+  --duration-normal: 150ms;
+  --duration-medium: 200ms;
+  --duration-slow: 300ms;
+  --duration-slower: 400ms;
+  --duration-slowest: 500ms;
+
+  /* Animation easing custom properties */
+  --easing-ease-in: ease-in;
+  --easing-ease-out: ease-out;
+  --easing-ease-in-out: ease-in-out;
+  --easing-linear: linear;
+  --easing-spring: cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 @layer utilities {
+  /* Legacy animations - kept for backward compatibility */
   .animate-fade-in-up {
     animation: fadeInUp 0.3s ease-out;
   }
@@ -30,6 +47,49 @@
 
   .animate-shake {
     animation: shake 0.5s ease-in-out;
+  }
+
+  /* New transition utilities using CSS custom properties */
+  .transition-fade {
+    transition: opacity var(--duration-normal) var(--easing-ease-in-out);
+  }
+
+  .transition-fade-fast {
+    transition: opacity var(--duration-fast) var(--easing-ease-in-out);
+  }
+
+  .transition-transform {
+    transition: transform var(--duration-normal) var(--easing-ease-in-out);
+  }
+
+  .transition-all-smooth {
+    transition: all var(--duration-normal) var(--easing-ease-in-out);
+  }
+
+  /* Enter/exit animations */
+  .animate-enter {
+    animation: enter var(--duration-slow) var(--easing-ease-out);
+  }
+
+  .animate-exit {
+    animation: exit var(--duration-medium) var(--easing-ease-in);
+  }
+
+  /* Highlight pulse animation */
+  .highlight-pulse {
+    animation: highlightPulse var(--duration-slowest) var(--easing-ease-in-out);
+  }
+
+  /* Skeleton loading animation */
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      #f0f0f0 25%,
+      #e0e0e0 50%,
+      #f0f0f0 75%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s ease-in-out infinite;
   }
 
   /* Touch-friendly tap targets */
@@ -104,5 +164,80 @@
   }
   20%, 40%, 60%, 80% {
     transform: translateX(2px);
+  }
+}
+
+/* New keyframe animations using CSS custom properties */
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes exit {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+}
+
+@keyframes highlightPulse {
+  0%, 100% {
+    background-color: transparent;
+  }
+  50% {
+    background-color: rgba(59, 130, 246, 0.1);
+  }
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Reduced motion support - respects user's system preferences */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    /* Reduce all animation durations to 50ms or less */
+    --duration-fast: 50ms;
+    --duration-normal: 50ms;
+    --duration-medium: 50ms;
+    --duration-slow: 50ms;
+    --duration-slower: 50ms;
+    --duration-slowest: 50ms;
+  }
+
+  /* Apply reduced motion to all elements */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 50ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 50ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Disable decorative animations entirely */
+  .skeleton {
+    animation: none;
+    background: #f0f0f0;
+  }
+
+  .animate-pulse-gentle {
+    animation: none;
+    opacity: 1;
   }
 }
