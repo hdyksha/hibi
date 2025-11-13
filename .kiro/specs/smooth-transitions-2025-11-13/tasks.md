@@ -11,7 +11,12 @@
   - Implement reduced motion media query support in CSS
   - _Requirements: 9.1, 9.2, 9.3, 10.1, 10.2, 10.3, 10.4_
 
-- [ ] 2. Create animation utility functions
+- [x] 2. Create animation utility functions
+
+
+
+
+
   - Create `client/src/utils/animationUtils.ts` with helper functions
   - Implement `prefersReducedMotion()` function to detect user preference
   - Implement `getAnimationDuration()` to adjust duration based on preference
