@@ -8,3 +8,4 @@ export { useFilter } from './useFilter';
 export { useErrorHandler } from './useErrorHandler';
 export { useNetworkStatus } from './useNetworkStatus';
 export { useTodoForm } from './useTodoForm';
+export { useOptimisticUpdate } from './useOptimisticUpdate';
