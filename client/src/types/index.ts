@@ -30,6 +30,9 @@ export interface TodoItem {
   createdAt: string;
   updatedAt: string;
   completedAt: string | null;
+  // Animation state flags for optimistic updates
+  isPending?: boolean;
+  isExiting?: boolean;
 }
 
 export interface TodoFilter {

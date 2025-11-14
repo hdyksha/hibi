@@ -15,7 +15,7 @@ interface TodoListProps {
 
 export const TodoList: React.FC<TodoListProps> = ({ className }) => {
   const {
-    todos,
+    displayTodos,
     loading,
     error,
     refreshTodos,
@@ -70,13 +70,13 @@ export const TodoList: React.FC<TodoListProps> = ({ className }) => {
 
   return (
     <div className={`w-full p-3 sm:p-4 ${className || ''}`}>
-      {!todos || todos.length === 0 ? (
+      {!displayTodos || displayTodos.length === 0 ? (
         <div className="text-center py-6 sm:py-8 text-slate-600 text-base sm:text-lg">
           No todos yet. Create your first todo!
         </div>
       ) : (
         <ul className="list-none p-0 m-0 space-y-2 sm:space-y-3">
-          {todos.map(todo => (
+          {displayTodos.map(todo => (
             <li key={todo.id}>
               <TodoItem
                 todo={todo}

@@ -1,7 +1,8 @@
 /**
  * TodoItemHeader Component
  * Displays the completion checkbox, title, and priority badge
- * Requirements: 2.1, 2.2, 5.1
+ * Enhanced with smooth checkbox state change animation (150ms)
+ * Requirements: 2.1, 2.2, 2.3, 5.1
  */
 
 import React from 'react';
@@ -34,16 +35,25 @@ export const TodoItemHeader: React.FC<TodoItemHeaderProps> = ({
 
   return (
     <div className={todoItem.layout.headerContainer}>
-      {/* Completion Toggle - Touch optimized */}
+      {/* Completion Toggle - Touch optimized with smooth animation */}
       <button
         className={cn(
           todoItem.checkbox.base,
-          todo.completed ? todoItem.checkbox.completed : todoItem.checkbox.uncompleted
+          todo.completed ? todoItem.checkbox.completed : todoItem.checkbox.uncompleted,
+          // Checkbox state change animation (150ms transition)
+          'transition-all duration-150 ease-in-out',
+          // Scale effect on state change
+          'transform hover:scale-110 active:scale-95'
         )}
         onClick={handleToggleClick}
         aria-label={todo.completed ? 'Mark as incomplete' : 'Mark as complete'}
       >
-        {todo.completed ? '✓' : ''}
+        <span className={cn(
+          'transition-all duration-150 ease-in-out',
+          todo.completed ? 'opacity-100 scale-100' : 'opacity-0 scale-50'
+        )}>
+          ✓
+        </span>
       </button>
 
       {/* Content */}

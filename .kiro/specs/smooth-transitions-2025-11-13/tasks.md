@@ -73,7 +73,12 @@
   - Update `displayTodos` to merge optimistic and actual todos
   - _Requirements: 1.1, 1.2, 1.4_
 
-- [ ] 7. Update TodoItem component with animations
+- [x] 7. Update TodoItem component with animations
+
+
+
+
+
   - Add enter animation when TodoItem is added (fade-in + slide-down, 300ms)
   - Add exit animation when TodoItem is removed (fade-out + slide-up, 250ms)
   - Implement checkbox state change animation (150ms transition)
@@ -81,21 +86,19 @@
   - Apply animation classes based on item state (isPending, isExiting)
   - _Requirements: 1.3, 1.5, 2.1, 2.2, 2.3_
 
-- [ ] 8. Add interactive element transitions
-  - Update button components with hover transitions (100ms)
-  - Add click feedback with scale/color transitions (100ms)
-  - Implement focus state animations for input fields (150ms)
-  - Add consistent transition timing across all interactive elements
-  - Disable pointer events during transitions to prevent double-clicks
-  - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
+- [ ] 8. Optimize TodoForm submission feedback
+  - Add immediate visual feedback on form submission
+  - Implement optimistic update integration for new todos (use `addTodoOptimistic`)
+  - Show pending state on submit button during API call
+  - Add success animation when todo is confirmed
+  - _Requirements: 1.1, 1.4, 1.5_
 
-- [ ] 9. Implement edit mode transitions
-  - Add transition when TodoItem enters edit mode (200ms)
-  - Add transition when exiting edit mode (200ms)
-  - Implement subtle border and background color transition for edit state
-  - Ensure no layout shifts when switching modes
-  - Animate edit controls appearance/disappearance (150ms fade)
-  - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
+- [ ] 9. Integrate delete animation with API calls
+  - Update `deleteTodo` to set `isExiting` flag before API call
+  - Wait for exit animation to complete (250ms) before removing from state
+  - Handle API errors and rollback if deletion fails
+  - Ensure smooth removal animation without loading spinner
+  - _Requirements: 2.2, 1.2_
 
 - [ ] 10. Update LoadingSpinner with delayed appearance
   - Integrate `useDelayedLoading` hook into LoadingSpinner component
@@ -104,7 +107,23 @@
   - Ensure spinner only shows for API calls longer than 200ms
   - _Requirements: 3.1, 3.2, 3.3, 3.4_
 
-- [ ] 11. Enhance error message animations
+- [ ] 11. Add interactive element transitions
+  - Update button components with hover transitions (100ms)
+  - Add click feedback with scale/color transitions (100ms)
+  - Implement focus state animations for input fields (150ms)
+  - Add consistent transition timing across all interactive elements
+  - Disable pointer events during transitions to prevent double-clicks
+  - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
+
+- [ ] 12. Implement edit mode transitions
+  - Add transition when TodoItem enters edit mode (200ms)
+  - Add transition when exiting edit mode (200ms)
+  - Implement subtle border and background color transition for edit state
+  - Ensure no layout shifts when switching modes
+  - Animate edit controls appearance/disappearance (150ms fade)
+  - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
+
+- [ ] 13. Enhance error message animations
   - Update ErrorMessage component with slide-down and fade-in animation (250ms)
   - Add slide-up and fade-out animation for dismissal (200ms)
   - Implement auto-dismiss with same animation after timeout
@@ -112,7 +131,7 @@
   - Add staggered animations for multiple errors (100ms delay between each)
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ] 12. Create skeleton screen for initial load
+- [ ] 14. Create skeleton screen for initial load
   - Create `client/src/components/SkeletonTodoList.tsx` component
   - Implement skeleton items matching TodoItem layout
   - Add pulse animation to skeleton elements
@@ -120,67 +139,60 @@
   - Display skeleton during initial data load
   - _Requirements: 7.1, 7.2, 7.3_
 
-- [ ] 13. Implement smooth scrolling behavior
+- [ ] 15. Implement smooth scrolling behavior
   - Add smooth scroll when new task is added outside viewport (400ms)
   - Implement scroll position maintenance when tasks change outside viewport
   - Add brief highlight animation to scrolled-to task (500ms background pulse)
   - Respect reduced motion preference for scrolling
   - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
 
-- [ ] 14. Add task update highlight animation
+- [ ] 16. Add task update highlight animation
   - Implement highlight effect when task text is updated (400ms background transition)
   - Use subtle background color change to indicate update
   - Automatically remove highlight after animation completes
   - _Requirements: 2.4_
 
-- [ ] 15. Create AnimatedList component for reusable list animations
+- [ ] 17. Create AnimatedList component for reusable list animations
   - Create `client/src/components/AnimatedList.tsx` generic component
   - Implement automatic enter animations for new items
   - Implement automatic exit animations for removed items
   - Handle rapid additions and removals gracefully
   - _Requirements: 2.1, 2.2_
 
-- [ ] 16. Add empty state transition
+- [ ] 18. Add empty state transition
   - Implement fade-in animation for empty state message (250ms)
   - Add transition when switching between empty and populated states
   - _Requirements: 7.4_
 
-- [ ] 17. Optimize TodoForm submission feedback
-  - Add immediate visual feedback on form submission
-  - Implement optimistic update integration for new todos
-  - Show pending state on submit button during API call
-  - Add success animation when todo is confirmed
-  - _Requirements: 1.1, 1.4, 1.5_
-
-- [ ] 18. Write essential tests for core functionality
+- [ ] 19. Write essential tests for core functionality
   - Test `useOptimisticUpdate` success and failure paths
   - Test `useDelayedLoading` basic timing behavior
   - Test `prefersReducedMotion()` detection
   - Verify optimistic UI add/delete flow works correctly
   - _Requirements: 1.1, 1.2, 3.1, 3.2, 10.1_
 
-- [ ]* 19. Expand test coverage for animation utilities
+- [ ]* 20. Expand test coverage for animation utilities
   - Test `getAnimationDuration()` with different motion preferences
   - Test `smoothScrollToElement()` behavior
   - Test `highlightElement()` class manipulation and cleanup
   - Add edge case tests for custom hooks
   - _Requirements: 10.1, 10.2, 10.5_
 
-- [ ]* 20. Add comprehensive integration tests
+- [ ]* 21. Add comprehensive integration tests
   - Test multiple rapid todo additions
   - Test loading states with various API response times
   - Test animation sequences for complex user flows
   - Test error recovery with animations
   - _Requirements: 1.4, 1.5, 3.1, 3.2, 3.5_
 
-- [ ]* 21. Perform accessibility and performance audit
+- [ ]* 22. Perform accessibility and performance audit
   - Test all animations with reduced motion enabled
   - Verify keyboard navigation during animations
   - Test focus management during transitions
   - Measure FPS and memory usage with large lists
   - _Requirements: 10.1, 10.2, 10.3, 10.4, 2.5, 8.5_
 
-- [ ]* 22. Add documentation for animation system
+- [ ]* 23. Add documentation for animation system
   - Document animation constants and their usage
   - Add JSDoc comments to utility functions
   - Document custom hooks with usage examples
