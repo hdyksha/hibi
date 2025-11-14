@@ -97,13 +97,18 @@ export const useTodos = (): UseTodosReturn => {
 
     /**
      * Fetches todos from the server with current filter applied
+     * Sorts todos by creation date (newest first) for consistent ordering
      */
     const refreshTodos = useCallback(async () => {
         try {
             setLoading(true);
             clearError();
             const todoItems = await todoApi.getTodos(filter);
-            setTodos(todoItems);
+            // Sort by createdAt descending (newest first)
+            const sortedTodos = [...todoItems].sort((a, b) => 
+                new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            );
+            setTodos(sortedTodos);
         } catch (error) {
             setError(normalizeError(error, 'Failed to load todos'));
         } finally {

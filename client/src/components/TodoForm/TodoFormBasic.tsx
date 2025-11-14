@@ -7,10 +7,10 @@
 import React from 'react';
 import { Input } from '../common/Input';
 import { Button } from '../common/Button';
-import { InlineLoadingSpinner } from '../';
 
 /**
  * Props for TodoFormBasic component
+ * Optimistic UI - no loading state needed
  */
 export interface TodoFormBasicProps {
   /** Current title value */
@@ -21,8 +21,6 @@ export interface TodoFormBasicProps {
   onSubmit: (event: React.FormEvent) => void;
   /** Callback function to toggle advanced options visibility */
   onToggleAdvanced: () => void;
-  /** Whether the form is currently submitting */
-  isSubmitting: boolean;
   /** Whether advanced options are visible */
   showAdvanced: boolean;
   /** Whether to show success animation */
@@ -36,7 +34,6 @@ export const TodoFormBasic: React.FC<TodoFormBasicProps> = ({
   onTitleChange,
   onSubmit,
   onToggleAdvanced,
-  isSubmitting,
   showAdvanced,
   showSuccess = false,
   error,
@@ -60,7 +57,6 @@ export const TodoFormBasic: React.FC<TodoFormBasicProps> = ({
               onChange={handleTitleChange}
               placeholder="Enter todo title..."
               error={error || undefined}
-              disabled={isSubmitting}
               maxLength={200}
               required
               fullWidth
@@ -69,11 +65,7 @@ export const TodoFormBasic: React.FC<TodoFormBasicProps> = ({
             <button
               type="button"
               onClick={onToggleAdvanced}
-              className={`px-3 bg-slate-100 border border-slate-300 rounded-lg cursor-pointer text-sm text-slate-600 transition-all duration-200 min-w-[48px] h-[48px] flex items-center justify-center ${isSubmitting
-                ? 'bg-slate-50 cursor-not-allowed opacity-60'
-                : 'hover:bg-slate-200 hover:border-slate-400 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/25 focus:border-blue-500 active:bg-slate-300'
-                }`}
-              disabled={isSubmitting}
+              className="px-3 bg-slate-100 border border-slate-300 rounded-lg cursor-pointer text-sm text-slate-600 transition-all duration-200 min-w-[48px] h-[48px] flex items-center justify-center hover:bg-slate-200 hover:border-slate-400 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/25 focus:border-blue-500 active:bg-slate-300"
               aria-expanded={showAdvanced}
               aria-label={showAdvanced ? 'Hide advanced options' : 'Show advanced options'}
             >
@@ -83,7 +75,7 @@ export const TodoFormBasic: React.FC<TodoFormBasicProps> = ({
               type="submit"
               variant="primary"
               size="md"
-              disabled={isSubmitting || !title.trim()}
+              disabled={!title.trim()}
               className={showSuccess ? '!bg-green-600 !border-green-600 hover:!bg-green-700' : ''}
             >
               {showSuccess ? (
@@ -92,11 +84,6 @@ export const TodoFormBasic: React.FC<TodoFormBasicProps> = ({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                   <span className="whitespace-nowrap">Added!</span>
-                </span>
-              ) : isSubmitting ? (
-                <span className="flex items-center gap-2">
-                  <InlineLoadingSpinner size="sm" />
-                  <span className="whitespace-nowrap">Adding...</span>
                 </span>
               ) : (
                 'Create'

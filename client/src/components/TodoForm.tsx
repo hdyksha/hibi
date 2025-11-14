@@ -2,6 +2,7 @@
  * TodoForm Component
  * Form for creating new todo items with validation
  * Refactored to use subcomponents and custom hook
+ * Uses optimistic UI pattern for immediate feedback
  * Requirements: 2.1, 2.2, 5.1, 5.2
  */
 
@@ -26,7 +27,6 @@ export const TodoForm: React.FC<TodoFormProps> = ({ className }) => {
     tags,
     memo,
     showAdvanced,
-    isSubmitting,
     error,
     handleSubmit,
     handleTitleChange,
@@ -36,10 +36,12 @@ export const TodoForm: React.FC<TodoFormProps> = ({ className }) => {
     toggleAdvanced,
   } = useTodoForm({
     onSubmit: async (input) => {
-      await addTodoOptimistic(input);
-      // Show success animation briefly
+      // Show success animation immediately (optimistic UI)
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 300);
+      
+      // Call API in background
+      await addTodoOptimistic(input);
     },
   });
 
@@ -61,7 +63,6 @@ export const TodoForm: React.FC<TodoFormProps> = ({ className }) => {
         }}
         onSubmit={handleSubmit}
         onToggleAdvanced={toggleAdvanced}
-        isSubmitting={isSubmitting}
         showAdvanced={showAdvanced}
         showSuccess={showSuccess}
         error={error}
@@ -75,7 +76,6 @@ export const TodoForm: React.FC<TodoFormProps> = ({ className }) => {
           onPriorityChange={setPriority}
           onTagsChange={setTags}
           onMemoChange={setMemo}
-          isSubmitting={isSubmitting}
         />
       )}
     </div>

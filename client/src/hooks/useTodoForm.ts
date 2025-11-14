@@ -43,8 +43,6 @@ interface UseTodoFormReturn {
   showAdvanced: boolean;
   
   // UI state
-  /** Whether the form is currently submitting */
-  isSubmitting: boolean;
   /** Current error message, if any */
   error: string | null;
   
@@ -91,7 +89,6 @@ export const useTodoForm = ({
   const [showAdvanced, setShowAdvanced] = useState(false);
   
   // UI state
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   /**
@@ -122,7 +119,8 @@ export const useTodoForm = ({
 
   /**
    * Handles form submission with validation
-   * Requirements: 2.2, 5.2
+   * Uses optimistic UI pattern - no loading state during submission
+   * Requirements: 2.2, 5.2, 1.1, 1.4, 1.5
    */
   const handleSubmit = useCallback(async (event: React.FormEvent) => {
     event.preventDefault();
@@ -137,24 +135,23 @@ export const useTodoForm = ({
       return;
     }
 
+    const input: CreateTodoItemInput = {
+      title: title.trim(),
+      priority: priority,
+      tags: tags,
+      memo: memo.trim()
+    };
+
+    // Clear form immediately for optimistic UI
+    resetForm();
+
     try {
-      setIsSubmitting(true);
-
-      const input: CreateTodoItemInput = {
-        title: title.trim(),
-        priority: priority,
-        tags: tags,
-        memo: memo.trim()
-      };
-
+      // Call onSubmit but don't wait for it or show loading state
+      // The optimistic UI pattern handles immediate feedback
       await onSubmit(input);
-
-      // Clear form on success
-      resetForm();
     } catch (error) {
+      // Display error if API call fails
       setError(error instanceof Error ? error.message : 'Failed to create todo');
-    } finally {
-      setIsSubmitting(false);
     }
   }, [title, priority, tags, memo, onSubmit, validateTitle, resetForm]);
 
@@ -195,7 +192,6 @@ export const useTodoForm = ({
     showAdvanced,
     
     // UI state
-    isSubmitting,
     error,
     
     // Form handlers

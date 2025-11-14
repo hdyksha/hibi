@@ -25,8 +25,6 @@ export interface TodoFormAdvancedProps {
   onTagsChange: (tags: string[]) => void;
   /** Callback function when memo changes */
   onMemoChange: (memo: string) => void;
-  /** Whether the form is currently submitting */
-  isSubmitting: boolean;
 }
 
 export const TodoFormAdvanced: React.FC<TodoFormAdvancedProps> = ({
@@ -36,7 +34,6 @@ export const TodoFormAdvanced: React.FC<TodoFormAdvancedProps> = ({
   onPriorityChange,
   onTagsChange,
   onMemoChange,
-  isSubmitting,
 }) => {
   const handlePriorityChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const value = event.target.value;
@@ -60,9 +57,7 @@ export const TodoFormAdvanced: React.FC<TodoFormAdvancedProps> = ({
             id="todo-priority"
             value={priority}
             onChange={handlePriorityChange}
-            className={`px-3 sm:px-4 py-3 border border-slate-300 rounded-lg text-sm sm:text-base bg-white cursor-pointer transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/25 focus:border-blue-500 min-h-[48px] ${isSubmitting ? 'bg-slate-50 cursor-not-allowed opacity-60' : 'hover:border-slate-400'
-              }`}
-            disabled={isSubmitting}
+            className="px-3 sm:px-4 py-3 border border-slate-300 rounded-lg text-sm sm:text-base bg-white cursor-pointer transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/25 focus:border-blue-500 min-h-[48px] hover:border-slate-400"
           >
             <option value="low">Low</option>
             <option value="medium">Medium</option>
@@ -78,7 +73,6 @@ export const TodoFormAdvanced: React.FC<TodoFormAdvancedProps> = ({
             tags={tags}
             onChange={onTagsChange}
             placeholder="Add tags (press Enter or comma to add)"
-            disabled={isSubmitting}
             maxTags={10}
             className="w-full"
           />
@@ -92,7 +86,6 @@ export const TodoFormAdvanced: React.FC<TodoFormAdvancedProps> = ({
             value={memo}
             onChange={onMemoChange}
             placeholder="Add memo in markdown format..."
-            disabled={isSubmitting}
             className="w-full min-h-24 sm:min-h-32 max-h-48 sm:max-h-72"
           />
         </div>

@@ -7,7 +7,7 @@
 import React, { createContext, useContext, ReactNode, useEffect, useState, useMemo, useCallback } from 'react';
 import { useTodos, UseTodosReturn } from '../hooks/useTodos';
 import { useArchive, UseArchiveReturn } from '../hooks/useArchive';
-import { httpClient } from '../services';
+import { httpClient, todoApi } from '../services';
 import { useNetworkContext } from './NetworkContext';
 import { TodoItem, CreateTodoItemInput } from '../types';
 import { ANIMATION_DURATION } from '../utils/animations';
@@ -54,14 +54,18 @@ export const TodoProvider: React.FC<TodoProviderProps> = ({ children }) => {
   /**
    * Merge optimistic and actual todos for display
    * Optimistic todos appear first to show immediate feedback
+   * Filters out duplicates based on ID
    */
   const displayTodos = useMemo<OptimisticTodoItem[]>(() => {
-    return [...optimisticTodos, ...todoState.todos];
+    const optimisticIds = new Set(optimisticTodos.map(t => t.id));
+    const actualTodos = todoState.todos.filter(t => !optimisticIds.has(t.id));
+    return [...optimisticTodos, ...actualTodos];
   }, [optimisticTodos, todoState.todos]);
 
   /**
    * Add todo with optimistic UI update
    * Shows the todo immediately before API confirmation
+   * Bypasses refreshTodos to avoid unnecessary loading states
    */
   const addTodoOptimistic = useCallback(async (input: CreateTodoItemInput): Promise<TodoItem> => {
     // Generate temporary ID for optimistic todo
@@ -85,11 +89,20 @@ export const TodoProvider: React.FC<TodoProviderProps> = ({ children }) => {
     setOptimisticTodos(prev => [...prev, optimisticTodo]);
 
     try {
-      // Make actual API call
-      const newTodo = await todoState.createTodo(input);
+      // Make actual API call directly (bypassing createTodo to avoid refresh)
+      const newTodo = await todoApi.createTodo(input);
       
-      // Remove optimistic todo on success
-      setOptimisticTodos(prev => prev.filter(t => t.id !== tempId));
+      // Replace optimistic todo with the real todo from server
+      // Keep it in optimistic list permanently to maintain position and avoid flicker
+      setOptimisticTodos(prev => 
+        prev.map(t => t.id === tempId ? { ...newTodo, isPending: false } : t)
+      );
+      
+      // Note: We don't call refreshTodos() to avoid:
+      // 1. Loading states
+      // 2. Position changes (server order vs optimistic order)
+      // 3. Flickering
+      // The todo list will naturally sync on next page load or user action
       
       return newTodo;
     } catch (error) {

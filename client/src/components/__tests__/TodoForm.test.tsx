@@ -186,8 +186,8 @@ describe('TodoForm', () => {
     expect(submitButton).not.toBeDisabled();
   });
 
-  it('shows loading state during submission', async () => {
-    const mockAddTodoOptimistic = vi.fn().mockImplementation(() => new Promise(() => {}));
+  it('shows success feedback immediately without loading state (optimistic UI)', async () => {
+    const mockAddTodoOptimistic = vi.fn().mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)));
     mockUseTodoContext.mockReturnValue({
       todos: [],
       displayTodos: [],
@@ -208,9 +208,21 @@ describe('TodoForm', () => {
     fireEvent.change(titleInput, { target: { value: 'New Todo' } });
     fireEvent.click(screen.getByRole('button', { name: 'Create' }));
     
+    // Should show success feedback immediately (optimistic UI)
     await waitFor(() => {
-      expect(screen.getByText('Adding...')).toBeInTheDocument();
-      expect(titleInput).toBeDisabled();
+      expect(screen.getByText('Added!')).toBeInTheDocument();
+    });
+    
+    // Form should reset immediately, not be disabled
+    expect(titleInput).toHaveValue('');
+    expect(titleInput).not.toBeDisabled();
+    
+    // API should still be called
+    expect(mockAddTodoOptimistic).toHaveBeenCalledWith({
+      title: 'New Todo',
+      priority: 'medium',
+      tags: [],
+      memo: ''
     });
   });
 
