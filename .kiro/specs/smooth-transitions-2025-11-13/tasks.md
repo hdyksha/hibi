@@ -60,7 +60,12 @@
   - Handle cleanup on unmount
   - _Requirements: 3.1, 3.2, 3.5_
 
-- [ ] 6. Enhance TodoContext with optimistic updates
+- [x] 6. Enhance TodoContext with optimistic updates
+
+
+
+
+
   - Modify `client/src/contexts/TodoContext.tsx` to support optimistic state
   - Add `optimisticTodos` state array
   - Create `addTodoOptimistic` function with immediate UI update

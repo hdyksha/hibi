@@ -1,17 +1,32 @@
 /**
  * Todo Context for global state management
  * Provides shared todo state and archive state across all components
+ * Includes optimistic UI updates for immediate feedback
  */
 
-import React, { createContext, useContext, ReactNode, useEffect } from 'react';
+import React, { createContext, useContext, ReactNode, useEffect, useState, useMemo, useCallback } from 'react';
 import { useTodos, UseTodosReturn } from '../hooks/useTodos';
 import { useArchive, UseArchiveReturn } from '../hooks/useArchive';
 import { httpClient } from '../services';
 import { useNetworkContext } from './NetworkContext';
+import { TodoItem, CreateTodoItemInput } from '../types';
+import { ANIMATION_DURATION } from '../utils/animations';
+
+/**
+ * Extended TodoItem with optimistic state flags
+ */
+interface OptimisticTodoItem extends TodoItem {
+  isPending?: boolean;
+  isExiting?: boolean;
+}
 
 interface TodoContextValue extends Omit<UseTodosReturn, 'clearFilter'> {
   archive: UseArchiveReturn;
   clearFilter: () => void;
+  /** Todos including optimistic updates */
+  displayTodos: OptimisticTodoItem[];
+  /** Add todo with optimistic UI update */
+  addTodoOptimistic: (input: CreateTodoItemInput) => Promise<TodoItem>;
 }
 
 const TodoContext = createContext<TodoContextValue | undefined>(undefined);
@@ -24,6 +39,9 @@ export const TodoProvider: React.FC<TodoProviderProps> = ({ children }) => {
   const networkContext = useNetworkContext();
   const todoState = useTodos();
   const archiveState = useArchive();
+  
+  // Optimistic state management
+  const [optimisticTodos, setOptimisticTodos] = useState<OptimisticTodoItem[]>([]);
 
   // Set up network reporter for HTTP client
   useEffect(() => {
@@ -33,10 +51,63 @@ export const TodoProvider: React.FC<TodoProviderProps> = ({ children }) => {
     });
   }, [networkContext.reportConnectionError, networkContext.reportConnectionSuccess]);
 
+  /**
+   * Merge optimistic and actual todos for display
+   * Optimistic todos appear first to show immediate feedback
+   */
+  const displayTodos = useMemo<OptimisticTodoItem[]>(() => {
+    return [...optimisticTodos, ...todoState.todos];
+  }, [optimisticTodos, todoState.todos]);
+
+  /**
+   * Add todo with optimistic UI update
+   * Shows the todo immediately before API confirmation
+   */
+  const addTodoOptimistic = useCallback(async (input: CreateTodoItemInput): Promise<TodoItem> => {
+    // Generate temporary ID for optimistic todo
+    const tempId = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
+    // Create optimistic todo item
+    const optimisticTodo: OptimisticTodoItem = {
+      id: tempId,
+      title: input.title,
+      completed: false,
+      priority: input.priority || 'medium',
+      tags: input.tags || [],
+      memo: input.memo || '',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      completedAt: null,
+      isPending: true, // Flag for visual indication
+    };
+
+    // Add optimistically to display
+    setOptimisticTodos(prev => [...prev, optimisticTodo]);
+
+    try {
+      // Make actual API call
+      const newTodo = await todoState.createTodo(input);
+      
+      // Remove optimistic todo on success
+      setOptimisticTodos(prev => prev.filter(t => t.id !== tempId));
+      
+      return newTodo;
+    } catch (error) {
+      // Rollback optimistic update with animation delay
+      setTimeout(() => {
+        setOptimisticTodos(prev => prev.filter(t => t.id !== tempId));
+      }, ANIMATION_DURATION.slow);
+      
+      throw error;
+    }
+  }, [todoState]);
+
   const contextValue: TodoContextValue = {
     ...todoState,
     archive: archiveState,
     clearFilter: todoState.clearFilter,
+    displayTodos,
+    addTodoOptimistic,
   };
 
   return (
