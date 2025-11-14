@@ -1,5 +1,8 @@
 # Implementation Plan
 
+> **📖 実装ガイドライン**: タスク実施前に [implementation-guidelines.md](./implementation-guidelines.md) を確認してください。
+> Optimistic UIの実装パターン、よくある落とし穴、チェックリストが記載されています。
+
 - [x] 1. Set up animation foundation and configuration
 
 
@@ -94,7 +97,12 @@
   - Ensure form clears immediately after submission without waiting for API
   - _Requirements: 1.1, 1.4, 1.5_
 
-- [ ] 8.1. Fix TodoForm optimistic UI implementation
+- [x] 8.1. Fix TodoForm optimistic UI implementation
+
+
+
+
+
   - Remove `isSubmitting` state management from `useTodoForm` hook's `handleSubmit`
   - Update `TodoForm` to show success feedback immediately without waiting for API
   - Ensure no loading spinner is displayed during optimistic update
