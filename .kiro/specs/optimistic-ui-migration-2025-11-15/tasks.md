@@ -8,7 +8,15 @@
   - Set `isRefreshing` for subsequent refreshes
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
 
-- [ ] 1.1 Write tests for loading state separation
+- [x] 1.1 Write tests for loading state separation
+
+
+
+
+
+
+
+
   - Write test: initial load sets loading to true
   - Write test: subsequent refresh sets isRefreshing to true, not loading
   - Write test: loading is false after initial data load
