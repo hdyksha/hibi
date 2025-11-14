@@ -25,6 +25,8 @@ export interface TodoFormBasicProps {
   isSubmitting: boolean;
   /** Whether advanced options are visible */
   showAdvanced: boolean;
+  /** Whether to show success animation */
+  showSuccess?: boolean;
   /** Error message to display, if any */
   error?: string | null;
 }
@@ -36,6 +38,7 @@ export const TodoFormBasic: React.FC<TodoFormBasicProps> = ({
   onToggleAdvanced,
   isSubmitting,
   showAdvanced,
+  showSuccess = false,
   error,
 }) => {
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -81,11 +84,19 @@ export const TodoFormBasic: React.FC<TodoFormBasicProps> = ({
               variant="primary"
               size="md"
               disabled={isSubmitting || !title.trim()}
+              className={showSuccess ? '!bg-green-600 !border-green-600 hover:!bg-green-700' : ''}
             >
-              {isSubmitting ? (
+              {showSuccess ? (
+                <span className="flex items-center gap-2 animate-enter">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="whitespace-nowrap">Added!</span>
+                </span>
+              ) : isSubmitting ? (
                 <span className="flex items-center gap-2">
                   <InlineLoadingSpinner size="sm" />
-                  <span className="whitespace-nowrap">Creating...</span>
+                  <span className="whitespace-nowrap">Adding...</span>
                 </span>
               ) : (
                 'Create'

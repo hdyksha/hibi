@@ -86,18 +86,29 @@
   - Apply animation classes based on item state (isPending, isExiting)
   - _Requirements: 1.3, 1.5, 2.1, 2.2, 2.3_
 
-- [ ] 8. Optimize TodoForm submission feedback
+- [x] 8. Optimize TodoForm submission feedback
   - Add immediate visual feedback on form submission
   - Implement optimistic update integration for new todos (use `addTodoOptimistic`)
-  - Show pending state on submit button during API call
-  - Add success animation when todo is confirmed
+  - Remove loading spinner during optimistic update (conflicts with optimistic UI pattern)
+  - Add success animation when todo is confirmed (300ms green ring + checkmark)
+  - Ensure form clears immediately after submission without waiting for API
+  - _Requirements: 1.1, 1.4, 1.5_
+
+- [ ] 8.1. Fix TodoForm optimistic UI implementation
+  - Remove `isSubmitting` state management from `useTodoForm` hook's `handleSubmit`
+  - Update `TodoForm` to show success feedback immediately without waiting for API
+  - Ensure no loading spinner is displayed during optimistic update
+  - Verify form resets immediately after submission
+  - Test that API errors are properly handled and displayed
   - _Requirements: 1.1, 1.4, 1.5_
 
 - [ ] 9. Integrate delete animation with API calls
-  - Update `deleteTodo` to set `isExiting` flag before API call
+  - Update `deleteTodo` in TodoContext to use optimistic pattern
+  - Set `isExiting` flag on todo before API call
   - Wait for exit animation to complete (250ms) before removing from state
-  - Handle API errors and rollback if deletion fails
+  - Handle API errors and rollback if deletion fails (restore todo with error message)
   - Ensure smooth removal animation without loading spinner
+  - Verify no `isSubmitting` or loading states interfere with optimistic delete
   - _Requirements: 2.2, 1.2_
 
 - [ ] 10. Update LoadingSpinner with delayed appearance
@@ -121,6 +132,8 @@
   - Implement subtle border and background color transition for edit state
   - Ensure no layout shifts when switching modes
   - Animate edit controls appearance/disappearance (150ms fade)
+  - Use optimistic update pattern for edit operations (no loading spinner)
+  - Show success feedback after edit confirmation
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
 
 - [ ] 13. Enhance error message animations
@@ -169,6 +182,9 @@
   - Test `useDelayedLoading` basic timing behavior
   - Test `prefersReducedMotion()` detection
   - Verify optimistic UI add/delete flow works correctly
+  - Test that no loading spinners appear during optimistic operations
+  - Verify immediate UI feedback before API completion
+  - Test rollback behavior on API failures
   - _Requirements: 1.1, 1.2, 3.1, 3.2, 10.1_
 
 - [ ]* 20. Expand test coverage for animation utilities

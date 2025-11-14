@@ -16,7 +16,8 @@ interface TodoFormProps {
 }
 
 export const TodoForm: React.FC<TodoFormProps> = ({ className }) => {
-  const { createTodo } = useTodoContext();
+  const { addTodoOptimistic } = useTodoContext();
+  const [showSuccess, setShowSuccess] = React.useState(false);
 
   // Use custom hook for form state and logic
   const {
@@ -34,12 +35,19 @@ export const TodoForm: React.FC<TodoFormProps> = ({ className }) => {
     setMemo,
     toggleAdvanced,
   } = useTodoForm({
-    onSubmit: createTodo,
+    onSubmit: async (input) => {
+      await addTodoOptimistic(input);
+      // Show success animation briefly
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 300);
+    },
   });
 
   return (
     <div
-      className={`bg-white/95 backdrop-blur-xl border border-slate-200/50 rounded-xl shadow-lg overflow-hidden mb-4 sm:mb-6 ${className || ''}`}
+      className={`bg-white/95 backdrop-blur-xl border border-slate-200/50 rounded-xl shadow-lg overflow-hidden mb-4 sm:mb-6 transition-all duration-200 ${
+        showSuccess ? 'ring-2 ring-green-500/50' : ''
+      } ${className || ''}`}
     >
       <TodoFormBasic
         title={title}
@@ -55,6 +63,7 @@ export const TodoForm: React.FC<TodoFormProps> = ({ className }) => {
         onToggleAdvanced={toggleAdvanced}
         isSubmitting={isSubmitting}
         showAdvanced={showAdvanced}
+        showSuccess={showSuccess}
         error={error}
       />
 

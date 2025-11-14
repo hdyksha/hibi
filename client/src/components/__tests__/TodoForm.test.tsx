@@ -48,10 +48,12 @@ describe('TodoForm', () => {
     // Default mock setup
     mockUseTodoContext.mockReturnValue({
       todos: [],
+      displayTodos: [],
       loading: false,
       error: null,
       refreshTodos: vi.fn(),
       createTodo: vi.fn(),
+      addTodoOptimistic: vi.fn().mockResolvedValue(mockCreatedTodo),
       updateTodo: vi.fn(),
       toggleTodoCompletion: vi.fn(),
       deleteTodo: vi.fn(),
@@ -71,13 +73,15 @@ describe('TodoForm', () => {
   });
 
   it('creates todo with valid title', async () => {
-    const mockCreateTodo = vi.fn().mockResolvedValue(mockCreatedTodo);
+    const mockAddTodoOptimistic = vi.fn().mockResolvedValue(mockCreatedTodo);
     mockUseTodoContext.mockReturnValue({
       todos: [],
+      displayTodos: [],
       loading: false,
       error: null,
       refreshTodos: vi.fn(),
-      createTodo: mockCreateTodo,
+      createTodo: vi.fn(),
+      addTodoOptimistic: mockAddTodoOptimistic,
       updateTodo: vi.fn(),
       toggleTodoCompletion: vi.fn(),
       deleteTodo: vi.fn(),
@@ -92,7 +96,7 @@ describe('TodoForm', () => {
     fireEvent.click(submitButton);
     
     await waitFor(() => {
-      expect(mockCreateTodo).toHaveBeenCalledWith({
+      expect(mockAddTodoOptimistic).toHaveBeenCalledWith({
         title: 'New Todo',
         priority: 'medium',
         tags: [],
@@ -133,13 +137,15 @@ describe('TodoForm', () => {
   });
 
   it('trims whitespace from title', async () => {
-    const mockCreateTodo = vi.fn().mockResolvedValue(mockCreatedTodo);
+    const mockAddTodoOptimistic = vi.fn().mockResolvedValue(mockCreatedTodo);
     mockUseTodoContext.mockReturnValue({
       todos: [],
+      displayTodos: [],
       loading: false,
       error: null,
       refreshTodos: vi.fn(),
-      createTodo: mockCreateTodo,
+      createTodo: vi.fn(),
+      addTodoOptimistic: mockAddTodoOptimistic,
       updateTodo: vi.fn(),
       toggleTodoCompletion: vi.fn(),
       deleteTodo: vi.fn(),
@@ -153,7 +159,7 @@ describe('TodoForm', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Create' }));
     
     await waitFor(() => {
-      expect(mockCreateTodo).toHaveBeenCalledWith({
+      expect(mockAddTodoOptimistic).toHaveBeenCalledWith({
         title: 'New Todo',
         priority: 'medium',
         tags: [],
@@ -181,13 +187,15 @@ describe('TodoForm', () => {
   });
 
   it('shows loading state during submission', async () => {
-    const mockCreateTodo = vi.fn().mockImplementation(() => new Promise(() => {}));
+    const mockAddTodoOptimistic = vi.fn().mockImplementation(() => new Promise(() => {}));
     mockUseTodoContext.mockReturnValue({
       todos: [],
+      displayTodos: [],
       loading: false,
       error: null,
       refreshTodos: vi.fn(),
-      createTodo: mockCreateTodo,
+      createTodo: vi.fn(),
+      addTodoOptimistic: mockAddTodoOptimistic,
       updateTodo: vi.fn(),
       toggleTodoCompletion: vi.fn(),
       deleteTodo: vi.fn(),
@@ -201,19 +209,21 @@ describe('TodoForm', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Create' }));
     
     await waitFor(() => {
-      expect(screen.getByText('Creating...')).toBeInTheDocument();
+      expect(screen.getByText('Adding...')).toBeInTheDocument();
       expect(titleInput).toBeDisabled();
     });
   });
 
   it('shows error message when creation fails', async () => {
-    const mockCreateTodo = vi.fn().mockRejectedValue(new Error('Network error'));
+    const mockAddTodoOptimistic = vi.fn().mockRejectedValue(new Error('Network error'));
     mockUseTodoContext.mockReturnValue({
       todos: [],
+      displayTodos: [],
       loading: false,
       error: null,
       refreshTodos: vi.fn(),
-      createTodo: mockCreateTodo,
+      createTodo: vi.fn(),
+      addTodoOptimistic: mockAddTodoOptimistic,
       updateTodo: vi.fn(),
       toggleTodoCompletion: vi.fn(),
       deleteTodo: vi.fn(),
@@ -278,13 +288,15 @@ describe('TodoForm', () => {
     });
 
     it('resets advanced panel state after successful creation', async () => {
-      const mockCreateTodo = vi.fn().mockResolvedValue(mockCreatedTodo);
+      const mockAddTodoOptimistic = vi.fn().mockResolvedValue(mockCreatedTodo);
       mockUseTodoContext.mockReturnValue({
         todos: [],
+        displayTodos: [],
         loading: false,
         error: null,
         refreshTodos: vi.fn(),
-        createTodo: mockCreateTodo,
+        createTodo: vi.fn(),
+        addTodoOptimistic: mockAddTodoOptimistic,
         updateTodo: vi.fn(),
         toggleTodoCompletion: vi.fn(),
         deleteTodo: vi.fn(),
@@ -339,13 +351,15 @@ describe('TodoForm', () => {
     });
 
     it('creates todo with selected priority', async () => {
-      const mockCreateTodo = vi.fn().mockResolvedValue(mockCreatedTodo);
+      const mockAddTodoOptimistic = vi.fn().mockResolvedValue(mockCreatedTodo);
       mockUseTodoContext.mockReturnValue({
         todos: [],
+        displayTodos: [],
         loading: false,
         error: null,
         refreshTodos: vi.fn(),
-        createTodo: mockCreateTodo,
+        createTodo: vi.fn(),
+        addTodoOptimistic: mockAddTodoOptimistic,
         updateTodo: vi.fn(),
         toggleTodoCompletion: vi.fn(),
         deleteTodo: vi.fn(),
@@ -367,7 +381,7 @@ describe('TodoForm', () => {
       fireEvent.click(submitButton);
       
       await waitFor(() => {
-        expect(mockCreateTodo).toHaveBeenCalledWith({
+        expect(mockAddTodoOptimistic).toHaveBeenCalledWith({
           title: 'High Priority Todo',
           priority: 'high',
           tags: [],
@@ -377,13 +391,15 @@ describe('TodoForm', () => {
     });
 
     it('resets priority to medium after successful creation', async () => {
-      const mockCreateTodo = vi.fn().mockResolvedValue(mockCreatedTodo);
+      const mockAddTodoOptimistic = vi.fn().mockResolvedValue(mockCreatedTodo);
       mockUseTodoContext.mockReturnValue({
         todos: [],
+        displayTodos: [],
         loading: false,
         error: null,
         refreshTodos: vi.fn(),
-        createTodo: mockCreateTodo,
+        createTodo: vi.fn(),
+        addTodoOptimistic: mockAddTodoOptimistic,
         updateTodo: vi.fn(),
         toggleTodoCompletion: vi.fn(),
         deleteTodo: vi.fn(),
