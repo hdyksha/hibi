@@ -85,8 +85,8 @@ export const TodoProvider: React.FC<TodoProviderProps> = ({ children }) => {
       isPending: true, // Flag for visual indication
     };
 
-    // Add optimistically to display
-    setOptimisticTodos(prev => [...prev, optimisticTodo]);
+    // Add optimistically to display (at the beginning for newest-first order)
+    setOptimisticTodos(prev => [optimisticTodo, ...prev]);
 
     try {
       // Make actual API call directly (bypassing createTodo to avoid refresh)
