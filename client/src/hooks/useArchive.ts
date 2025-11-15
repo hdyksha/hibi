@@ -16,8 +16,10 @@ import { DEFAULT_ARCHIVE_FILTER } from '../constants/filters';
 export interface UseArchiveReturn {
   /** All archive groups (unfiltered) */
   archiveGroups: ArchiveGroup[];
-  /** Whether archive data is currently loading */
+  /** Whether archive data is currently loading (initial load only) */
   loading: boolean;
+  /** Whether archive data is being refreshed in the background */
+  isRefreshing: boolean;
   /** Current error message, if any */
   error: string | null;
   /** Current filter state */
@@ -35,7 +37,7 @@ export interface UseArchiveReturn {
   /** Update the filter state */
   setFilter: (filter: TodoFilter) => void;
   /** Refresh archive data from the server */
-  refreshArchive: () => Promise<void>;
+  refreshArchive: (silent?: boolean) => Promise<void>;
   /** Clear all filters and reset to default */
   clearFilter: () => void;
   /** Retry the last failed action */
@@ -64,6 +66,7 @@ export interface UseArchiveReturn {
 export const useArchive = (): UseArchiveReturn => {
   const [archiveGroups, setArchiveGroups] = useState<ArchiveGroup[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   
   // Use enhanced error handler
   const { 
@@ -86,18 +89,36 @@ export const useArchive = (): UseArchiveReturn => {
     defaultFilter: DEFAULT_ARCHIVE_FILTER
   });
 
-  const refreshArchive = useCallback(async () => {
+  const refreshArchive = useCallback(async (silent?: boolean) => {
     try {
-      setLoading(true);
+      // Don't show any loading indicators for silent refresh
+      if (silent) {
+        // Silent refresh - no loading indicators
+      } else if (loading) {
+        // Initial load - loading is already true from initial state
+        // Keep it true during the first fetch
+      } else {
+        // Subsequent refresh - use isRefreshing state
+        setIsRefreshing(true);
+      }
+      
       clearError();
       const archiveData = await todoApi.getArchive();
       setArchiveGroups(archiveData);
     } catch (error) {
-      setError(error instanceof Error ? error : new Error('Failed to load archive data'));
-    } finally {
+      const normalizedError = error instanceof Error ? error : new Error('Failed to load archive data');
+      setError(normalizedError);
+      // Ensure loading is set to false so error can be displayed
       setLoading(false);
+      setIsRefreshing(false);
+      throw normalizedError;
+    } finally {
+      if (!silent) {
+        setLoading(false);
+        setIsRefreshing(false);
+      }
     }
-  }, [clearError, setError]);
+  }, [loading, clearError, setError]);
 
   // Extract available tags from archive data
   const availableTags = useMemo(() => {
@@ -148,6 +169,7 @@ export const useArchive = (): UseArchiveReturn => {
   return {
     archiveGroups,
     loading,
+    isRefreshing,
     error: errorState?.message || null,
     filter,
     availableTags,

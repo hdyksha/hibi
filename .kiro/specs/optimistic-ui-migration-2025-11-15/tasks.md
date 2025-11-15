@@ -37,7 +37,12 @@
   - Run tests to verify implementation
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
 
-- [ ] 1.3 Apply same loading state separation to useArchive hook
+- [x] 1.3 Apply same loading state separation to useArchive hook
+
+
+
+
+
   - Add `isRefreshing` state to useArchive hook
   - Modify `refreshArchive` to use separated loading states
   - Update return interface to include `isRefreshing`
