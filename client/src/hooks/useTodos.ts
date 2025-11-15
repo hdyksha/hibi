@@ -24,7 +24,7 @@ import { DEFAULT_TODO_FILTER } from '../constants/filters';
 export interface UseTodosReturn {
     /** List of todos based on current filter */
     todos: TodoItem[];
-    /** Loading state for todo operations */
+    /** Loading state for data operations */
     loading: boolean;
     /** Current error message, if any */
     error: string | null;
@@ -100,14 +100,12 @@ export const useTodos = (): UseTodosReturn => {
      */
     const refreshTodos = useCallback(async () => {
         try {
-            setLoading(true);
             clearError();
             const todoItems = await todoApi.getTodos(filter);
             setTodos(todoItems);
         } catch (error) {
             setError(normalizeError(error, 'Failed to load todos'));
-        } finally {
-            setLoading(false);
+            // Don't rethrow - error is already set in state
         }
     }, [filter, clearError, setError]);
 
@@ -189,8 +187,19 @@ export const useTodos = (): UseTodosReturn => {
 
     // Initialize: Load todos and tags on mount
     useEffect(() => {
-        refreshTodos();
-        refreshTags();
+        const initializeData = async () => {
+            try {
+                await refreshTodos();
+            } catch (error) {
+                // Error is already handled in refreshTodos
+            } finally {
+                setLoading(false); // Complete initial loading regardless of success/failure
+            }
+            // Tags are non-critical, load them separately
+            refreshTags();
+        };
+        
+        initializeData();
     }, [refreshTodos, refreshTags]);
 
     return {

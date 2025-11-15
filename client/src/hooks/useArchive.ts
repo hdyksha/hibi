@@ -88,14 +88,13 @@ export const useArchive = (): UseArchiveReturn => {
 
   const refreshArchive = useCallback(async () => {
     try {
-      setLoading(true);
       clearError();
       const archiveData = await todoApi.getArchive();
       setArchiveGroups(archiveData);
     } catch (error) {
-      setError(error instanceof Error ? error : new Error('Failed to load archive data'));
-    } finally {
-      setLoading(false);
+      const normalizedError = error instanceof Error ? error : new Error('Failed to load archive data');
+      setError(normalizedError);
+      // Don't rethrow - error is already set in state
     }
   }, [clearError, setError]);
 
@@ -142,7 +141,17 @@ export const useArchive = (): UseArchiveReturn => {
 
   // Load archive data on mount
   useEffect(() => {
-    refreshArchive();
+    const initializeData = async () => {
+      try {
+        await refreshArchive();
+      } catch (error) {
+        // Error is already handled in refreshArchive
+      } finally {
+        setLoading(false); // Complete initial loading regardless of success/failure
+      }
+    };
+    
+    initializeData();
   }, [refreshArchive]);
 
   return {
