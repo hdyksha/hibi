@@ -116,9 +116,9 @@ export const useTodos = (): UseTodosReturn => {
             setTodos(todoItems);
         } catch (error) {
             setError(normalizeError(error, 'Failed to load todos'));
+            // Don't rethrow - error is already set in state
         } finally {
             if (!silent) {
-                setLoading(false);
                 setIsRefreshing(false);
             }
         }
@@ -202,8 +202,19 @@ export const useTodos = (): UseTodosReturn => {
 
     // Initialize: Load todos and tags on mount
     useEffect(() => {
-        refreshTodos();
-        refreshTags();
+        const initializeData = async () => {
+            try {
+                await refreshTodos(true); // silent=true for initial load
+            } catch (error) {
+                // Error is already handled in refreshTodos
+            } finally {
+                setLoading(false); // Complete initial loading regardless of success/failure
+            }
+            // Tags are non-critical, load them separately
+            refreshTags();
+        };
+        
+        initializeData();
     }, [refreshTodos, refreshTags]);
 
     return {
