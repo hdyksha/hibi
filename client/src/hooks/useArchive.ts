@@ -92,13 +92,9 @@ export const useArchive = (): UseArchiveReturn => {
   const refreshArchive = useCallback(async (silent?: boolean) => {
     try {
       // Don't show any loading indicators for silent refresh
-      if (silent) {
-        // Silent refresh - no loading indicators
-      } else if (loading) {
-        // Initial load - loading is already true from initial state
-        // Keep it true during the first fetch
-      } else {
-        // Subsequent refresh - use isRefreshing state
+      if (!silent) {
+        // For non-silent refresh, use isRefreshing state
+        // Initial loading state is managed separately
         setIsRefreshing(true);
       }
       
@@ -108,17 +104,13 @@ export const useArchive = (): UseArchiveReturn => {
     } catch (error) {
       const normalizedError = error instanceof Error ? error : new Error('Failed to load archive data');
       setError(normalizedError);
-      // Ensure loading is set to false so error can be displayed
-      setLoading(false);
-      setIsRefreshing(false);
-      throw normalizedError;
+      // Don't rethrow - error is already set in state
     } finally {
       if (!silent) {
-        setLoading(false);
         setIsRefreshing(false);
       }
     }
-  }, [loading, clearError, setError]);
+  }, [clearError, setError]);
 
   // Extract available tags from archive data
   const availableTags = useMemo(() => {
@@ -163,7 +155,17 @@ export const useArchive = (): UseArchiveReturn => {
 
   // Load archive data on mount
   useEffect(() => {
-    refreshArchive();
+    const initializeData = async () => {
+      try {
+        await refreshArchive(true); // silent=true for initial load
+      } catch (error) {
+        // Error is already handled in refreshArchive
+      } finally {
+        setLoading(false); // Complete initial loading regardless of success/failure
+      }
+    };
+    
+    initializeData();
   }, [refreshArchive]);
 
   return {
