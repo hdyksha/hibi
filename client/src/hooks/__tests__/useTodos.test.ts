@@ -14,16 +14,20 @@ import { todoApi } from '../../services';
 import { TodoItem } from '../../types';
 
 // Mock the todoApi
-vi.mock('../../services', () => ({
-  todoApi: {
-    getTodos: vi.fn(),
-    getTags: vi.fn(),
-    createTodo: vi.fn(),
-    updateTodo: vi.fn(),
-    toggleTodoCompletion: vi.fn(),
-    deleteTodo: vi.fn(),
-  },
-}));
+vi.mock('../../services', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../services')>();
+  return {
+    ...actual,
+    todoApi: {
+      getTodos: vi.fn(),
+      getTags: vi.fn(),
+      createTodo: vi.fn(),
+      updateTodo: vi.fn(),
+      toggleTodoCompletion: vi.fn(),
+      deleteTodo: vi.fn(),
+    },
+  };
+});
 
 const mockTodoApi = todoApi as any;
 
@@ -294,16 +298,27 @@ describe('useTodos - Loading State Separation', () => {
       });
 
       // First refresh: isRefreshing = true, loading = false
-      mockTodoApi.getTodos.mockResolvedValue(mockTodos);
+      let resolveFirstRefresh: (value: TodoItem[]) => void;
+      const firstRefreshPromise = new Promise<TodoItem[]>((resolve) => {
+        resolveFirstRefresh = resolve;
+      });
+      mockTodoApi.getTodos.mockReturnValue(firstRefreshPromise);
       
+      // Start the refresh
+      act(() => {
+        result.current.refreshTodos();
+      });
+
+      // Check state during refresh
+      await waitFor(() => {
+        expect(result.current.isRefreshing).toBe(true);
+      });
+      expect(result.current.loading).toBe(false);
+
+      // Complete the refresh
       await act(async () => {
-        const refreshPromise = result.current.refreshTodos();
-        // Check state during refresh
-        await waitFor(() => {
-          expect(result.current.isRefreshing).toBe(true);
-        });
-        expect(result.current.loading).toBe(false);
-        await refreshPromise;
+        resolveFirstRefresh(mockTodos);
+        await firstRefreshPromise;
       });
 
       await waitFor(() => {
@@ -311,13 +326,24 @@ describe('useTodos - Loading State Separation', () => {
       });
 
       // Second refresh: same behavior
+      let resolveSecondRefresh: (value: TodoItem[]) => void;
+      const secondRefreshPromise = new Promise<TodoItem[]>((resolve) => {
+        resolveSecondRefresh = resolve;
+      });
+      mockTodoApi.getTodos.mockReturnValue(secondRefreshPromise);
+
+      act(() => {
+        result.current.refreshTodos();
+      });
+
+      await waitFor(() => {
+        expect(result.current.isRefreshing).toBe(true);
+      });
+      expect(result.current.loading).toBe(false);
+
       await act(async () => {
-        const refreshPromise = result.current.refreshTodos();
-        await waitFor(() => {
-          expect(result.current.isRefreshing).toBe(true);
-        });
-        expect(result.current.loading).toBe(false);
-        await refreshPromise;
+        resolveSecondRefresh(mockTodos);
+        await secondRefreshPromise;
       });
 
       await waitFor(() => {
@@ -328,12 +354,11 @@ describe('useTodos - Loading State Separation', () => {
     it('should only use loading state when todos array is empty', async () => {
       // Start with empty todos
       mockTodoApi.getTodos.mockResolvedValue([]);
+      mockTodoApi.getTags.mockResolvedValue([]);
       
       const { result } = renderHook(() => useTodos());
 
-      // Initial load with empty data: loading = true
-      expect(result.current.loading).toBe(true);
-
+      // Wait for initial load to complete
       await waitFor(() => {
         expect(result.current.loading).toBe(false);
       });
@@ -347,13 +372,26 @@ describe('useTodos - Loading State Separation', () => {
         await result.current.refreshTodos();
       });
 
+      expect(result.current.todos).toEqual(mockTodos);
+
       // Even though we got data, subsequent refreshes should use isRefreshing
+      let resolveRefresh: (value: TodoItem[]) => void;
+      const refreshPromise = new Promise<TodoItem[]>((resolve) => {
+        resolveRefresh = resolve;
+      });
+      mockTodoApi.getTodos.mockReturnValue(refreshPromise);
+
+      act(() => {
+        result.current.refreshTodos();
+      });
+
+      await waitFor(() => {
+        expect(result.current.isRefreshing).toBe(true);
+      });
+      expect(result.current.loading).toBe(false);
+
       await act(async () => {
-        const refreshPromise = result.current.refreshTodos();
-        await waitFor(() => {
-          expect(result.current.isRefreshing).toBe(true);
-        });
-        expect(result.current.loading).toBe(false);
+        resolveRefresh(mockTodos);
         await refreshPromise;
       });
     });

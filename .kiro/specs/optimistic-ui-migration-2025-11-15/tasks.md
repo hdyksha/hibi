@@ -24,7 +24,12 @@
   - Write test: silent refresh doesn't trigger any loading states
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
 
-- [ ] 1.2 Update useTodos hook with separated loading states
+- [x] 1.2 Update useTodos hook with separated loading states
+
+
+
+
+
   - Add `isRefreshing` state variable to useTodos hook
   - Modify `refreshTodos` to accept `silent?: boolean` parameter
   - Implement conditional logic: use `loading` for initial load, `isRefreshing` for subsequent
