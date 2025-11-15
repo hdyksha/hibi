@@ -105,13 +105,9 @@ export const useTodos = (): UseTodosReturn => {
     const refreshTodos = useCallback(async (silent?: boolean) => {
         try {
             // Don't show any loading indicators for silent refresh
-            if (silent) {
-                // Silent refresh - no loading indicators
-            } else if (loading) {
-                // Initial load - loading is already true from initial state
-                // Keep it true during the first fetch
-            } else {
-                // Subsequent refresh - use isRefreshing state
+            if (!silent) {
+                // For non-silent refresh, use isRefreshing state
+                // Initial loading state is managed separately
                 setIsRefreshing(true);
             }
             
@@ -126,7 +122,7 @@ export const useTodos = (): UseTodosReturn => {
                 setIsRefreshing(false);
             }
         }
-    }, [filter, loading, clearError, setError]);
+    }, [filter, clearError, setError]);
 
     /**
      * Fetches available tags from the server
