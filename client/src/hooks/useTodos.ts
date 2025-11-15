@@ -24,10 +24,8 @@ import { DEFAULT_TODO_FILTER } from '../constants/filters';
 export interface UseTodosReturn {
     /** List of todos based on current filter */
     todos: TodoItem[];
-    /** Loading state for initial data load only */
+    /** Loading state for data operations */
     loading: boolean;
-    /** Loading state for background refresh operations */
-    isRefreshing: boolean;
     /** Current error message, if any */
     error: string | null;
     /** Current filter settings */
@@ -37,7 +35,7 @@ export interface UseTodosReturn {
     /** Whether any filter is currently active */
     hasActiveFilter: boolean;
     /** Refresh todos from server */
-    refreshTodos: (silent?: boolean) => Promise<void>;
+    refreshTodos: () => Promise<void>;
     /** Update current filter */
     setFilter: (filter: TodoFilter) => void;
     /** Clear all filters */
@@ -76,7 +74,6 @@ export const useTodos = (): UseTodosReturn => {
     // Local state
     const [todos, setTodos] = useState<TodoItem[]>([]);
     const [loading, setLoading] = useState(true);
-    const [isRefreshing, setIsRefreshing] = useState(false);
     const [availableTags, setAvailableTags] = useState<string[]>([]);
     
     // Integrated hooks for cross-cutting concerns
@@ -100,27 +97,15 @@ export const useTodos = (): UseTodosReturn => {
 
     /**
      * Fetches todos from the server with current filter applied
-     * @param silent - If true, performs a silent refresh without showing loading indicators
      */
-    const refreshTodos = useCallback(async (silent?: boolean) => {
+    const refreshTodos = useCallback(async () => {
         try {
-            // Don't show any loading indicators for silent refresh
-            if (!silent) {
-                // For non-silent refresh, use isRefreshing state
-                // Initial loading state is managed separately
-                setIsRefreshing(true);
-            }
-            
             clearError();
             const todoItems = await todoApi.getTodos(filter);
             setTodos(todoItems);
         } catch (error) {
             setError(normalizeError(error, 'Failed to load todos'));
             // Don't rethrow - error is already set in state
-        } finally {
-            if (!silent) {
-                setIsRefreshing(false);
-            }
         }
     }, [filter, clearError, setError]);
 
@@ -204,7 +189,7 @@ export const useTodos = (): UseTodosReturn => {
     useEffect(() => {
         const initializeData = async () => {
             try {
-                await refreshTodos(true); // silent=true for initial load
+                await refreshTodos();
             } catch (error) {
                 // Error is already handled in refreshTodos
             } finally {
@@ -220,7 +205,6 @@ export const useTodos = (): UseTodosReturn => {
     return {
         todos,
         loading,
-        isRefreshing,
         error: errorState?.message || null,
         filter,
         availableTags,

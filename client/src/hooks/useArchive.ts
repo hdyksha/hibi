@@ -16,10 +16,8 @@ import { DEFAULT_ARCHIVE_FILTER } from '../constants/filters';
 export interface UseArchiveReturn {
   /** All archive groups (unfiltered) */
   archiveGroups: ArchiveGroup[];
-  /** Whether archive data is currently loading (initial load only) */
+  /** Whether archive data is currently loading */
   loading: boolean;
-  /** Whether archive data is being refreshed in the background */
-  isRefreshing: boolean;
   /** Current error message, if any */
   error: string | null;
   /** Current filter state */
@@ -37,7 +35,7 @@ export interface UseArchiveReturn {
   /** Update the filter state */
   setFilter: (filter: TodoFilter) => void;
   /** Refresh archive data from the server */
-  refreshArchive: (silent?: boolean) => Promise<void>;
+  refreshArchive: () => Promise<void>;
   /** Clear all filters and reset to default */
   clearFilter: () => void;
   /** Retry the last failed action */
@@ -66,7 +64,6 @@ export interface UseArchiveReturn {
 export const useArchive = (): UseArchiveReturn => {
   const [archiveGroups, setArchiveGroups] = useState<ArchiveGroup[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
   
   // Use enhanced error handler
   const { 
@@ -89,15 +86,8 @@ export const useArchive = (): UseArchiveReturn => {
     defaultFilter: DEFAULT_ARCHIVE_FILTER
   });
 
-  const refreshArchive = useCallback(async (silent?: boolean) => {
+  const refreshArchive = useCallback(async () => {
     try {
-      // Don't show any loading indicators for silent refresh
-      if (!silent) {
-        // For non-silent refresh, use isRefreshing state
-        // Initial loading state is managed separately
-        setIsRefreshing(true);
-      }
-      
       clearError();
       const archiveData = await todoApi.getArchive();
       setArchiveGroups(archiveData);
@@ -105,10 +95,6 @@ export const useArchive = (): UseArchiveReturn => {
       const normalizedError = error instanceof Error ? error : new Error('Failed to load archive data');
       setError(normalizedError);
       // Don't rethrow - error is already set in state
-    } finally {
-      if (!silent) {
-        setIsRefreshing(false);
-      }
     }
   }, [clearError, setError]);
 
@@ -157,7 +143,7 @@ export const useArchive = (): UseArchiveReturn => {
   useEffect(() => {
     const initializeData = async () => {
       try {
-        await refreshArchive(true); // silent=true for initial load
+        await refreshArchive();
       } catch (error) {
         // Error is already handled in refreshArchive
       } finally {
@@ -171,7 +157,6 @@ export const useArchive = (): UseArchiveReturn => {
   return {
     archiveGroups,
     loading,
-    isRefreshing,
     error: errorState?.message || null,
     filter,
     availableTags,
