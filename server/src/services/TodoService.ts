@@ -34,16 +34,19 @@ export class TodoService {
     async getTodos(filter?: TodoFilter): Promise<TodoItem[]> {
         const allTodos = await this.storage.readTodos();
 
-        if (!filter || Object.keys(filter).length === 0) {
-            return allTodos;
-        }
+        // Apply filtering if filter is provided
+        const filteredTodos = (!filter || Object.keys(filter).length === 0)
+            ? allTodos
+            : (() => {
+                this.validateFilter(filter);
+                return this.applyFilter(allTodos, filter);
+            })();
 
-        // Validate filter parameters
-        this.validateFilter(filter);
-
-        return this.applyFilter(allTodos, filter);
+        // Sort by creation date (newest first)
+        return filteredTodos.sort((a, b) => 
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
     }
-
     /**
      * Create a new todo item
      * Requirements: 2.1, 2.2
