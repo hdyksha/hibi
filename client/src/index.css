@@ -10,6 +10,22 @@
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
 
+  /* Theme color custom properties
+   * NOTE: These are initial/fallback values for pre-hydration rendering.
+   * The actual theme colors are managed in src/utils/themes.ts (Single Source of Truth).
+   * ThemeContext dynamically updates these CSS variables at runtime based on user selection.
+   * Default gray/slate colors are used as fallback values.
+   */
+  --color-primary: #475569;
+  --color-primary-hover: #334155;
+  --color-primary-light: #cbd5e1;
+  --color-accent: #64748b;
+  --color-background: #f8fafc;
+  --color-background-secondary: #f1f5f9;
+  --color-text: #1e293b;
+  --color-text-secondary: #64748b;
+  --color-border: #e2e8f0;
+
   /* Animation duration custom properties */
   --duration-instant: 0ms;
   --duration-fast: 100ms;
@@ -25,6 +41,11 @@
   --easing-ease-in-out: ease-in-out;
   --easing-linear: linear;
   --easing-spring: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Smooth theme transitions */
+* {
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-color 0.2s ease-in-out;
 }
 
 @layer utilities {
