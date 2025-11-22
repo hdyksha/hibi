@@ -93,21 +93,23 @@
    - text: テキスト色
    - textSecondary: 二次テキスト色
    - border: ボーダー色
+   - card: カード背景色
+   - cardHover: カードホバー時の背景色
 2. EACH theme SHALL include an `isDark` boolean flag
 3. THE theme colors SHALL be defined using Tailwind CSS color values
 4. THE theme definitions SHALL be type-safe using TypeScript interfaces
 
-### Requirement 7: CSS変数による動的スタイリング
+### Requirement 7: CSS変数とTailwindの統合
 
-**User Story:** 開発者として、CSS変数を使ってテーマを動的に切り替えたい
+**User Story:** 開発者として、CSS変数を使ってテーマを動的に切り替え、Tailwindクラスで適用したい
 
 #### Acceptance Criteria
 
 1. THE Todo App SHALL define CSS custom properties (variables) for theme colors
 2. THE CSS variables SHALL be set on the `:root` element
 3. WHEN a theme changes, THE ThemeContext SHALL update the CSS variables
-4. THE main UI components (header, background, navigation, logo) SHALL use CSS variables for theming
-5. THE theme colors SHALL be applied using inline styles or custom CSS classes where Tailwind classes are insufficient
+4. THE Tailwind configuration SHALL integrate CSS variables into the color system
+5. THE UI components SHALL use Tailwind classes (e.g., `bg-primary`, `text-text`) to apply theme colors
 
 ### Requirement 8: アクセシビリティ
 
