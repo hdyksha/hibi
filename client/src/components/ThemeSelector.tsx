@@ -99,7 +99,13 @@ export const ThemeSelector: React.FC = () => {
               role="menuitem"
             >
               <div className="flex items-center space-x-3">
-                {/* Color preview */}
+                {/* Color preview 
+                    Note: We use inline style here instead of Tailwind classes because we need to display
+                    the actual color of each theme dynamically at runtime. Tailwind's arbitrary values
+                    are evaluated at build time and cannot use runtime variables. This is different from
+                    other components where we use Tailwind classes like 'bg-primary' which reference
+                    CSS variables that are updated when the current theme changes.
+                */}
                 <div
                   className="w-6 h-6 rounded border border-slate-300"
                   style={{ backgroundColor: theme.colors.primary }}

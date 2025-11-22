@@ -30,8 +30,7 @@ export const FilterTags: React.FC<FilterTagsProps> = ({
   return (
     <div className="space-y-3">
       <label 
-        className="block text-sm font-medium flex items-center space-x-1"
-        style={{ color: 'var(--color-text)' }}
+        className="block text-sm font-medium flex items-center space-x-1 text-text"
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
@@ -42,25 +41,22 @@ export const FilterTags: React.FC<FilterTagsProps> = ({
         {availableTags.map(tag => (
           <label 
             key={tag} 
-            className="flex items-center space-x-2 px-2 py-1 rounded-md cursor-pointer transition-colors duration-200"
-            style={{
-              backgroundColor: selectedTags.includes(tag) ? 'var(--color-background-secondary)' : 'transparent',
-            }}
+            className={`flex items-center space-x-2 px-2 py-1 rounded-md cursor-pointer transition-colors duration-200 ${
+              selectedTags.includes(tag) ? 'bg-background-secondary' : ''
+            }`}
           >
             <input
               type="checkbox"
               checked={selectedTags.includes(tag)}
               onChange={() => onTagToggle(tag)}
-              className="w-4 h-4 rounded"
-              style={{
-                accentColor: 'var(--color-primary)',
-              }}
+              className="w-4 h-4 rounded accent-primary"
             />
             <span 
-              className={`text-sm ${selectedTags.includes(tag) ? 'font-medium' : ''}`}
-              style={{ 
-                color: selectedTags.includes(tag) ? 'var(--color-text)' : 'var(--color-text-secondary)' 
-              }}
+              className={`text-sm ${
+                selectedTags.includes(tag) 
+                  ? 'font-medium text-text' 
+                  : 'text-text-secondary'
+              }`}
             >
               {tag}
             </span>

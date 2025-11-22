@@ -48,8 +48,7 @@ export const TodoFormBasic: React.FC<TodoFormBasicProps> = ({
         <div className="flex flex-col gap-3 sm:gap-4">
           <label 
             htmlFor="todo-title" 
-            className="text-base sm:text-lg font-semibold"
-            style={{ color: 'var(--color-text)' }}
+            className="text-base sm:text-lg font-semibold text-text"
           >
             New Todo
           </label>
@@ -70,14 +69,9 @@ export const TodoFormBasic: React.FC<TodoFormBasicProps> = ({
             <button
               type="button"
               onClick={onToggleAdvanced}
-              className={`px-3 rounded-lg cursor-pointer text-sm transition-all duration-200 min-w-[48px] h-[48px] flex items-center justify-center ${
+              className={`px-3 rounded-lg cursor-pointer text-sm transition-all duration-200 min-w-[48px] h-[48px] flex items-center justify-center bg-background-secondary border border-border text-text-secondary ${
                 isSubmitting ? 'cursor-not-allowed opacity-60' : 'focus:outline-none focus:ring-2'
               }`}
-              style={{
-                backgroundColor: 'var(--color-background-secondary)',
-                border: '1px solid var(--color-border)',
-                color: 'var(--color-text-secondary)',
-              }}
               disabled={isSubmitting}
               aria-expanded={showAdvanced}
               aria-label={showAdvanced ? 'Hide advanced options' : 'Show advanced options'}

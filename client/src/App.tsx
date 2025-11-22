@@ -29,36 +29,17 @@ function AppContent() {
   };
 
   return (
-    <div 
-      className="min-h-screen" 
-      style={{ 
-        background: 'linear-gradient(to bottom right, var(--color-background), var(--color-background-secondary))' 
-      }}
-    >
+    <div className="min-h-screen bg-gradient-to-br from-background to-background-secondary theme-transition">
       {/* Responsive Header */}
-      <header 
-        className="sticky top-0 z-50 backdrop-blur-xl shadow-sm" 
-        style={{ 
-          backgroundColor: 'var(--color-card)', 
-          borderBottom: '1px solid var(--color-border)' 
-        }}
-      >
+      <header className="sticky top-0 z-50 backdrop-blur-xl bg-card border-b border-border shadow-sm theme-transition">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
           <div className="flex items-center justify-between h-14 sm:h-16">
             {/* Logo - Responsive sizing */}
             <div className="flex items-center space-x-2 sm:space-x-3">
-              <div 
-                className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center" 
-                style={{ 
-                  background: 'linear-gradient(to bottom right, var(--color-primary), var(--color-primary-hover))' 
-                }}
-              >
+              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-primary to-primary-hover rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-xs sm:text-sm">H</span>
               </div>
-              <h1 
-                className="text-xl sm:text-2xl font-bold" 
-                style={{ color: 'var(--color-text)' }}
-              >
+              <h1 className="text-xl sm:text-2xl font-bold text-text">
                 Hibi
               </h1>
             </div>
@@ -66,40 +47,23 @@ function AppContent() {
             {/* Center Navigation and Right Controls */}
             <div className="flex items-center gap-3 sm:gap-4">
               {/* Navigation - Mobile optimized */}
-              <nav 
-                className="flex space-x-0.5 sm:space-x-1 rounded-lg p-0.5 sm:p-1" 
-                style={{ backgroundColor: 'var(--color-background-secondary)' }}
-              >
+              <nav className="flex space-x-0.5 sm:space-x-1 bg-background-secondary rounded-lg p-0.5 sm:p-1 theme-transition">
                 <button
-                  className="px-3 sm:px-5 py-2 rounded-md font-medium text-xs sm:text-sm transition-all duration-200 min-h-[44px]"
-                  style={
+                  className={`px-3 sm:px-5 py-2 rounded-md font-medium text-xs sm:text-sm transition-all duration-200 min-h-[44px] theme-transition ${
                     currentView === 'todos'
-                      ? {
-                          backgroundColor: 'var(--color-background)',
-                          color: 'var(--color-text)',
-                          boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
-                        }
-                      : {
-                          color: 'var(--color-text-secondary)',
-                        }
-                  }
+                      ? 'bg-background text-text shadow-sm'
+                      : 'text-text-secondary hover:text-text hover:bg-background/60'
+                  }`}
                   onClick={() => handleViewChange('todos')}
                 >
                   Tasks
                 </button>
                 <button
-                  className="px-3 sm:px-5 py-2 rounded-md font-medium text-xs sm:text-sm transition-all duration-200 min-h-[44px]"
-                  style={
+                  className={`px-3 sm:px-5 py-2 rounded-md font-medium text-xs sm:text-sm transition-all duration-200 min-h-[44px] theme-transition ${
                     currentView === 'archive'
-                      ? {
-                          backgroundColor: 'var(--color-background)',
-                          color: 'var(--color-text)',
-                          boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
-                        }
-                      : {
-                          color: 'var(--color-text-secondary)',
-                        }
-                  }
+                      ? 'bg-background text-text shadow-sm'
+                      : 'text-text-secondary hover:text-text hover:bg-background/60'
+                  }`}
                   onClick={() => handleViewChange('archive')}
                 >
                   Archive
