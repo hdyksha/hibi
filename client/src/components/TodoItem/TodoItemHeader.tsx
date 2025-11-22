@@ -37,8 +37,10 @@ export const TodoItemHeader: React.FC<TodoItemHeaderProps> = ({
       {/* Completion Toggle - Touch optimized */}
       <button
         className={cn(
-          todoItem.checkbox.base,
-          todo.completed ? todoItem.checkbox.completed : todoItem.checkbox.uncompleted
+          'flex-shrink-0 w-7 h-7 sm:w-6 sm:h-6 rounded-full border-2 transition-all duration-200 flex items-center justify-center text-xs font-bold min-h-[44px] sm:min-h-0',
+          todo.completed
+            ? 'bg-primary border-primary text-white shadow-md'
+            : 'border-border'
         )}
         onClick={handleToggleClick}
         aria-label={todo.completed ? 'Mark as incomplete' : 'Mark as complete'}
@@ -50,10 +52,12 @@ export const TodoItemHeader: React.FC<TodoItemHeaderProps> = ({
       <div className={todoItem.layout.headerContent}>
         {/* Header - Responsive layout */}
         <div className={todoItem.layout.headerRow}>
-          <h3 className={cn(
-            todoItem.title.base,
-            todo.completed ? todoItem.title.completed : todoItem.title.uncompleted
-          )}>
+          <h3 
+            className={cn(
+              'text-base sm:text-lg font-medium leading-tight flex-1',
+              todo.completed ? 'line-through text-text-secondary' : 'text-text'
+            )}
+          >
             {todo.title}
           </h3>
 

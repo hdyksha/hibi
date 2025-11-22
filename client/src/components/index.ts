@@ -18,5 +18,6 @@ export { SuccessMessage, InlineSuccessMessage } from './SuccessMessage';
 export { ErrorBoundary } from './ErrorBoundary';
 export { NetworkStatusIndicator } from './NetworkStatusIndicator';
 export { FileSelector } from './FileSelector';
+export { ThemeSelector } from './ThemeSelector';
 export { Button } from './common';
 export type { ButtonProps, ButtonVariant, ButtonSize } from './common';

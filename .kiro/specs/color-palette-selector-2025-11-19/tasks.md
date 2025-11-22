@@ -2,16 +2,26 @@
 
 ## Phase 1: Core Theme Infrastructure
 
-- [ ] 1. Create theme type definitions and presets
+- [x] 1. Create theme type definitions and presets
+
+
+
+
+
   - Create `client/src/types/theme.ts` with ThemeName type ('default', 'blue', 'green', 'purple', 'dark')
-  - Define Theme interface with name, displayName, isDark, and colors properties
+  - Define Theme interface with name, displayName, isDark, and colors properties (including card and cardHover)
   - Define ThemeContextType interface with currentTheme, setTheme, themes, and isDarkMode
   - Create `client/src/utils/themes.ts` with 5 theme presets using Tailwind color values
   - Default: slate colors (current scheme), Blue: blue palette, Green: emerald palette, Purple: purple palette, Dark: gray-900 bg with light text
   - Implement getThemeByName utility function
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 5.1, 5.2, 5.3, 5.4, 5.5, 6.1, 6.2, 6.3, 6.4_
 
-- [ ] 2. Implement ThemeContext with localStorage persistence
+- [x] 2. Implement ThemeContext with localStorage persistence
+
+
+
+
+
   - Create `client/src/contexts/ThemeContext.tsx` with ThemeContext and ThemeProvider
   - Implement state management for current theme using useState
   - Create loadThemeFromStorage function to read from localStorage (key: 'todo-app-theme')
@@ -23,17 +33,22 @@
   - Add try-catch blocks for localStorage operations with console error logging
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 4.1, 4.2, 4.3, 4.4, 4.5, 7.1, 7.2, 7.3, 7.4, 7.5, 10.1, 10.2, 10.3, 12.1, 12.2, 12.3, 12.4, 12.5_
 
-- [ ] 3. Add CSS variables for theme colors
+- [x] 3. Add CSS variables for theme colors
   - Update `client/src/index.css` to define CSS custom properties in :root
   - Add variables: --color-primary, --color-primary-hover, --color-primary-light, --color-accent
   - Add variables: --color-background, --color-background-secondary, --color-text, --color-text-secondary, --color-border
+  - Add variables: --color-card, --color-card-hover
   - Set default values (current gray/slate colors) as fallback
-  - Add CSS transitions for smooth theme switching (0.2s ease-in-out on background-color, color, border-color)
   - _Requirements: 3.3, 3.4, 7.1, 7.2, 7.3, 7.4, 7.5, 10.1, 10.2_
 
 ## Phase 2: Theme Selector UI Component
 
-- [ ] 4. Build ThemeSelector component with dropdown
+- [x] 4. Build ThemeSelector component with dropdown
+
+
+
+
+
   - Create `client/src/components/ThemeSelector.tsx` component
   - Import useTheme hook and add state for dropdown open/close
   - Implement button with palette SVG icon (44x44px minimum touch target)
@@ -45,7 +60,12 @@
   - Style with white background, shadow, border, and hover states
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 8.1, 8.3, 9.1, 9.2, 9.3, 9.4, 9.5_
 
-- [ ] 5. Add keyboard and click-outside handling
+- [x] 5. Add keyboard and click-outside handling
+
+
+
+
+
   - Add useRef for dropdown element
   - Implement useEffect to detect clicks outside dropdown and close it
   - Implement useEffect to detect Escape key press and close dropdown
@@ -56,7 +76,25 @@
 
 ## Phase 3: Integration
 
-- [ ] 6. Integrate ThemeProvider and ThemeSelector into App
+- [x] 6. Configure Tailwind to integrate CSS variables
+
+
+
+
+
+  - Update `client/tailwind.config.js` to extend colors with CSS variables
+  - Add primary (DEFAULT, hover, light), accent, background (DEFAULT, secondary), text (DEFAULT, secondary), border, card (DEFAULT, hover)
+  - Verify Tailwind classes like `bg-primary`, `text-text`, `border-border` work correctly
+  - Add `.theme-transition` utility class in `client/src/index.css` for smooth transitions
+  - Remove global `*` transition selector to improve performance
+  - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 10.1, 10.2_
+
+- [x] 7. Integrate ThemeProvider and ThemeSelector into App
+
+
+
+
+
   - Update `client/src/App.tsx` to import ThemeProvider from contexts
   - Wrap App component tree with ThemeProvider (inside ErrorBoundary, outside NetworkProvider)
   - Import ThemeSelector component
@@ -66,9 +104,26 @@
   - Verify theme selector appears correctly on mobile and desktop
   - _Requirements: 2.1, 2.5, 3.1, 3.2, 3.3, 3.4, 3.5, 9.1, 9.2, 9.3, 9.4, 11.1, 11.2, 11.3, 11.4, 11.5_
 
+- [x] 8. Apply theme colors using Tailwind classes
+
+
+
+
+
+  - Update main background div: `bg-gradient-to-br from-background to-background-secondary theme-transition`
+  - Update header: `bg-card border-b border-border theme-transition`
+  - Update logo: `bg-gradient-to-br from-primary to-primary-hover`
+  - Update title (Hibi): `text-text`
+  - Update navigation container: `bg-background-secondary theme-transition`
+  - Update navigation buttons (active): `bg-background text-text shadow-sm theme-transition`
+  - Update navigation buttons (inactive): `text-text-secondary hover:text-text hover:bg-background/60 theme-transition`
+  - Replace all inline styles with Tailwind classes
+  - Test theme switching to verify all colors change correctly
+  - _Requirements: 3.1, 3.2, 7.4, 7.5, 11.1_
+
 ## Phase 4: Testing and Validation
 
-- [ ] 7. Manual testing and verification
+- [ ] 9. Manual testing and verification
   - Test all 5 themes (default, blue, green, purple, dark) for visual correctness
   - Verify theme transitions are smooth without flickering
   - Test localStorage persistence (reload page, close/reopen browser)

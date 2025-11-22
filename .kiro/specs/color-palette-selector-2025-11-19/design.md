@@ -61,6 +61,8 @@ export interface Theme {
     text: string;
     textSecondary: string;
     border: string;
+    card: string;
+    cardHover: string;
   };
 }
 
@@ -94,6 +96,8 @@ export const themes: Theme[] = [
       text: '#1e293b',           // slate-800
       textSecondary: '#64748b',  // slate-500
       border: '#e2e8f0',         // slate-200
+      card: '#ffffff',           // white
+      cardHover: '#f8fafc',      // slate-50
     },
   },
   {
@@ -110,6 +114,8 @@ export const themes: Theme[] = [
       text: '#1e3a8a',           // blue-900
       textSecondary: '#3b82f6',  // blue-500
       border: '#bfdbfe',         // blue-200
+      card: '#ffffff',           // white
+      cardHover: '#eff6ff',      // blue-50
     },
   },
   {
@@ -126,6 +132,8 @@ export const themes: Theme[] = [
       text: '#064e3b',           // emerald-900
       textSecondary: '#10b981',  // emerald-500
       border: '#a7f3d0',         // emerald-200
+      card: '#ffffff',           // white
+      cardHover: '#ecfdf5',      // emerald-50
     },
   },
   {
@@ -142,6 +150,8 @@ export const themes: Theme[] = [
       text: '#581c87',           // purple-900
       textSecondary: '#a855f7',  // purple-500
       border: '#e9d5ff',         // purple-200
+      card: '#ffffff',           // white
+      cardHover: '#faf5ff',      // purple-50
     },
   },
   {
@@ -158,6 +168,8 @@ export const themes: Theme[] = [
       text: '#f9fafb',           // gray-50
       textSecondary: '#d1d5db',  // gray-300
       border: '#374151',         // gray-700
+      card: '#1f2937',           // gray-800
+      cardHover: '#374151',      // gray-700
     },
   },
 ];
@@ -193,6 +205,8 @@ const applyThemeToDOM = (theme: Theme): void => {
   root.style.setProperty('--color-text', theme.colors.text);
   root.style.setProperty('--color-text-secondary', theme.colors.textSecondary);
   root.style.setProperty('--color-border', theme.colors.border);
+  root.style.setProperty('--color-card', theme.colors.card);
+  root.style.setProperty('--color-card-hover', theme.colors.cardHover);
   
   // data属性でテーマ名とダークモードフラグを設定
   root.setAttribute('data-theme', theme.name);
@@ -389,7 +403,45 @@ export const ThemeSelector: React.FC = () => {
 };
 ```
 
-### 5. CSS変数定義
+### 5. Tailwind設定でCSS変数を統合
+
+Tailwind CSS の設定ファイルで CSS 変数をカラーシステムに統合します。これにより、通常の Tailwind クラス（`bg-primary`、`text-text` など）でテーマカラーを使用できます。
+
+```js
+// client/tailwind.config.js
+export default {
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  theme: {
+    extend: {
+      colors: {
+        // CSS変数をTailwindカラーに統合
+        primary: {
+          DEFAULT: 'var(--color-primary)',
+          hover: 'var(--color-primary-hover)',
+          light: 'var(--color-primary-light)',
+        },
+        accent: 'var(--color-accent)',
+        background: {
+          DEFAULT: 'var(--color-background)',
+          secondary: 'var(--color-background-secondary)',
+        },
+        text: {
+          DEFAULT: 'var(--color-text)',
+          secondary: 'var(--color-text-secondary)',
+        },
+        border: 'var(--color-border)',
+        card: {
+          DEFAULT: 'var(--color-card)',
+          hover: 'var(--color-card-hover)',
+        },
+      },
+    },
+  },
+  plugins: [],
+};
+```
+
+### 6. CSS変数定義
 
 ```css
 /* client/src/index.css */
@@ -405,29 +457,51 @@ export const ThemeSelector: React.FC = () => {
   --color-text: #1e293b;
   --color-text-secondary: #64748b;
   --color-border: #e2e8f0;
-  
-  /* テーマ切り替えのトランジション */
-  --theme-transition: all 0.2s ease-in-out;
+  --color-card: #ffffff;
+  --color-card-hover: #f8fafc;
 }
 
-/* テーマカラーを使用するユーティリティクラス（必要に応じて追加） */
-.bg-theme-primary {
-  background-color: var(--color-primary);
-}
-
-.text-theme-primary {
-  color: var(--color-primary);
-}
-
-.border-theme {
-  border-color: var(--color-border);
-}
-
-/* スムーズなテーマ切り替え */
-* {
+/* スムーズなテーマ切り替え（特定の要素のみ） */
+.theme-transition {
   transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-color 0.2s ease-in-out;
 }
 ```
+
+### 7. 主要コンポーネントへのテーマ適用
+
+Tailwind 設定を更新することで、通常の Tailwind クラスでテーマカラーを使用できます。インラインスタイルは不要です。
+
+```tsx
+// App.tsx - Tailwindクラスでテーマカラーを適用
+
+// 背景
+<div className="min-h-screen bg-gradient-to-br from-background to-background-secondary theme-transition">
+
+// ヘッダー
+<header className="sticky top-0 z-50 backdrop-blur-xl bg-card border-b border-border shadow-sm theme-transition">
+
+// ロゴ
+<div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-primary to-primary-hover rounded-lg flex items-center justify-center">
+
+// タイトル
+<h1 className="text-xl sm:text-2xl font-bold text-text">
+
+// ナビゲーション背景
+<nav className="flex space-x-0.5 sm:space-x-1 bg-background-secondary rounded-lg p-0.5 sm:p-1 theme-transition">
+
+// ナビゲーションボタン（アクティブ）
+<button className="px-3 sm:px-5 py-2 rounded-md font-medium text-xs sm:text-sm bg-background text-text shadow-sm theme-transition">
+
+// ナビゲーションボタン（非アクティブ）
+<button className="px-3 sm:px-5 py-2 rounded-md font-medium text-xs sm:text-sm text-text-secondary hover:text-text hover:bg-background/60 theme-transition">
+```
+
+この方法の利点：
+- Tailwind の標準的な使い方を維持
+- IntelliSense が効く
+- コードの可読性と保守性が向上
+- インラインスタイル不要
+- 既存のコンポーネントも段階的に移行可能
 
 ## Implementation Strategy
 
@@ -442,10 +516,11 @@ export const ThemeSelector: React.FC = () => {
 2. ドロップダウンメニューのスタイリング
 3. アクセシビリティ対応（キーボード操作、ARIA属性）
 
-### Phase 3: 統合
-1. App.tsxへのThemeProvider統合
-2. ヘッダーへのThemeSelector配置
-3. 既存コンポーネントのスタイル調整（必要に応じて）
+### Phase 3: 統合とテーマ適用
+1. Tailwind設定ファイルの更新（CSS変数の統合）
+2. App.tsxへのThemeProvider統合
+3. ヘッダーへのThemeSelector配置
+4. 主要コンポーネントのTailwindクラス更新（インラインスタイルをTailwindクラスに置き換え）
 
 ### Phase 4: テストと調整
 1. 各テーマの視覚確認

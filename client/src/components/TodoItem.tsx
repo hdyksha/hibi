@@ -33,9 +33,10 @@ export const TodoItem: React.FC<TodoItemProps> = ({
     <div
       data-testid="todo-item"
       className={cn(
-        todoItem.container,
-        todo.completed && todoItem.containerCompleted
-      )}>
+        'group relative backdrop-blur-xl rounded-lg shadow-md p-3 sm:p-5 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 animate-fade-in-up border border-border',
+        todo.completed ? 'opacity-70 bg-background-secondary' : 'bg-card'
+      )}
+    >
 
       <div className="flex items-start justify-between">
         <TodoItemHeader todo={todo} onToggleComplete={onToggleComplete} />
