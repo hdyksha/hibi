@@ -65,14 +65,14 @@ export const ThemeSelector: React.FC = () => {
       <button
         onClick={() => setIsOpen(!isOpen)}
         onKeyDown={handleButtonKeyDown}
-        className="p-2 rounded-lg hover:bg-slate-100 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+        className="p-2 rounded-lg hover:bg-background-secondary transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
         aria-label="Select theme"
         aria-expanded={isOpen}
         aria-haspopup="true"
       >
         {/* Palette icon */}
         <svg
-          className="w-5 h-5 sm:w-6 sm:h-6 text-slate-600"
+          className="w-5 h-5 sm:w-6 sm:h-6 text-text-secondary"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -89,13 +89,13 @@ export const ThemeSelector: React.FC = () => {
       
       {/* Dropdown menu */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-slate-200 py-2 z-50">
+        <div className="absolute right-0 mt-2 w-48 bg-card rounded-lg shadow-lg border border-border py-2 z-50">
           {themes.map((theme) => (
             <button
               key={theme.name}
               onClick={() => handleThemeSelect(theme.name)}
               onKeyDown={(e) => handleMenuItemKeyDown(e, theme.name)}
-              className="w-full px-4 py-2 text-left hover:bg-slate-50 flex items-center justify-between transition-colors"
+              className="w-full px-4 py-2 text-left hover:bg-card-hover flex items-center justify-between transition-colors"
               role="menuitem"
             >
               <div className="flex items-center space-x-3">
@@ -107,17 +107,17 @@ export const ThemeSelector: React.FC = () => {
                     CSS variables that are updated when the current theme changes.
                 */}
                 <div
-                  className="w-6 h-6 rounded border border-slate-300"
+                  className="w-6 h-6 rounded border border-border"
                   style={{ backgroundColor: theme.colors.primary }}
                   aria-hidden="true"
                 />
-                <span className="text-sm text-slate-700">{theme.displayName}</span>
+                <span className="text-sm text-text">{theme.displayName}</span>
               </div>
               
               {/* Checkmark for selected theme */}
               {currentTheme === theme.name && (
                 <svg
-                  className="w-5 h-5 text-slate-600"
+                  className="w-5 h-5 text-text-secondary"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                   xmlns="http://www.w3.org/2000/svg"
