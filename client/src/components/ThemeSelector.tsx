@@ -45,11 +45,26 @@ export const ThemeSelector: React.FC = () => {
     setIsOpen(false);
   };
   
+  const handleButtonKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      setIsOpen(!isOpen);
+    }
+  };
+  
+  const handleMenuItemKeyDown = (event: React.KeyboardEvent, themeName: string) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      handleThemeSelect(themeName);
+    }
+  };
+  
   return (
     <div className="relative" ref={dropdownRef}>
       {/* Theme selector button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
+        onKeyDown={handleButtonKeyDown}
         className="p-2 rounded-lg hover:bg-slate-100 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
         aria-label="Select theme"
         aria-expanded={isOpen}
@@ -79,6 +94,7 @@ export const ThemeSelector: React.FC = () => {
             <button
               key={theme.name}
               onClick={() => handleThemeSelect(theme.name)}
+              onKeyDown={(e) => handleMenuItemKeyDown(e, theme.name)}
               className="w-full px-4 py-2 text-left hover:bg-slate-50 flex items-center justify-between transition-colors"
               role="menuitem"
             >

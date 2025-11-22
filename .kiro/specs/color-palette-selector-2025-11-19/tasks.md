@@ -65,7 +65,12 @@
   - Style with white background, shadow, border, and hover states
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 8.1, 8.3, 9.1, 9.2, 9.3, 9.4, 9.5_
 
-- [ ] 5. Add keyboard and click-outside handling
+- [x] 5. Add keyboard and click-outside handling
+
+
+
+
+
   - Add useRef for dropdown element
   - Implement useEffect to detect clicks outside dropdown and close it
   - Implement useEffect to detect Escape key press and close dropdown
