@@ -1,5 +1,29 @@
 @import "tailwindcss";
 
+/* Tailwind v4 theme configuration - integrate CSS variables into color system */
+@theme {
+  --color-primary-*: initial;
+  --color-primary: var(--color-primary);
+  --color-primary-hover: var(--color-primary-hover);
+  --color-primary-light: var(--color-primary-light);
+  
+  --color-accent: var(--color-accent);
+  
+  --color-background-*: initial;
+  --color-background: var(--color-background);
+  --color-background-secondary: var(--color-background-secondary);
+  
+  --color-text-*: initial;
+  --color-text: var(--color-text);
+  --color-text-secondary: var(--color-text-secondary);
+  
+  --color-border: var(--color-border);
+  
+  --color-card-*: initial;
+  --color-card: var(--color-card);
+  --color-card-hover: var(--color-card-hover);
+}
+
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -45,12 +69,12 @@
   --easing-spring: cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
-/* Smooth theme transitions */
-* {
-  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-color 0.2s ease-in-out;
-}
-
 @layer utilities {
+  /* Theme transition utility for smooth color changes */
+  .theme-transition {
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+  }
+
   /* Legacy animations - kept for backward compatibility */
   .animate-fade-in-up {
     animation: fadeInUp 0.3s ease-out;
