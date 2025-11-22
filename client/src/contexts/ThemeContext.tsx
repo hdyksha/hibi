@@ -50,6 +50,8 @@ const applyThemeToDOM = (theme: Theme): void => {
   root.style.setProperty('--color-text', theme.colors.text);
   root.style.setProperty('--color-text-secondary', theme.colors.textSecondary);
   root.style.setProperty('--color-border', theme.colors.border);
+  root.style.setProperty('--color-card', theme.colors.card);
+  root.style.setProperty('--color-card-hover', theme.colors.cardHover);
   
   // Set data attributes for theme name and dark mode flag
   root.setAttribute('data-theme', theme.name);

@@ -25,6 +25,8 @@
   --color-text: #1e293b;
   --color-text-secondary: #64748b;
   --color-border: #e2e8f0;
+  --color-card: #ffffff;
+  --color-card-hover: #f8fafc;
 
   /* Animation duration custom properties */
   --duration-instant: 0ms;

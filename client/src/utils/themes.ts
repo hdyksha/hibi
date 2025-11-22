@@ -15,6 +15,8 @@ export const themes: Theme[] = [
       text: '#1e293b',           // slate-800
       textSecondary: '#64748b',  // slate-500
       border: '#e2e8f0',         // slate-200
+      card: '#ffffff',           // white - for cards
+      cardHover: '#f8fafc',      // slate-50 - for card hover
     },
   },
   {
@@ -29,8 +31,10 @@ export const themes: Theme[] = [
       background: '#eff6ff',     // blue-50
       backgroundSecondary: '#dbeafe', // blue-100
       text: '#1e3a8a',           // blue-900
-      textSecondary: '#3b82f6',  // blue-500
+      textSecondary: '#2563eb',  // blue-600
       border: '#bfdbfe',         // blue-200
+      card: '#ffffff',           // white - for cards
+      cardHover: '#eff6ff',      // blue-50 - for card hover
     },
   },
   {
@@ -45,8 +49,10 @@ export const themes: Theme[] = [
       background: '#ecfdf5',     // emerald-50
       backgroundSecondary: '#d1fae5', // emerald-100
       text: '#064e3b',           // emerald-900
-      textSecondary: '#10b981',  // emerald-500
+      textSecondary: '#059669',  // emerald-600
       border: '#a7f3d0',         // emerald-200
+      card: '#ffffff',           // white - for cards
+      cardHover: '#ecfdf5',      // emerald-50 - for card hover
     },
   },
   {
@@ -61,8 +67,10 @@ export const themes: Theme[] = [
       background: '#faf5ff',     // purple-50
       backgroundSecondary: '#f3e8ff', // purple-100
       text: '#581c87',           // purple-900
-      textSecondary: '#a855f7',  // purple-500
+      textSecondary: '#9333ea',  // purple-600
       border: '#e9d5ff',         // purple-200
+      card: '#ffffff',           // white - for cards
+      cardHover: '#faf5ff',      // purple-50 - for card hover
     },
   },
   {
@@ -74,11 +82,13 @@ export const themes: Theme[] = [
       primaryHover: '#3b82f6',   // blue-500
       primaryLight: '#1e3a8a',   // blue-900
       accent: '#93c5fd',         // blue-300
-      background: '#111827',     // gray-900
-      backgroundSecondary: '#1f2937', // gray-800
-      text: '#f9fafb',           // gray-50
-      textSecondary: '#d1d5db',  // gray-300
-      border: '#374151',         // gray-700
+      background: '#0f172a',     // slate-900
+      backgroundSecondary: '#1e293b', // slate-800
+      text: '#f1f5f9',           // slate-100
+      textSecondary: '#94a3b8',  // slate-400
+      border: '#334155',         // slate-700
+      card: '#1e293b',           // slate-800 - for cards
+      cardHover: '#334155',      // slate-700 - for card hover
     },
   },
 ];

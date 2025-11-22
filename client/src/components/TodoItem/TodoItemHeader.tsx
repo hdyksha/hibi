@@ -36,10 +36,19 @@ export const TodoItemHeader: React.FC<TodoItemHeaderProps> = ({
     <div className={todoItem.layout.headerContainer}>
       {/* Completion Toggle - Touch optimized */}
       <button
-        className={cn(
-          todoItem.checkbox.base,
-          todo.completed ? todoItem.checkbox.completed : todoItem.checkbox.uncompleted
-        )}
+        className="flex-shrink-0 w-7 h-7 sm:w-6 sm:h-6 rounded-full border-2 transition-all duration-200 flex items-center justify-center text-xs font-bold min-h-[44px] sm:min-h-0"
+        style={
+          todo.completed
+            ? {
+                backgroundColor: 'var(--color-primary)',
+                borderColor: 'var(--color-primary)',
+                color: 'white',
+                boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+              }
+            : {
+                borderColor: 'var(--color-border)',
+              }
+        }
         onClick={handleToggleClick}
         aria-label={todo.completed ? 'Mark as incomplete' : 'Mark as complete'}
       >
@@ -50,10 +59,15 @@ export const TodoItemHeader: React.FC<TodoItemHeaderProps> = ({
       <div className={todoItem.layout.headerContent}>
         {/* Header - Responsive layout */}
         <div className={todoItem.layout.headerRow}>
-          <h3 className={cn(
-            todoItem.title.base,
-            todo.completed ? todoItem.title.completed : todoItem.title.uncompleted
-          )}>
+          <h3 
+            className={cn(
+              'text-base sm:text-lg font-medium leading-tight flex-1',
+              todo.completed && 'line-through'
+            )}
+            style={{
+              color: todo.completed ? 'var(--color-text-secondary)' : 'var(--color-text)',
+            }}
+          >
             {todo.title}
           </h3>
 

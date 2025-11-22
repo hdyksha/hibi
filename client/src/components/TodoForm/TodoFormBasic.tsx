@@ -46,7 +46,11 @@ export const TodoFormBasic: React.FC<TodoFormBasicProps> = ({
     <form onSubmit={onSubmit} noValidate>
       <div className="p-4 sm:p-6">
         <div className="flex flex-col gap-3 sm:gap-4">
-          <label htmlFor="todo-title" className="text-base sm:text-lg font-semibold text-slate-800">
+          <label 
+            htmlFor="todo-title" 
+            className="text-base sm:text-lg font-semibold"
+            style={{ color: 'var(--color-text)' }}
+          >
             New Todo
           </label>
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 sm:items-stretch">
@@ -66,10 +70,14 @@ export const TodoFormBasic: React.FC<TodoFormBasicProps> = ({
             <button
               type="button"
               onClick={onToggleAdvanced}
-              className={`px-3 bg-slate-100 border border-slate-300 rounded-lg cursor-pointer text-sm text-slate-600 transition-all duration-200 min-w-[48px] h-[48px] flex items-center justify-center ${isSubmitting
-                ? 'bg-slate-50 cursor-not-allowed opacity-60'
-                : 'hover:bg-slate-200 hover:border-slate-400 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/25 focus:border-blue-500 active:bg-slate-300'
-                }`}
+              className={`px-3 rounded-lg cursor-pointer text-sm transition-all duration-200 min-w-[48px] h-[48px] flex items-center justify-center ${
+                isSubmitting ? 'cursor-not-allowed opacity-60' : 'focus:outline-none focus:ring-2'
+              }`}
+              style={{
+                backgroundColor: 'var(--color-background-secondary)',
+                border: '1px solid var(--color-border)',
+                color: 'var(--color-text-secondary)',
+              }}
               disabled={isSubmitting}
               aria-expanded={showAdvanced}
               aria-label={showAdvanced ? 'Hide advanced options' : 'Show advanced options'}

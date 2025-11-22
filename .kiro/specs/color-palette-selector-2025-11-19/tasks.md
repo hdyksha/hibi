@@ -90,6 +90,7 @@
 - [x] 6.1 Apply theme colors to main UI components
 
 
+
   - Update main background div to use CSS variable gradient
   - Update header to use CSS variables for background and border
   - Update logo to use CSS variable gradient

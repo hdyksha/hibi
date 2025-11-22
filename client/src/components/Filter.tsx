@@ -98,10 +98,19 @@ export const Filter: React.FC<FilterProps> = ({
   const hasActiveFilters = Object.keys(filter).length > 0;
 
   return (
-    <div className={`bg-white/95 backdrop-blur-xl rounded-lg shadow-md border border-slate-200/50 p-4 sm:p-6 space-y-4 sm:space-y-6 animate-slide-in-right ${className || ''}`}>
+    <div 
+      className={`backdrop-blur-xl rounded-lg shadow-md p-4 sm:p-6 space-y-4 sm:space-y-6 animate-slide-in-right ${className || ''}`}
+      style={{
+        backgroundColor: 'var(--color-card)',
+        border: '1px solid var(--color-border)',
+      }}
+    >
       {/* Header - Mobile responsive */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <h3 className="text-lg sm:text-xl font-medium text-slate-800 flex items-center space-x-2">
+        <h3 
+          className="text-lg sm:text-xl font-medium flex items-center space-x-2"
+          style={{ color: 'var(--color-text)' }}
+        >
           <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
           </svg>
@@ -148,8 +157,14 @@ export const Filter: React.FC<FilterProps> = ({
 
       {/* Active Filters Summary - Mobile responsive */}
       {hasActiveFilters && (
-        <div className="pt-3 sm:pt-4 border-t border-gray-200 space-y-2 sm:space-y-3">
-          <div className="text-sm font-medium text-slate-700 flex items-center space-x-1">
+        <div 
+          className="pt-3 sm:pt-4 space-y-2 sm:space-y-3"
+          style={{ borderTop: '1px solid var(--color-border)' }}
+        >
+          <div 
+            className="text-sm font-medium flex items-center space-x-1"
+            style={{ color: 'var(--color-text)' }}
+          >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -157,22 +172,46 @@ export const Filter: React.FC<FilterProps> = ({
           </div>
           <div className="flex flex-wrap gap-1 sm:gap-2">
             {!hideStatusFilter && filter.status && filter.status !== 'all' && (
-              <span className="px-2 sm:px-3 py-1 bg-slate-100 text-slate-700 rounded-md text-xs font-medium">
+              <span 
+                className="px-2 sm:px-3 py-1 rounded-md text-xs font-medium"
+                style={{
+                  backgroundColor: 'var(--color-background-secondary)',
+                  color: 'var(--color-text)',
+                }}
+              >
                 Status: {FILTER_STATUS_OPTIONS.find(opt => opt.value === filter.status)?.label}
               </span>
             )}
             {filter.priority && (
-              <span className="px-2 sm:px-3 py-1 bg-slate-100 text-slate-700 rounded-md text-xs font-medium">
+              <span 
+                className="px-2 sm:px-3 py-1 rounded-md text-xs font-medium"
+                style={{
+                  backgroundColor: 'var(--color-background-secondary)',
+                  color: 'var(--color-text)',
+                }}
+              >
                 Priority: {PRIORITY_OPTIONS.find(opt => opt.value === filter.priority)?.label}
               </span>
             )}
             {filter.tags && filter.tags.length > 0 && (
-              <span className="px-2 sm:px-3 py-1 bg-slate-100 text-slate-700 rounded-md text-xs font-medium">
+              <span 
+                className="px-2 sm:px-3 py-1 rounded-md text-xs font-medium"
+                style={{
+                  backgroundColor: 'var(--color-background-secondary)',
+                  color: 'var(--color-text)',
+                }}
+              >
                 Tags: {filter.tags.join(', ')}
               </span>
             )}
             {filter.searchText && (
-              <span className="px-2 sm:px-3 py-1 bg-slate-100 text-slate-700 rounded-md text-xs font-medium">
+              <span 
+                className="px-2 sm:px-3 py-1 rounded-md text-xs font-medium"
+                style={{
+                  backgroundColor: 'var(--color-background-secondary)',
+                  color: 'var(--color-text)',
+                }}
+              >
                 Search: "{filter.searchText}"
               </span>
             )}

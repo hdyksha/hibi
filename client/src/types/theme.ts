@@ -14,6 +14,8 @@ export interface Theme {
     text: string;
     textSecondary: string;
     border: string;
+    card: string;
+    cardHover: string;
   };
 }
 

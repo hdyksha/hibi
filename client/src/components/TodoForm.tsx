@@ -39,7 +39,11 @@ export const TodoForm: React.FC<TodoFormProps> = ({ className }) => {
 
   return (
     <div
-      className={`bg-white/95 backdrop-blur-xl border border-slate-200/50 rounded-xl shadow-lg overflow-hidden mb-4 sm:mb-6 ${className || ''}`}
+      className={`backdrop-blur-xl rounded-xl shadow-lg overflow-hidden mb-4 sm:mb-6 ${className || ''}`}
+      style={{
+        backgroundColor: 'var(--color-card)',
+        border: '1px solid var(--color-border)',
+      }}
     >
       <TodoFormBasic
         title={title}

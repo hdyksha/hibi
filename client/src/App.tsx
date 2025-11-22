@@ -39,7 +39,7 @@ function AppContent() {
       <header 
         className="sticky top-0 z-50 backdrop-blur-xl shadow-sm" 
         style={{ 
-          backgroundColor: 'var(--color-background)', 
+          backgroundColor: 'var(--color-card)', 
           borderBottom: '1px solid var(--color-border)' 
         }}
       >
