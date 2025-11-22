@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { TodoList, TodoForm, Filter, Archive, ErrorBoundary, NetworkStatusIndicator, FileSelector } from './components';
-import { TodoProvider, NetworkProvider } from './contexts';
+import { TodoList, TodoForm, Filter, Archive, ErrorBoundary, NetworkStatusIndicator, FileSelector, ThemeSelector } from './components';
+import { TodoProvider, NetworkProvider, ThemeProvider } from './contexts';
 import { useTodoContext } from './contexts';
 
 type ViewMode = 'todos' | 'archive';
@@ -72,6 +72,9 @@ function AppContent() {
 
               {/* File Selector */}
               <FileSelector onFileSwitch={handleFileSwitch} />
+              
+              {/* Theme Selector */}
+              <ThemeSelector />
             </div>
           </div>
         </div>
@@ -117,11 +120,13 @@ function AppContent() {
 export const App: React.FC = () => {
   return (
     <ErrorBoundary>
-      <NetworkProvider>
-        <TodoProvider>
-          <AppContent />
-        </TodoProvider>
-      </NetworkProvider>
+      <ThemeProvider>
+        <NetworkProvider>
+          <TodoProvider>
+            <AppContent />
+          </TodoProvider>
+        </NetworkProvider>
+      </ThemeProvider>
     </ErrorBoundary>
   );
 };

@@ -106,8 +106,8 @@
 1. THE Todo App SHALL define CSS custom properties (variables) for theme colors
 2. THE CSS variables SHALL be set on the `:root` element
 3. WHEN a theme changes, THE ThemeContext SHALL update the CSS variables
-4. THE Tailwind CSS configuration SHALL reference these CSS variables
-5. THE existing components SHALL use these CSS variables without major refactoring
+4. THE main UI components (header, background, navigation, logo) SHALL use CSS variables for theming
+5. THE theme colors SHALL be applied using inline styles or custom CSS classes where Tailwind classes are insufficient
 
 ### Requirement 8: アクセシビリティ
 
@@ -151,9 +151,9 @@
 
 #### Acceptance Criteria
 
-1. THE theme implementation SHALL not require major refactoring of existing components
-2. THE existing Tailwind CSS classes SHALL continue to work as expected
-3. THE theme system SHALL be additive, not replacing existing styles
+1. THE theme implementation SHALL require updates only to main UI components (App, header, navigation)
+2. THE existing Tailwind CSS classes in other components SHALL continue to work as expected
+3. THE theme system SHALL be additive, enhancing main components without replacing all existing styles
 4. THE implementation SHALL not break any existing tests
 5. THE theme system SHALL be optional and not affect users who don't interact with it
 

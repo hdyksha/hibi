@@ -389,7 +389,7 @@ export const ThemeSelector: React.FC = () => {
 };
 ```
 
-### 5. CSS変数定義
+### 5. CSS変数定義とテーマ適用
 
 ```css
 /* client/src/index.css */
@@ -405,29 +405,57 @@ export const ThemeSelector: React.FC = () => {
   --color-text: #1e293b;
   --color-text-secondary: #64748b;
   --color-border: #e2e8f0;
-  
-  /* テーマ切り替えのトランジション */
-  --theme-transition: all 0.2s ease-in-out;
-}
-
-/* テーマカラーを使用するユーティリティクラス（必要に応じて追加） */
-.bg-theme-primary {
-  background-color: var(--color-primary);
-}
-
-.text-theme-primary {
-  color: var(--color-primary);
-}
-
-.border-theme {
-  border-color: var(--color-border);
 }
 
 /* スムーズなテーマ切り替え */
 * {
   transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-color 0.2s ease-in-out;
 }
+
+/* Body要素にテーマカラーを適用 */
+body {
+  background: var(--color-background);
+  color: var(--color-text);
+}
 ```
+
+### 6. 主要コンポーネントへのテーマ適用
+
+Tailwind CSS v4の制約により、既存のTailwindクラスを動的に変更することは困難です。そのため、主要なUIコンポーネント（App.tsx）にインラインスタイルを使用してテーマカラーを適用します。
+
+```tsx
+// App.tsx - 主要な要素にテーマカラーを適用
+
+// 背景
+<div style={{ background: `linear-gradient(to bottom right, var(--color-background), var(--color-background-secondary))` }}>
+
+// ヘッダー
+<header style={{ backgroundColor: 'var(--color-background)', borderBottom: `1px solid var(--color-border)` }}>
+
+// ロゴ
+<div style={{ background: `linear-gradient(to bottom right, var(--color-primary), var(--color-primary-hover))` }}>
+
+// タイトル
+<h1 style={{ color: 'var(--color-text)' }}>
+
+// ナビゲーション背景
+<nav style={{ backgroundColor: 'var(--color-background-secondary)' }}>
+
+// ナビゲーションボタン（アクティブ）
+<button style={{
+  backgroundColor: 'var(--color-background)',
+  color: 'var(--color-text)',
+  boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)'
+}}>
+
+// ナビゲーションボタン（非アクティブ）
+<button style={{ color: 'var(--color-text-secondary)' }}>
+```
+
+この方法により：
+- ユーザーはテーマ変更を明確に視覚的に確認できる
+- 既存のコンポーネントの大部分は変更不要
+- 段階的に他のコンポーネントもテーマ対応にできる
 
 ## Implementation Strategy
 
@@ -442,10 +470,10 @@ export const ThemeSelector: React.FC = () => {
 2. ドロップダウンメニューのスタイリング
 3. アクセシビリティ対応（キーボード操作、ARIA属性）
 
-### Phase 3: 統合
+### Phase 3: 統合とテーマ適用
 1. App.tsxへのThemeProvider統合
 2. ヘッダーへのThemeSelector配置
-3. 既存コンポーネントのスタイル調整（必要に応じて）
+3. 主要コンポーネント（背景、ヘッダー、ナビゲーション、ロゴ）へのテーマカラー適用
 
 ### Phase 4: テストと調整
 1. 各テーマの視覚確認

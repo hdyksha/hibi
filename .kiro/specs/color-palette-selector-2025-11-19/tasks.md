@@ -34,16 +34,12 @@
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 4.1, 4.2, 4.3, 4.4, 4.5, 7.1, 7.2, 7.3, 7.4, 7.5, 10.1, 10.2, 10.3, 12.1, 12.2, 12.3, 12.4, 12.5_
 
 - [x] 3. Add CSS variables for theme colors
-
-
-
-
-
   - Update `client/src/index.css` to define CSS custom properties in :root
   - Add variables: --color-primary, --color-primary-hover, --color-primary-light, --color-accent
   - Add variables: --color-background, --color-background-secondary, --color-text, --color-text-secondary, --color-border
   - Set default values (current gray/slate colors) as fallback
   - Add CSS transitions for smooth theme switching (0.2s ease-in-out on background-color, color, border-color)
+  - Apply theme colors to body element
   - _Requirements: 3.3, 3.4, 7.1, 7.2, 7.3, 7.4, 7.5, 10.1, 10.2_
 
 ## Phase 2: Theme Selector UI Component
@@ -81,7 +77,7 @@
 
 ## Phase 3: Integration
 
-- [ ] 6. Integrate ThemeProvider and ThemeSelector into App
+- [x] 6. Integrate ThemeProvider and ThemeSelector into App
   - Update `client/src/App.tsx` to import ThemeProvider from contexts
   - Wrap App component tree with ThemeProvider (inside ErrorBoundary, outside NetworkProvider)
   - Import ThemeSelector component
@@ -90,6 +86,16 @@
   - Update `client/src/contexts/index.ts` to export ThemeProvider and useTheme
   - Verify theme selector appears correctly on mobile and desktop
   - _Requirements: 2.1, 2.5, 3.1, 3.2, 3.3, 3.4, 3.5, 9.1, 9.2, 9.3, 9.4, 11.1, 11.2, 11.3, 11.4, 11.5_
+
+- [ ] 6.1 Apply theme colors to main UI components
+  - Update main background div to use CSS variable gradient
+  - Update header to use CSS variables for background and border
+  - Update logo to use CSS variable gradient
+  - Update title (Hibi) to use CSS variable for text color
+  - Update navigation container to use CSS variable for background
+  - Update navigation buttons to use CSS variables for active/inactive states
+  - Test theme switching to verify all colors change correctly
+  - _Requirements: 3.1, 3.2, 7.4, 7.5, 11.1_
 
 ## Phase 4: Testing and Validation
 
