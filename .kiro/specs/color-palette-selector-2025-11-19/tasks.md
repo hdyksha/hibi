@@ -87,7 +87,9 @@
   - Verify theme selector appears correctly on mobile and desktop
   - _Requirements: 2.1, 2.5, 3.1, 3.2, 3.3, 3.4, 3.5, 9.1, 9.2, 9.3, 9.4, 11.1, 11.2, 11.3, 11.4, 11.5_
 
-- [ ] 6.1 Apply theme colors to main UI components
+- [x] 6.1 Apply theme colors to main UI components
+
+
   - Update main background div to use CSS variable gradient
   - Update header to use CSS variables for background and border
   - Update logo to use CSS variable gradient

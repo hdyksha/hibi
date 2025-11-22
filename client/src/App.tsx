@@ -29,17 +29,36 @@ function AppContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-slate-50 to-gray-100">
+    <div 
+      className="min-h-screen" 
+      style={{ 
+        background: 'linear-gradient(to bottom right, var(--color-background), var(--color-background-secondary))' 
+      }}
+    >
       {/* Responsive Header */}
-      <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/90 border-b border-gray-200/50 shadow-sm">
+      <header 
+        className="sticky top-0 z-50 backdrop-blur-xl shadow-sm" 
+        style={{ 
+          backgroundColor: 'var(--color-background)', 
+          borderBottom: '1px solid var(--color-border)' 
+        }}
+      >
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
           <div className="flex items-center justify-between h-14 sm:h-16">
             {/* Logo - Responsive sizing */}
             <div className="flex items-center space-x-2 sm:space-x-3">
-              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-slate-700 to-slate-900 rounded-lg flex items-center justify-center">
+              <div 
+                className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center" 
+                style={{ 
+                  background: 'linear-gradient(to bottom right, var(--color-primary), var(--color-primary-hover))' 
+                }}
+              >
                 <span className="text-white font-bold text-xs sm:text-sm">H</span>
               </div>
-              <h1 className="text-xl sm:text-2xl font-bold text-slate-800">
+              <h1 
+                className="text-xl sm:text-2xl font-bold" 
+                style={{ color: 'var(--color-text)' }}
+              >
                 Hibi
               </h1>
             </div>
@@ -47,23 +66,40 @@ function AppContent() {
             {/* Center Navigation and Right Controls */}
             <div className="flex items-center gap-3 sm:gap-4">
               {/* Navigation - Mobile optimized */}
-              <nav className="flex space-x-0.5 sm:space-x-1 bg-slate-100 rounded-lg p-0.5 sm:p-1">
+              <nav 
+                className="flex space-x-0.5 sm:space-x-1 rounded-lg p-0.5 sm:p-1" 
+                style={{ backgroundColor: 'var(--color-background-secondary)' }}
+              >
                 <button
-                  className={`px-3 sm:px-5 py-2 rounded-md font-medium text-xs sm:text-sm transition-all duration-200 min-h-[44px] ${
+                  className="px-3 sm:px-5 py-2 rounded-md font-medium text-xs sm:text-sm transition-all duration-200 min-h-[44px]"
+                  style={
                     currentView === 'todos'
-                      ? 'bg-white text-slate-800 shadow-sm'
-                      : 'text-slate-600 hover:text-slate-800 hover:bg-white/60 active:bg-white/80'
-                  }`}
+                      ? {
+                          backgroundColor: 'var(--color-background)',
+                          color: 'var(--color-text)',
+                          boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+                        }
+                      : {
+                          color: 'var(--color-text-secondary)',
+                        }
+                  }
                   onClick={() => handleViewChange('todos')}
                 >
                   Tasks
                 </button>
                 <button
-                  className={`px-3 sm:px-5 py-2 rounded-md font-medium text-xs sm:text-sm transition-all duration-200 min-h-[44px] ${
+                  className="px-3 sm:px-5 py-2 rounded-md font-medium text-xs sm:text-sm transition-all duration-200 min-h-[44px]"
+                  style={
                     currentView === 'archive'
-                      ? 'bg-white text-slate-800 shadow-sm'
-                      : 'text-slate-600 hover:text-slate-800 hover:bg-white/60 active:bg-white/80'
-                  }`}
+                      ? {
+                          backgroundColor: 'var(--color-background)',
+                          color: 'var(--color-text)',
+                          boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
+                        }
+                      : {
+                          color: 'var(--color-text-secondary)',
+                        }
+                  }
                   onClick={() => handleViewChange('archive')}
                 >
                   Archive
